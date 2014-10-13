@@ -28,7 +28,7 @@ namespace semantics
         scope::names_iterator_pair ip (s->find (n));
 
         for (s = 0; ip.first != ip.second; ++ip.first)
-          if (s = dynamic_cast<scope*> (&ip.first->named ()))
+          if ((s = dynamic_cast<scope*> (&ip.first->named ())))
             break;
 
         if (s == 0)
@@ -69,7 +69,7 @@ namespace semantics
         else
         {
           for (s = 0; ip.first != ip.second; ++ip.first)
-            if (s = dynamic_cast<scope*> (&ip.first->named ()))
+            if ((s = dynamic_cast<scope*> (&ip.first->named ())))
               break;
 
           if (s == 0)
