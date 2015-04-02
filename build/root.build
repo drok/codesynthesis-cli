@@ -1,0 +1,5 @@
+source $out_root/build/config.build
+
+using cxx
+
+cxx.libs += -lcutl
