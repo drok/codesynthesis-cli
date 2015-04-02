@@ -82,7 +82,7 @@ is_space (char c) const
 inline bool lexer::
 is_eos (xchar const& c) const
 {
-  return  c.value () == xchar::traits_type::eof ();
+  return c.value () == xchar::traits_type::eof ();
 }
 
 inline char lexer::
