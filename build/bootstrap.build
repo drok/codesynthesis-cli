@@ -1,2 +1,2 @@
-project_name = cli
+project = cli
 using config
