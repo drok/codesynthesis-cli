@@ -44,7 +44,7 @@ namespace
 
       std::set<string> arg_set;
 
-      if (type != "bool")
+      if (type != "bool" || doc.size () >= 3)
       {
         string s (
           translate_arg (
@@ -60,7 +60,7 @@ namespace
       // If we have both the long and the short descriptions, use
       // the long one.
       //
-      if (type == "bool")
+      if (type == "bool" && doc.size () < 3)
       {
         if (doc.size () > 1)
           d = doc[1];

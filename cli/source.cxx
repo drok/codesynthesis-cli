@@ -203,7 +203,7 @@ namespace
 
       string type (o.type ().name ());
 
-      if (type != "bool")
+      if (type != "bool" || doc.size () >= 3)
       {
         l++; // ' ' seperator
 
@@ -260,7 +260,7 @@ namespace
 
       string type (o.type ().name ());
 
-      if (type != "bool")
+      if (type != "bool" || doc.size () >= 3)
       {
         os << ' ';
         l++;
@@ -284,7 +284,7 @@ namespace
       //
       string d;
 
-      if (type == "bool")
+      if (type == "bool" && doc.size () < 3)
       {
         if (doc.size () > 1)
           d = doc[0];
