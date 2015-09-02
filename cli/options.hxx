@@ -326,6 +326,8 @@ namespace cli
 class options
 {
   public:
+  options ();
+
   options (int& argc,
            char** argv,
            bool erase = false,
@@ -358,8 +360,6 @@ class options
            ::cli::unknown_mode option = ::cli::unknown_mode::fail,
            ::cli::unknown_mode argument = ::cli::unknown_mode::stop);
 
-  options ();
-
   // Option accessors.
   //
   const bool&
@@ -379,6 +379,9 @@ class options
 
   const bool&
   generate_specifier () const;
+
+  const bool&
+  generate_parse () const;
 
   const bool&
   generate_description () const;
@@ -548,6 +551,7 @@ class options
   std::string output_dir_;
   bool generate_modifier_;
   bool generate_specifier_;
+  bool generate_parse_;
   bool generate_description_;
   bool generate_file_scanner_;
   bool suppress_inline_;

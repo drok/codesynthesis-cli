@@ -535,12 +535,18 @@ namespace
 
       if (!abst)
       {
-        os << name << "::" << endl
-           << name << " (int& argc," << endl
+        bool p (options.generate_parse ());
+        string n (
+          p
+          ? "void " + name + "::\n" + (name != "parse" ? "parse" : "parse_")
+          : name + "::\n" + name);
+
+        os << n << " (int& argc," << endl
            << "char** argv," << endl
            << "bool erase," << endl
            << um << " opt," << endl
            << um << " arg)";
+        if (!p)
         {
           option_init init (*this);
           traversal::names names_init (init);
@@ -551,13 +557,13 @@ namespace
            << "_parse (s, opt, arg);"
            << "}";
 
-        os << name << "::" << endl
-           << name << " (int start," << endl
+        os << n << " (int start," << endl
            << "int& argc," << endl
            << "char** argv," << endl
            << "bool erase," << endl
            << um << " opt," << endl
            << um << " arg)";
+        if (!p)
         {
           option_init init (*this);
           traversal::names names_init (init);
@@ -568,13 +574,13 @@ namespace
            << "_parse (s, opt, arg);"
            << "}";
 
-        os << name << "::" << endl
-           << name << " (int& argc," << endl
+        os << n << " (int& argc," << endl
            << "char** argv," << endl
            << "int& end," << endl
            << "bool erase," << endl
            << um << " opt," << endl
            << um << " arg)";
+        if (!p)
         {
           option_init init (*this);
           traversal::names names_init (init);
@@ -586,14 +592,14 @@ namespace
            << "end = s.end ();"
            << "}";
 
-        os << name << "::" << endl
-           << name << " (int start," << endl
+        os << n << " (int start," << endl
            << "int& argc," << endl
            << "char** argv," << endl
            << "int& end," << endl
            << "bool erase," << endl
            << um << " opt," << endl
            << um << " arg)";
+        if (!p)
         {
           option_init init (*this);
           traversal::names names_init (init);
@@ -605,10 +611,10 @@ namespace
            << "end = s.end ();"
            << "}";
 
-        os << name << "::" << endl
-           << name << " (" << cli << "::scanner& s," << endl
+        os << n << " (" << cli << "::scanner& s," << endl
            << um << " opt," << endl
            << um << " arg)";
+        if (!p)
         {
           option_init init (*this);
           traversal::names names_init (init);

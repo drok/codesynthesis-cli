@@ -40,6 +40,13 @@ class options
      on the command line."
   };
 
+  bool --generate-parse
+  {
+    "Generate \cb{parse()} functions instead of parsing constructors. This
+     is primarily useful for being able to parse into an already initialized
+     options class instance, for example, to implement merging/overriding."
+  };
+
   bool --generate-description
   {
     "Generate the option description list that can be examined at runtime."

@@ -240,6 +240,12 @@ generate_specifier () const
 }
 
 inline const bool& options::
+generate_parse () const
+{
+  return this->generate_parse_;
+}
+
+inline const bool& options::
 generate_description () const
 {
   return this->generate_description_;

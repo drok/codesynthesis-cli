@@ -129,44 +129,50 @@ namespace
       //
       if (!abst)
       {
-        os << name << " (int& argc," << endl
-           << "char** argv," << endl
-           << "bool erase = false," << endl
-           << um << " option = " << um << "::fail," << endl
-           << um << " argument = " << um << "::stop);"
-           << endl;
-
-        os << name << " (int start," << endl
-           << "int& argc," << endl
-           << "char** argv," << endl
-           << "bool erase = false," << endl
-           << um << " option = " << um << "::fail," << endl
-           << um << " argument = " << um << "::stop);"
-           << endl;
-
-        os << name << " (int& argc," << endl
-           << "char** argv," << endl
-           << "int& end," << endl
-           << "bool erase = false," << endl
-           << um << " option = " << um << "::fail," << endl
-           << um << " argument = " << um << "::stop);"
-           << endl;
-
-        os << name << " (int start," << endl
-           << "int& argc," << endl
-           << "char** argv," << endl
-           << "int& end," << endl
-           << "bool erase = false," << endl
-           << um << " option = " << um << "::fail," << endl
-           << um << " argument = " << um << "::stop);"
-           << endl;
-
-        os << name << " (" << cli << "::scanner&," << endl
-           << um << " option = " << um << "::fail," << endl
-           << um << " argument = " << um << "::stop);"
-           << endl;
-
         os << name << " ();"
+           << endl;
+
+        // Are we generating parsing constructors or parse() functions?
+        //
+        string n (options.generate_parse ()
+                  ? string ("void\n") + (name != "parse" ? "parse" : "parse_")
+                  : name);
+
+        os << n << " (int& argc," << endl
+           << "char** argv," << endl
+           << "bool erase = false," << endl
+           << um << " option = " << um << "::fail," << endl
+           << um << " argument = " << um << "::stop);"
+           << endl;
+
+        os << n << " (int start," << endl
+           << "int& argc," << endl
+           << "char** argv," << endl
+           << "bool erase = false," << endl
+           << um << " option = " << um << "::fail," << endl
+           << um << " argument = " << um << "::stop);"
+           << endl;
+
+        os << n << " (int& argc," << endl
+           << "char** argv," << endl
+           << "int& end," << endl
+           << "bool erase = false," << endl
+           << um << " option = " << um << "::fail," << endl
+           << um << " argument = " << um << "::stop);"
+           << endl;
+
+        os << n << " (int start," << endl
+           << "int& argc," << endl
+           << "char** argv," << endl
+           << "int& end," << endl
+           << "bool erase = false," << endl
+           << um << " option = " << um << "::fail," << endl
+           << um << " argument = " << um << "::stop);"
+           << endl;
+
+        os << n << " (" << cli << "::scanner&," << endl
+           << um << " option = " << um << "::fail," << endl
+           << um << " argument = " << um << "::stop);"
            << endl;
       }
 
