@@ -179,13 +179,22 @@ namespace
 
       // Usage.
       //
-      if (usage)
+      if (usage != ut_none)
       {
         os << "// Print usage information." << endl
-           << "//" << endl
-           << "static void" << endl
-           << "print_usage (" << options.ostream_type () << "&);"
-           << endl;
+           << "//" << endl;
+
+        if (usage != ut_both)
+          os << "static void" << endl
+             << "print_usage (" << options.ostream_type () << "&);"
+             << endl;
+        else
+          os << "static void" << endl
+             << "print_short_usage (" << options.ostream_type () << "&);"
+             << endl
+             << "static void" << endl
+             << "print_long_usage (" << options.ostream_type () << "&);"
+             << endl;
       }
 
       // Description.

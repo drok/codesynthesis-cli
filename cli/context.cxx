@@ -101,7 +101,6 @@ context (ostream& os_,
       options (ops),
       modifier (options.generate_modifier ()),
       specifier (options.generate_specifier ()),
-      usage (!options.suppress_usage ()),
       inl (data_->inl_),
       opt_prefix (options.option_prefix ()),
       opt_sep (options.option_separator ()),
@@ -109,6 +108,16 @@ context (ostream& os_,
       reserved_name_map (options.reserved_name ()),
       keyword_set (data_->keyword_set_)
 {
+  if (options.suppress_usage ())
+    usage = ut_none;
+  else
+  {
+    if (options.long_usage ())
+      usage = options.short_usage () ? ut_both : ut_long;
+    else
+      usage = ut_short;
+  }
+
   if (!options.suppress_inline ())
     data_->inl_ = "inline ";
 

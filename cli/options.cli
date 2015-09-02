@@ -83,6 +83,15 @@ class options
      only the first sentence from the long string is used."
   };
 
+  bool --short-usage
+  {
+    "If specified together with \cb{--long-usage}, generate both short
+     and long usage versions. In this mode, the usage printing functions
+     are called \cb{print_short_usage()} and \cb{print_long_usage()} and
+     for the long usage the long documentation string is always used,
+     even if the short version is provided."
+  };
+
   std::size_t --option-length = 0
   {
     "<len>",

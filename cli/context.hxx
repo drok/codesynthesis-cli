@@ -29,6 +29,15 @@ public:
   typedef std::string string;
   typedef ::options options_type;
 
+public:
+  enum usage_type
+  {
+    ut_none,
+    ut_short,
+    ut_long,
+    ut_both
+  };
+
 private:
   struct data;
   cutl::shared_ptr<data> data_;
@@ -40,7 +49,7 @@ public:
 
   bool modifier;
   bool specifier;
-  bool usage;
+  usage_type usage;
 
   string const& inl;
   string const& opt_prefix;

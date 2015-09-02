@@ -229,7 +229,8 @@ namespace
   //
   struct option_usage: traversal::option, context
   {
-    option_usage (context& c, size_t l) : context (c), length_ (l) {}
+    option_usage (context& c, size_t l, usage_type u)
+        : context (c), length_ (l), usage_ (u) {}
 
     virtual void
     traverse (type& o)
@@ -278,25 +279,29 @@ namespace
         }
       }
 
-      // If we have both the long and the short descriptions, use
-      // the short one. Otherwise, use the first sentence from the
-      // long one unless --long-usage was specified.
+      // Figure out which documentation string we should use.
       //
       string d;
+      {
+        size_t i (type == "bool" && doc.size () < 3 ? 0 : 1);
 
-      if (type == "bool" && doc.size () < 3)
-      {
-        if (doc.size () > 1)
-          d = doc[0];
-        else if (doc.size () > 0)
-          d = options.long_usage () ? doc[0] : first_sentence (doc[0]);
-      }
-      else
-      {
-        if (doc.size () > 2)
-          d = doc[1];
-        else if (doc.size () > 1)
-          d = options.long_usage () ? doc[1] : first_sentence (doc[1]);
+        if (doc.size () > i) // Have at least one.
+        {
+          if (usage == ut_both && usage_ == ut_long)
+          {
+            d = doc.size () > i + 1 // Have both short and long?
+              ? doc[i + 1]          // Then use long.
+              : doc[i];
+          }
+          else // Short or long.
+          {
+            d = doc.size () > i + 1 // Have both short and long?
+              ? doc[i]              // Then use short,
+              : (usage == ut_long   // Otherwise, if asked for long,
+                 ? doc[i]           // Then use long,
+                 : first_sentence (doc[i])); // Else first sentence of long.
+          }
+        }
       }
 
       // Format the documentation string.
@@ -426,6 +431,7 @@ namespace
 
   private:
     size_t length_;
+    usage_type usage_;
   };
 
   //
@@ -463,16 +469,24 @@ namespace
 
   struct base_usage: traversal::class_, context
   {
-    base_usage (context& c): context (c) {}
+    base_usage (context& c, usage_type u): context (c), usage_ (u) {}
 
     virtual void
     traverse (type& c)
     {
+      const char* t (
+        usage != ut_both
+        ? ""
+        : usage_ == ut_short ? "short_" : "long_");
+
       os << "// " << escape (c.name ()) << " base" << endl
          << "//" << endl
-         << fq_name (c) << "::print_usage (os);"
+         << fq_name (c) << "::print_" << t << "usage (os);"
          << endl;
     }
+
+  private:
+    usage_type usage_;
   };
 
   //
@@ -483,13 +497,11 @@ namespace
         : context (c),
           base_parse_ (c),
           base_desc_ (c),
-          base_usage_ (c),
           option_map_ (c),
           option_desc_ (c)
     {
       inherits_base_parse_ >> base_parse_;
       inherits_base_desc_ >> base_desc_;
-      inherits_base_usage_ >> base_usage_;
       names_option_map_ >> option_map_;
       names_option_desc_ >> option_desc_;
     }
@@ -609,7 +621,7 @@ namespace
 
       // Usage.
       //
-      if (usage)
+      if (usage != ut_none)
       {
         bool b (hb && !options.exclude_base ());
 
@@ -690,24 +702,53 @@ namespace
         // If len is 0 then it means we have no options to print.
         //
         os << "void " << name << "::" << endl
-           << "print_usage (" << options.ostream_type () << "&" <<
-          (len != 0 || b ? " os)" : ")")
+           << "print_" << (usage == ut_both ? "short_" : "") << "usage (" <<
+          options.ostream_type () << "&" << (len != 0 || b ? " os)" : ")")
            << "{";
 
         // Call our bases.
         //
         if (b)
-          inherits (c, inherits_base_usage_);
+        {
+          base_usage t (*this, usage == ut_both ? ut_short : usage);
+          traversal::inherits i (t);
+          inherits (c, i);
+        }
 
         // Print option usage.
         //
         {
-          option_usage t (*this, len);
+          option_usage t (*this, len, usage == ut_both ? ut_short : usage);
           traversal::names n (t);
           names (c, n);
         }
 
         os << "}";
+
+        // Long version.
+        //
+        if (usage == ut_both)
+        {
+          os << "void " << name << "::" << endl
+             << "print_long_usage (" <<
+            options.ostream_type () << "&" << (len != 0 || b ? " os)" : ")")
+             << "{";
+
+          if (b)
+          {
+            base_usage t (*this, ut_long);
+            traversal::inherits i (t);
+            inherits (c, i);
+          }
+
+          {
+            option_usage t (*this, len, ut_long);
+            traversal::names n (t);
+            names (c, n);
+          }
+
+          os << "}";
+        }
       }
 
       // Description.
@@ -890,9 +931,6 @@ namespace
 
     base_desc base_desc_;
     traversal::inherits inherits_base_desc_;
-
-    base_usage base_usage_;
-    traversal::inherits inherits_base_usage_;
 
     option_map option_map_;
     traversal::names names_option_map_;
