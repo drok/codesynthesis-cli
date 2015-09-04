@@ -1,3 +1,3 @@
-d=cli/
+d = cli/
 .: $d
 include $d

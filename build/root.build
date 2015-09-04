@@ -1,3 +1,6 @@
 using cxx
 
-cxx.libs += -lcutl
+hxx.ext = hxx
+ixx.ext = ixx
+txx.ext = txx
+cxx.ext = cxx

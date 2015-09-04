@@ -1,8 +1,10 @@
+import libs = libcutl%lib{cutl}
+
 sema = semantics/{class elements expression namespace option unit}
 trav = traversal/{class elements namespace option unit}
 
 exe{cli}: cxx{cli generator html lexer name-processor parser runtime-inline \
 source context header inline man options runtime-header runtime-source \
-$sema $trav}
+$sema $trav} $libs
 
 cxx.poptions += -I$out_base -I$src_base
