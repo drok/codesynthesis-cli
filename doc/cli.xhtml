@@ -104,6 +104,12 @@
   <dd>Generate functions for determining whether the option was specified on the
   command line.</dd>
 
+  <dt><code><b>--generate-parse</b></code></dt>
+  <dd>Generate <code><b>parse()</b></code> functions instead of parsing
+  constructors. This is primarily useful for being able to parse into an
+  already initialized options class instance, for example, to implement
+  merging/overriding.</dd>
+
   <dt><code><b>--generate-description</b></code></dt>
   <dd>Generate the option description list that can be examined at runtime.</dd>
 
@@ -130,6 +136,13 @@
   <dd>If no short documentation string is provided, use the complete long
   documentation string in usage. By default, in this situation only the first
   sentence from the long string is used.</dd>
+
+  <dt><code><b>--short-usage</b></code></dt>
+  <dd>If specified together with <code><b>--long-usage</b></code>, generate both
+  short and long usage versions. In this mode, the usage printing functions
+  are called <code><b>print_short_usage()</b></code> and
+  <code><b>print_long_usage()</b></code> and for the long usage the long
+  documentation string is always used, even if the short version is provided.</dd>
 
   <dt><code><b>--option-length</b></code> <i>len</i></dt>
   <dd>Indent option descriptions <i>len</i> characters when printing usage. This

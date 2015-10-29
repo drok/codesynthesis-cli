@@ -80,6 +80,11 @@ Generate option value modifiers in addition to accessors\.
 Generate functions for determining whether the option was specified on the
 command line\.
 
+.IP "\fB--generate-parse\fP"
+Generate \fBparse()\fP functions instead of parsing constructors\. This is
+primarily useful for being able to parse into an already initialized options
+class instance, for example, to implement merging/overriding\.
+
 .IP "\fB--generate-description\fP"
 Generate the option description list that can be examined at runtime\.
 
@@ -106,6 +111,13 @@ Suppress the generation of the usage printing code\.
 If no short documentation string is provided, use the complete long
 documentation string in usage\. By default, in this situation only the first
 sentence from the long string is used\.
+
+.IP "\fB--short-usage\fP"
+If specified together with \fB--long-usage\fP, generate both short and long
+usage versions\. In this mode, the usage printing functions are called
+\fBprint_short_usage()\fP and \fBprint_long_usage()\fP and for the long
+usage the long documentation string is always used, even if the short
+version is provided\.
 
 .IP "\fB--option-length\fP \fIlen\fP"
 Indent option descriptions \fIlen\fP characters when printing usage\. This
