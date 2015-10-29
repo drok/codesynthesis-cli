@@ -6,8 +6,6 @@
 #ifndef CLI_SEMANTICS_OPTION_HXX
 #define CLI_SEMANTICS_OPTION_HXX
 
-#include <vector>
-
 #include <semantics/elements.hxx>
 
 namespace semantics
@@ -138,8 +136,7 @@ namespace semantics
     }
 
   public:
-    typedef std::vector<string> doc_list;
-    typedef doc_list::const_iterator doc_iterator;
+    typedef doc_strings::const_iterator doc_iterator;
 
     doc_iterator
     doc_begin () const
@@ -153,13 +150,13 @@ namespace semantics
       return doc_.end ();
     }
 
-    doc_list const&
+    doc_strings const&
     doc () const
     {
       return doc_;
     }
 
-    doc_list&
+    doc_strings&
     doc ()
     {
       return doc_;
@@ -186,7 +183,7 @@ namespace semantics
   private:
     belongs_type* belongs_;
     initialized_type* initialized_;
-    doc_list doc_;
+    doc_strings doc_;
   };
 }
 

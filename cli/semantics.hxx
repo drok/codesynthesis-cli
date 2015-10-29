@@ -7,6 +7,7 @@
 #define CLI_SEMANTICS_HXX
 
 #include <semantics/class.hxx>
+#include <semantics/doc.hxx>
 #include <semantics/elements.hxx>
 #include <semantics/expression.hxx>
 #include <semantics/namespace.hxx>

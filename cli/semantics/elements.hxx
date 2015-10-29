@@ -40,6 +40,9 @@ namespace semantics
   using fs::path;
   using fs::invalid_path;
 
+  //
+  //
+  typedef std::vector<string> doc_strings;
 
   //
   //

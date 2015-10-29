@@ -8,6 +8,7 @@
 #include <sys/stat.h>  // stat
 
 #include <fstream>
+#include <sstream>
 #include <iostream>
 
 #include "token.hxx"
@@ -174,6 +175,8 @@ parse (std::istream& is, path const& p)
   lexer l (is, p.string ());
   lexer_ = &l;
 
+  doc_count_ = 0;
+
   path_ = &p;
   valid_ = true;
 
@@ -221,7 +224,8 @@ def_unit ()
       }
 
       cerr << *path_ << ':' << t.line () << ':' << t.column () << ": error: "
-           << "expected namespace or class declaration instead of " << t
+           << "expected namespace, class, or documentation declaration or "
+           << "instead of " << t
            << endl;
       throw error ();
     }
@@ -372,25 +376,111 @@ include_decl ()
 bool parser::
 decl (token& t)
 {
-  if (t.type () == token::t_keyword)
+  switch (t.type ())
   {
-    switch (t.keyword ())
+  case token::t_keyword:
     {
-    case token::k_namespace:
+      switch (t.keyword ())
       {
-        namespace_def ();
-        return true;
+      case token::k_namespace:
+        {
+          namespace_def ();
+          return true;
+        }
+      case token::k_class:
+        {
+          class_def ();
+          return true;
+        }
+      default:
+        break;
       }
-    case token::k_class:
-      {
-        class_def ();
-        return true;
-      }
-    default:
+
       break;
     }
+  case token::t_punctuation:
+    {
+      if (t.punctuation () != token::p_lcbrace)
+        break;
+
+      // Fall through.
+    }
+  case token::t_string_lit:
+    {
+      scope_doc (t);
+      return true;
+    }
+  default:
+    break;
   }
+
   return false;
+}
+
+void parser::
+scope_doc (token& t)
+{
+  size_t l (t.line ()), c (t.column ());
+
+  doc* d (0);
+
+  if (valid_)
+  {
+    // Use a counter to give scope-level docs unique names. We use a
+    // single counter throughout all units/scope because we could be
+    // reopening namespaces.
+    //
+    ostringstream os;
+    os << "doc " << doc_count_++;
+
+    d = &root_->new_node<doc> (*path_, l, c);
+    root_->new_edge<names> (*scope_, *d, os.str ());
+  }
+
+  if (t.type () == token::t_string_lit)
+  {
+    // string-literal
+    //
+    if (valid_)
+    {
+      d->push_back (doc_string (t));
+      cerr << d->name () << " '" << d->back () << "'" << endl;
+    }
+  }
+  else
+  {
+    // doc-string-seq
+    //
+    assert (t.punctuation () == token::p_lcbrace);
+
+    for (t = lexer_->next ();; t = lexer_->next ())
+    {
+      if (t.type () != token::t_string_lit)
+      {
+        cerr << *path_ << ':' << t.line () << ':' << t.column () << ": error: "
+             << "expected documentation string instead of " << t << endl;
+        throw error ();
+      }
+
+      if (valid_)
+      {
+        d->push_back (doc_string (t));
+        cerr << d->name () << " '" << d->back () << "'" << endl;
+      }
+
+      t = lexer_->next ();
+
+      if (t.punctuation () != token::p_comma)
+        break;
+    }
+
+    if (t.punctuation () != token::p_rcbrace)
+    {
+      cerr << *path_ << ':' << t.line () << ':' << t.column () << ": error: "
+           << "expected '}' instead of " << t << endl;
+      throw error ();
+    }
+  }
 }
 
 void parser::
@@ -434,7 +524,7 @@ namespace_def ()
   if (t.punctuation () != token::p_rcbrace)
   {
     cerr << *path_ << ':' << t.line () << ':' << t.column () << ": error: "
-         << "expected namespace declaration, class declaration, or '}' "
+         << "expected namespace, class, or documentation declaration or '}' "
          << "instead of " << t << endl;
     throw error ();
   }
@@ -760,85 +850,7 @@ option_def (token& t)
       }
 
       if (valid_)
-      {
-        // Get rid of '"'.
-        //
-        string t1, t2;
-        string const& l (t.literal ());
-        char p ('\0');
-
-        for (size_t i (0), n (l.size ()); i < n; ++i)
-        {
-          if (l[i] == '"' && p != '\\')
-            continue;
-
-          // We need to keep track of \\ escapings so we don't confuse
-          // them with \", as in "\\".
-          //
-          if (l[i] == '\\' && p == '\\')
-            p = '\0';
-          else
-            p = l[i];
-
-          t1 += l[i];
-        }
-
-        // Get rid of leading and trailing spaces in each line.
-        //
-        if (t1.size () != 0)
-        {
-          bool more (true);
-          size_t b (0), e, p;
-
-          while (more)
-          {
-            p = e = t1.find ('\n', b);
-
-            if (p == string::npos)
-            {
-              e = t1.size ();
-              more = false;
-            }
-
-            while (b < e && (t1[b] == 0x20 || t1[b] == 0x0D || t1[b] == 0x09))
-              ++b;
-
-            --e;
-
-            while (e > b && (t1[e] == 0x20 || t1[e] == 0x0D || t1[e] == 0x09))
-              --e;
-
-            if (b <= e)
-              t2.append (t1, b, e - b + 1);
-
-            if (more)
-            {
-              t2 += '\n';
-              b = p + 1;
-            }
-          }
-        }
-
-        // Replace every single newlines with single space and all
-        // multiple new lines (paragraph marker) with a single newline.
-        //
-        t1.clear ();
-        for (size_t i (0), n (t2.size ()); i < n; ++i)
-        {
-          if (t2[i] == '\n')
-          {
-            size_t j (i);
-            for (; i + 1 < n && t2[i + 1] == '\n'; ++i) ;
-
-            if (j != 0 && i + 1 != n) // Strip leading and trailing newlines.
-              t1 += i != j ? '\n' : ' ';
-          }
-          else
-            t1 += t2[i];
-        }
-
-        o->doc ().push_back (t1);
-      }
+        o->doc ().push_back (doc_string (t));
 
       t = lexer_->next ();
 
@@ -865,6 +877,89 @@ option_def (token& t)
 
   return true;
 }
+
+string parser::
+doc_string (token& t)
+{
+  // Get rid of '"'.
+  //
+  string t1, t2;
+  string const& l (t.literal ());
+  char p ('\0');
+
+  for (size_t i (0), n (l.size ()); i < n; ++i)
+  {
+    if (l[i] == '"' && p != '\\')
+      continue;
+
+    // We need to keep track of \\ escapings so we don't confuse
+    // them with \", as in "\\".
+    //
+    if (l[i] == '\\' && p == '\\')
+      p = '\0';
+    else
+      p = l[i];
+
+    t1 += l[i];
+  }
+
+  // Get rid of leading and trailing spaces in each line.
+  //
+  if (t1.size () != 0)
+  {
+    bool more (true);
+    size_t b (0), e, p;
+
+    while (more)
+    {
+      p = e = t1.find ('\n', b);
+
+      if (p == string::npos)
+      {
+        e = t1.size ();
+        more = false;
+      }
+
+      while (b < e && (t1[b] == 0x20 || t1[b] == 0x0D || t1[b] == 0x09))
+        ++b;
+
+      --e;
+
+      while (e > b && (t1[e] == 0x20 || t1[e] == 0x0D || t1[e] == 0x09))
+        --e;
+
+      if (b <= e)
+        t2.append (t1, b, e - b + 1);
+
+      if (more)
+      {
+        t2 += '\n';
+        b = p + 1;
+      }
+    }
+  }
+
+  // Replace every single newlines with single space and all
+  // multiple new lines (paragraph marker) with a single newline.
+  //
+  t1.clear ();
+  for (size_t i (0), n (t2.size ()); i < n; ++i)
+  {
+    if (t2[i] == '\n')
+    {
+      size_t j (i);
+      for (; i + 1 < n && t2[i + 1] == '\n'; ++i) ;
+
+      if (j != 0 && i + 1 != n) // Strip leading and trailing newlines.
+        t1 += i != j ? '\n' : ' ';
+    }
+    else
+      t1 += t2[i];
+  }
+
+  return t1;
+}
+
 
 bool parser::
 qualified_name (token& t, string& r)

@@ -185,7 +185,7 @@ namespace
     {
       using semantics::names;
 
-      type::doc_list const& doc (o.doc ());
+      semantics::doc_strings const& doc (o.doc ());
 
       if (options.suppress_undocumented () && doc.empty ())
         return;
@@ -237,7 +237,7 @@ namespace
     {
       using semantics::names;
 
-      type::doc_list const& doc (o.doc ());
+      semantics::doc_strings const& doc (o.doc ());
 
       if (options.suppress_undocumented () && doc.empty ())
         return;

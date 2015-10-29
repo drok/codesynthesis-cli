@@ -9,7 +9,8 @@
 #include <map>
 #include <string>
 #include <vector>
-#include <memory> // std::auto_ptr
+#include <memory>  // auto_ptr
+#include <cstddef> // size_t
 #include <istream>
 
 #include "semantics/elements.hxx"
@@ -43,6 +44,9 @@ private:
   decl (token&);
 
   void
+  scope_doc (token&);
+
+  void
   namespace_def ();
 
   void
@@ -50,6 +54,9 @@ private:
 
   bool
   option_def (token&);
+
+  std::string
+  doc_string (token&);
 
   bool
   qualified_name (token&, std::string& name);
@@ -72,6 +79,8 @@ private:
   semantics::cli_unit* root_;
   semantics::cli_unit* cur_;
   semantics::scope* scope_;
+
+  std::size_t doc_count_; // Scope doc counter, see scope_doc() for details.
 
   typedef std::map<semantics::path, semantics::cli_unit*> include_map;
   include_map include_map_;

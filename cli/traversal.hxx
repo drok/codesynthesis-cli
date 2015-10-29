@@ -7,6 +7,7 @@
 #define CLI_TRAVERSAL_HXX
 
 #include <traversal/class.hxx>
+#include <traversal/doc.hxx>
 #include <traversal/elements.hxx>
 #include <traversal/expression.hxx>
 #include <traversal/namespace.hxx>

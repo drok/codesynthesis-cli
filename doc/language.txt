@@ -32,8 +32,13 @@ decl-seq:
 	decl-seq decl
 
 decl:
+        scope-doc
 	namespace-def
 	class-def
+
+scope-doc:
+        string-literal
+	"{" doc-string-seq "}"
 
 namespace-def:
 	"namespace" identifier "{" namespace-body "}"
@@ -59,7 +64,7 @@ option-def-seq:
 	option-def-seq option-def
 
 option-def:
-	type-spec option-name-seq initializer(opt) option-doc ";"
+	type-spec option-name-seq initializer(opt) option-doc(opt) ";"
 
 type-spec:
 	fundamental-type-spec

@@ -23,6 +23,7 @@ name-processor.cxx
 
 cxx_tun +=               \
 semantics/class.cxx      \
+semantics/doc.cxx        \
 semantics/elements.cxx   \
 semantics/expression.cxx \
 semantics/namespace.cxx  \

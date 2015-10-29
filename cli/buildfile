@@ -1,6 +1,6 @@
 import libs = libcutl%lib{cutl}
 
-sema = semantics/{class elements expression namespace option unit}
+sema = semantics/{class doc elements expression namespace option unit}
 trav = traversal/{class elements namespace option unit}
 
 exe{cli}: cxx{cli generator html lexer name-processor parser runtime-inline \
