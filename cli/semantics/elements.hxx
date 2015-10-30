@@ -347,6 +347,12 @@ namespace semantics
       return names_.end ();
     }
 
+    bool
+    names_empty () const
+    {
+      return names_.empty ();
+    }
+
     virtual names_iterator_pair
     find (string const& name) const;
 

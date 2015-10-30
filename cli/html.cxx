@@ -12,6 +12,98 @@ using namespace std;
 
 namespace
 {
+  static string
+  escape_html (string const& s)
+  {
+    string r;
+    r.reserve (s.size ());
+
+    for (size_t i (0), n (s.size ()); i < n; ++i)
+    {
+      switch (s[i])
+      {
+      case '<':
+        {
+          r += "&lt;";
+          break;
+        }
+      case '&':
+        {
+          r += "&amp;";
+          break;
+        }
+      default:
+        {
+          r += s[i];
+          break;
+        }
+      }
+    }
+
+    return r;
+  }
+
+  static void
+  wrap_lines (ostream& os, const string& d, size_t indent)
+  {
+    assert (!d.empty ());
+
+    size_t lim (78 - indent);
+    string ind (indent, ' ');
+
+    size_t b (0), e (0), i (0);
+
+    for (size_t n (d.size ()); i < n; ++i)
+    {
+      if (d[i] == ' ' || d[i] == '\n')
+        e = i;
+
+      if (d[i] == '\n' || (i - b >= lim && e != b))
+      {
+        os << (b != 0 ? "\n" : "") << ind << string (d, b, e - b);
+
+        if (d[i] == '\n')
+          os << endl;
+
+        b = e = e + 1;
+      }
+    }
+
+    // Write the last line.
+    //
+    if (b != i)
+      os << (b != 0 ? "\n" : "") << ind << string (d, b, i - b);
+  }
+
+  struct doc: traversal::doc, context
+  {
+    doc (context& c) : context (c) {}
+
+    virtual void
+    traverse (type& ds)
+    {
+      // n = 1 - common doc string
+      // n = 2 - arg string, common doc string
+      // n > 2 - arg string, usage string, man string
+      //
+      size_t n (ds.size ());
+      const string& d (n == 1 ? ds[0] : n == 2 ? ds[1] : ds[2]);
+
+      if (d.empty ())
+        return;
+
+      std::set<string> arg_set;
+      if (n > 1)
+        translate_arg (ds[0], arg_set);
+
+      string s (format (ot_html, escape_html (translate (d, arg_set)), true));
+
+      wrap_lines (os, s, 2);
+      os << endl
+         << endl;
+    }
+  };
+
   struct option: traversal::option, context
   {
     option (context& c) : context (c) {}
@@ -28,7 +120,7 @@ namespace
 
       names& n (o.named ());
 
-      os << "  <dt><code><b>";
+      os << "    <dt><code><b>";
 
       for (names::name_iterator i (n.name_begin ()); i != n.name_end (); ++i)
       {
@@ -50,7 +142,7 @@ namespace
           translate_arg (
             doc.size () > 0 ? doc[0] : string ("<arg>"), arg_set));
 
-        os << ' ' << format (escape_html (s), ot_html);
+        os << ' ' << format (ot_html, escape_html (s), false);
       }
 
       os << "</dt>" << endl;
@@ -77,85 +169,14 @@ namespace
 
       // Format the documentation string.
       //
-      d = format (escape_html (translate (d, arg_set)), ot_html);
+      d = format (ot_html, escape_html (translate (d, arg_set)), false);
 
-      os << "  <dd>";
-
-      if (!d.empty ())
-      {
-        size_t b (0), e (0), i (0);
-
-        for (size_t n (d.size ()); i < n; ++i)
-        {
-          if (d[i] == ' ' || d[i] == '\n')
-            e = i;
-
-          if (d[i] == '\n' || (i - b >= 76 && e != b))
-          {
-            if (b != 0)
-            {
-              os << endl
-                 << "  ";
-            }
-
-            os << string (d, b, e - b);
-
-            if (d[i] == '\n')
-              os << endl;
-
-            b = e = e + 1;
-          }
-        }
-
-        // Flush the last line.
-        //
-        if (b != i)
-        {
-          if (b != 0)
-          {
-            os << endl
-               << "  ";
-          }
-
-          os << string (d, b, i - b);
-        }
-      }
-
-      os << "</dd>" << endl
+      wrap_lines (os, "<dd>" + d + "</dd>", 4);
+      os << endl
          << endl;
     }
 
   private:
-    string
-    escape_html (string const& s)
-    {
-      string r;
-      r.reserve (s.size ());
-
-      for (size_t i (0), n (s.size ()); i < n; ++i)
-      {
-        switch (s[i])
-        {
-        case '<':
-          {
-            r += "&lt;";
-            break;
-          }
-        case '&':
-          {
-            r += "&amp;";
-            break;
-          }
-        default:
-          {
-            r += s[i];
-            break;
-          }
-        }
-      }
-
-      return r;
-    }
   };
 
   //
@@ -165,9 +186,7 @@ namespace
     class_ (context& c)
         : context (c), option_ (c)
     {
-      *this >> inherits_base_ >> base_ >> inherits_base_;
-      base_ >> names_option_;
-
+      *this >> inherits_base_ >> *this;
       names_option_ >> option_;
     }
 
@@ -177,15 +196,20 @@ namespace
       if (!options.exclude_base ())
         inherits (c, inherits_base_);
 
-      names (c, names_option_);
+      if (!c.names_empty ())
+      {
+        os << "  <dl class=\"options\">" << endl;
+        names (c, names_option_);
+        os << "  </dl>" << endl
+           << endl;
+      }
     }
 
   private:
+    traversal::inherits inherits_base_;
+
     option option_;
     traversal::names names_option_;
-
-    traversal::class_ base_;
-    traversal::inherits inherits_base_;
   };
 }
 
@@ -195,17 +219,20 @@ generate_html (context& ctx)
   traversal::cli_unit unit;
   traversal::names unit_names;
   traversal::namespace_ ns;
+  doc dc (ctx);
   class_ cl (ctx);
 
-  unit >> unit_names >> ns;
+  unit >> unit_names;
+  unit_names >> dc;
+  unit_names >> ns;
   unit_names >> cl;
 
   traversal::names ns_names;
 
-  ns >> ns_names >> ns;
+  ns >> ns_names;
+  ns_names >> dc;
+  ns_names >> ns;
   ns_names >> cl;
-
-  ctx.os << "<dl class=\"options\">" << endl;
 
   if (ctx.options.class_ ().empty ())
     unit.dispatch (ctx.unit);
@@ -230,6 +257,4 @@ generate_html (context& ctx)
       }
     }
   }
-
-  ctx.os << "</dl>" << endl;
 }

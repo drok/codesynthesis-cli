@@ -315,12 +315,13 @@ translate (string const& s, std::set<string> const& set)
 }
 
 string context::
-format (string const& s, output_type ot)
+format (output_type ot, string const& s, bool para)
 {
   string r;
-  r.reserve (s.size ());
 
-  bool para (false);
+  if (para && ot == ot_html)
+    r += "<p>";
+
   bool escape (false);
   std::stack<unsigned char> blocks; // Bit 0: code; 1: italic; 2: bold.
 

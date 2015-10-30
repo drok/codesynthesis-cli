@@ -93,8 +93,10 @@ public:
   static string
   translate (string const&, std::set<string> const&);
 
+  // If para is true, start a new paragraph.
+  //
   static string
-  format (string const&, output_type);
+  format (output_type, string const&, bool para);
 
 public:
   static string const&

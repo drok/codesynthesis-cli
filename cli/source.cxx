@@ -208,7 +208,7 @@ namespace
         l++; // ' ' seperator
 
         if (doc.size () > 0)
-          l += format (doc[0], ot_plain).size ();
+          l += format (ot_plain, doc[0], false).size ();
         else
           l += 5; // <arg>
       }
@@ -268,7 +268,7 @@ namespace
 
         if (doc.size () > 0)
         {
-          string s (format (doc[0], ot_plain));
+          string s (format (ot_plain, doc[0], false));
           os << escape_str (s);
           l += s.size ();
         }
@@ -306,7 +306,7 @@ namespace
 
       // Format the documentation string.
       //
-      d = format (d, ot_plain);
+      d = format (ot_plain, d, false);
 
       if (!d.empty ())
       {

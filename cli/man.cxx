@@ -50,7 +50,7 @@ namespace
           translate_arg (
             doc.size () > 0 ? doc[0] : string ("<arg>"), arg_set));
 
-        os << ' ' << format (s, ot_man);
+        os << ' ' << format (ot_man, s, false);
       }
 
       os << "\"" << endl;
@@ -77,7 +77,7 @@ namespace
 
       // Format the documentation string.
       //
-      d = format (translate (d, arg_set), ot_man);
+      d = format (ot_man, translate (d, arg_set), false);
 
       if (!d.empty ())
       {
