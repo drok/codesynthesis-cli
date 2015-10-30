@@ -98,6 +98,9 @@ public:
   static string
   format (output_type, string const&, bool para);
 
+  static void
+  format_line (output_type, string&, const char*, size_t);
+
 public:
   static string const&
   ename (semantics::nameable& n)

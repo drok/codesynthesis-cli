@@ -4,6 +4,7 @@
 // license   : MIT; see accompanying LICENSE file
 
 #include <stack>
+#include <iostream>
 
 #include "context.hxx"
 
@@ -314,24 +315,21 @@ translate (string const& s, std::set<string> const& set)
   return r;
 }
 
-string context::
-format (output_type ot, string const& s, bool para)
+void context::
+format_line (output_type ot, string& r, const char* s, size_t n)
 {
-  string r;
-
-  if (para && ot == ot_html)
-    r += "<p>";
-
   bool escape (false);
-  std::stack<unsigned char> blocks; // Bit 0: code; 1: italic; 2: bold.
+  stack<unsigned char> blocks; // Bit 0: code; 1: italic; 2: bold.
 
-  for (size_t i (0), n (s.size ()); i < n; ++i)
+  for (size_t i (0); i < n; ++i)
   {
+    char c (s[i]);
+
     if (escape)
     {
       bool block (false);
 
-      switch (s[i])
+      switch (c)
       {
       case '\\':
         {
@@ -491,8 +489,17 @@ format (output_type ot, string const& s, bool para)
           r += '}';
           break;
         }
+      default:
+        {
+          cerr << "error: unknown escape sequence '\\" << c << "' in "
+               << "documentation paragraph '" << string (s, 0, n) << "'"
+               << endl;
+          throw generation_failed ();
+        }
       }
 
+      // If we just added a new block, add corresponding output markup.
+      //
       if (block)
       {
         unsigned char b (blocks.top ());
@@ -534,81 +541,130 @@ format (output_type ot, string const& s, bool para)
 
       escape = false;
     }
-    else if (s[i] == '\\')
+    else // Not escape.
     {
-      escape = true;
-    }
-    else if (s[i] == '\n')
-    {
-      switch (ot)
+      switch (c)
       {
-      case ot_plain:
-      case ot_man:
+      case '\\':
         {
-          r += '\n';
+          escape = true;
           break;
         }
-      case ot_html:
+      case '.':
         {
-          if (para)
-            r += "</p>";
+          if (ot == ot_man)
+            r += "\\.";
           else
-            para = true;
-
-          r += "\n<p>";
+            r += '.';
           break;
         }
-      }
-    }
-    else if (s[i] == '.')
-    {
-      if (ot == ot_man)
-        r += "\\.";
-      else
-        r += '.';
-    }
-    else if (!blocks.empty () && s[i] == '}')
-    {
-      unsigned char b (blocks.top ());
-
-      switch (ot)
-      {
-      case ot_plain:
+      case '}':
         {
-          if (b & 1)
-            r += "'";
-          break;
-        }
-      case ot_html:
-        {
-          if (b & 4)
-            r += "</b>";
+          if (!blocks.empty ())
+          {
+            unsigned char b (blocks.top ());
 
-          if (b & 2)
-            r += "</i>";
+            switch (ot)
+            {
+            case ot_plain:
+              {
+                if (b & 1)
+                  r += "'";
+                break;
+              }
+            case ot_html:
+              {
+                if (b & 4)
+                  r += "</b>";
 
-          if (b & 1)
-            r += "</code>";
+                if (b & 2)
+                  r += "</i>";
 
-          break;
-        }
-      case ot_man:
-        {
-          if (b & 6)
-            r += "\\fP";
+                if (b & 1)
+                  r += "</code>";
+
+                break;
+              }
+            case ot_man:
+              {
+                if (b & 6)
+                  r += "\\fP";
+                break;
+              }
+            }
+
+            blocks.pop ();
+            break;
+          }
+
+          // Fall through.
         }
       default:
+        r += c;
         break;
       }
-
-      blocks.pop ();
     }
-    else
-      r += s[i];
   }
 
-  if (para)
-    r += "</p>";
+  if (!blocks.empty ())
+  {
+    unsigned char b (blocks.top ());
+    string bs;
+
+    if (b & 1) bs += 'c';
+    if (b & 2) bs += 'i';
+    if (b & 4) bs += 'b';
+
+    cerr << "error: unterminated formatting block '\\" << bs << "' "
+         << "in documentation paragraph '" << string (s, 0, n) << "'" << endl;
+    throw generation_failed ();
+  }
+}
+
+string context::
+format (output_type ot, string const& s, bool para)
+{
+  string r;
+
+  // Iterate over lines (paragraphs).
+  //
+  for (size_t b (0), e (s.find ('\n')); b != e;)
+  {
+    bool first (b == 0), last (e == string::npos);
+
+    if (first) // Before first line.
+    {
+      if (ot == ot_html && para)
+        r += "<p>";
+    }
+    else // Between lines.
+    {
+      if (ot == ot_html && para)
+        r += "</p>";
+
+      r += '\n';
+
+      if (ot == ot_html)
+      {
+        r += "<p>";
+        para = true;
+      }
+    }
+
+    format_line (ot, r, s.c_str () + b, (last ? s.size () : e) - b);
+
+    if (last) // After last line.
+    {
+      if (ot == ot_html && para)
+        r += "</p>";
+    }
+
+    // Get next line.
+    //
+    b = e;
+    if (!last)
+      e = s.find ('\n', ++b);
+  }
 
   return r;
 }
