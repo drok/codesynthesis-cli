@@ -420,31 +420,87 @@ decl (token& t)
 void parser::
 scope_doc (token& t)
 {
-  size_t l (t.line ()), c (t.column ());
+  size_t ln (t.line ()), cl (t.column ());
 
-  doc* d (0);
-
-  if (valid_)
-  {
-    // Use a counter to give scope-level docs unique names. We use a
-    // single counter throughout all units/scope because we could be
-    // reopening namespaces.
-    //
-    ostringstream os;
-    os << "doc " << doc_count_++;
-
-    d = &root_->new_node<doc> (*path_, l, c);
-    root_->new_edge<names> (*scope_, *d, os.str ());
-  }
-
+  // Use a counter to give scope-level docs unique names. We use a
+  // single counter throughout all units/scope because we could be
+  // reopening namespaces.
+  //
   if (t.type () == token::t_string_lit)
   {
     // string-literal
     //
     if (valid_)
     {
-      d->push_back (doc_string (t));
-      cerr << d->name () << " '" << d->back () << "'" << endl;
+      // Enter each ""-enclosed string as a separate documentation
+      // entry, handle documentation variables.
+      //
+      const string& l (t.literal ());
+
+      char p ('\0');
+      for (size_t b (0), e (1); e < l.size (); ++e)
+      {
+        if (l[e] == '"' && p != '\\')
+        {
+          string s (doc_string (l.c_str () + b, e - b + 1));
+
+          if (!s.empty ())
+          {
+            doc& d (root_->new_node<doc> (*path_, ln, cl));
+
+            // See if this is a variable assignment: "\<var>=<val>".
+            //
+            size_t p (0); // '=' position.
+            if (s.size () >= 3 && s[0] == '\\' && s[1] != '\\')
+            {
+              for (p = 1; p != s.size (); ++p)
+              {
+                char c (s[p]);
+
+                // Variable name should be a C identifier.
+                //
+                if (!(c == '_' ||
+                      ('a' <= c && c <= 'z') ||
+                      ('A' <= c && c <= 'Z') ||
+                      (p != 1 && '0' <= c && c <= '9')))
+                  break;
+              }
+
+              if (p == s.size () || s[p] != '=' || p == 1) // Not a variable.
+                p = 0;
+            }
+
+            if (p != 0)
+            {
+              root_->new_edge<names> (
+                *scope_, d, "var: " + string (s, 1, p - 1));
+              s = string (s, p + 1);
+            }
+            else
+            {
+              ostringstream os;
+              os << "doc: " << doc_count_++;
+              root_->new_edge<names> (*scope_, d, os.str ());
+            }
+
+            d.push_back (s); // move().
+          }
+
+          // If we have more, then make b point to the opening '"'. Second
+          // ++e in for() above will make e point to the character after it.
+          //
+          b = ++e;
+          continue;
+        }
+
+        // We need to keep track of \\ escapings so we don't confuse
+        // them with \", as in "\\".
+        //
+        if (l[e] == '\\' && p == '\\')
+          p = '\0';
+        else
+          p = l[e];
+      }
     }
   }
   else
@@ -452,6 +508,16 @@ scope_doc (token& t)
     // doc-string-seq
     //
     assert (t.punctuation () == token::p_lcbrace);
+
+    doc* d (0);
+    if (valid_)
+    {
+      ostringstream os;
+      os << "doc: " << doc_count_++;
+
+      d = &root_->new_node<doc> (*path_, ln, cl);
+      root_->new_edge<names> (*scope_, *d, os.str ());
+    }
 
     for (t = lexer_->next ();; t = lexer_->next ())
     {
@@ -463,10 +529,8 @@ scope_doc (token& t)
       }
 
       if (valid_)
-      {
-        d->push_back (doc_string (t));
-        cerr << d->name () << " '" << d->back () << "'" << endl;
-      }
+        d->push_back (doc_string (t.literal ().c_str (),
+                                  t.literal ().size ()));
 
       t = lexer_->next ();
 
@@ -850,7 +914,8 @@ option_def (token& t)
       }
 
       if (valid_)
-        o->doc ().push_back (doc_string (t));
+        o->doc ().push_back (doc_string (t.literal ().c_str (),
+                                         t.literal ().size ()));
 
       t = lexer_->next ();
 
@@ -879,15 +944,14 @@ option_def (token& t)
 }
 
 string parser::
-doc_string (token& t)
+doc_string (const char* l, size_t n)
 {
   // Get rid of '"'.
   //
   string t1, t2;
-  string const& l (t.literal ());
   char p ('\0');
 
-  for (size_t i (0), n (l.size ()); i < n; ++i)
+  for (size_t i (0); i < n; ++i)
   {
     if (l[i] == '"' && p != '\\')
       continue;

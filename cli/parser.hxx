@@ -56,7 +56,7 @@ private:
   option_def (token&);
 
   std::string
-  doc_string (token&);
+  doc_string (const char*, std::size_t);
 
   bool
   qualified_name (token&, std::string& name);

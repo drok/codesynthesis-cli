@@ -82,6 +82,9 @@ namespace
     virtual void
     traverse (type& ds)
     {
+      if (ds.name ().compare (0, 3, "doc") != 0) // Ignore doc variables.
+        return;
+
       // n = 1 - common doc string
       // n = 2 - arg string, common doc string
       // n > 2 - arg string, usage string, man string
