@@ -4,6 +4,7 @@
 // license   : MIT; see accompanying LICENSE file
 
 #include <stack>
+#include <cstring>  // strncmp()
 #include <iostream>
 
 #include "context.hxx"
@@ -489,6 +490,11 @@ format_line (output_type ot, string& r, const char* s, size_t n)
           r += '}';
           break;
         }
+      case '|':
+        {
+          r += '|';
+          break;
+        }
       default:
         {
           cerr << "error: unknown escape sequence '\\" << c << "' in "
@@ -606,6 +612,13 @@ format_line (output_type ot, string& r, const char* s, size_t n)
     }
   }
 
+  if (escape)
+  {
+    cerr << "error: unterminated escape sequence in documentation "
+         << "paragraph '" << string (s, 0, n) << "'" << endl;
+    throw generation_failed ();
+  }
+
   if (!blocks.empty ())
   {
     unsigned char b (blocks.top ());
@@ -621,6 +634,29 @@ format_line (output_type ot, string& r, const char* s, size_t n)
   }
 }
 
+// Return true if this line ends the paragraph, that is, ends with an
+// unescaped '|'.
+//
+static bool
+end_para (const char* l, size_t n)
+{
+  if (l[n - 1] != '|')
+    return false;
+
+  if (n == 1 || l[n - 2] != '\\')
+    return true;
+
+  // To determine whether this is an escape sequence we have to find
+  // first non-backslash character and then figure out who escapes who.
+  //
+  size_t i (n - 2);
+  for (; i != 0 && l[i - 1] == '\\'; --i) ;
+
+  // If we have an even number of backslashes, the it is unescaped.
+  //
+  return (n - i - 1) % 2 == 0;
+}
+
 string context::
 format (output_type ot, string const& s, bool para)
 {
@@ -632,32 +668,63 @@ format (output_type ot, string const& s, bool para)
   {
     bool first (b == 0), last (e == string::npos);
 
-    if (first) // Before first line.
-    {
-      if (ot == ot_html && para)
-        r += "<p>";
-    }
-    else // Between lines.
-    {
-      if (ot == ot_html && para)
-        r += "</p>";
+    const char* l (s.c_str () + b);
+    size_t n ((last ? s.size () : e) - b);
 
-      r += '\n';
+    // Some paragraph blocks are only valid if we are required to start
+    // a new paragraph (para is true).
+    //
+    if (n >= 3 && strncmp (l, "\\h|", 3) == 0)
+    {
+      if (!para)
+      {
+        cerr << "error: invalid context '" << s << "' for paragraph '"
+             << string (l, 0, n) << "'" << endl;
+        throw generation_failed ();
+      }
+
+      if (!end_para (l, n))
+      {
+        cerr << "error: '|' expected at the end of paragraph '"
+             << string (l, 0, n) << "'" << endl;
+        throw generation_failed ();
+      }
+
+      if (n == 4)
+      {
+        cerr << "error: empty paragraph '" << string (l, 0, n) << "'" << endl;
+        throw generation_failed ();
+      }
 
       if (ot == ot_html)
+        r += "<h1>";
+
+      format_line (ot, r, l + 3, n - 4);
+
+      if (ot == ot_html)
+        r += "</h1>";
+    }
+    else // Normal text.
+    {
+      if (para || !first) // Start a paragraph?
       {
-        r += "<p>";
-        para = true;
+        if (ot == ot_html)
+          r += "<p>";
+      }
+
+      format_line (ot, r, l, n);
+
+      if (para || !first) // End a paragraph?
+      {
+        if (ot == ot_html)
+          r += "</p>";
       }
     }
 
-    format_line (ot, r, s.c_str () + b, (last ? s.size () : e) - b);
-
-    if (last) // After last line.
-    {
-      if (ot == ot_html && para)
-        r += "</p>";
-    }
+    // Separate paragraphs with newline.
+    //
+    if (!last)
+      r += '\n';
 
     // Get next line.
     //
