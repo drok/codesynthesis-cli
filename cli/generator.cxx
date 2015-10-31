@@ -92,19 +92,87 @@ namespace
   }
 
   void
-  append (ostream& os, vector<string> const& text, string const& file)
+  append (ostream& os, const string& s, semantics::cli_unit& u)
+  {
+    // Scan the string looking for variable substitutions ($var$).
+    //
+    size_t b (0), e (b);
+    for (size_t n (s.size ()); e != n; ++e)
+    {
+      if (s[e] == '$' && e + 1 != n)
+      {
+        if (s[e + 1] == '$') // Escape.
+        {
+          os.write (s.c_str () + b, ++e - b); // Write one, skip the other.
+          b = e + 1;
+          continue;
+        }
+
+        // Scan for as long as it is a C identifier.
+        //
+        size_t p (e + 1); // Position of the second '$'.
+        for (; p != n; ++p)
+        {
+          char c (s[p]);
+
+          if (!(c == '_' ||
+                ('a' <= c && c <= 'z') ||
+                ('A' <= c && c <= 'Z') ||
+                (p != e + 1 && '0' <= c && c <= '9')))
+            break;
+        }
+
+        // Note: check that the second '$' is not escaped.
+        //
+        if (p != n && s[p] == '$' && (p + 1 == n || s[p + 1] != '$'))
+        {
+          os.write (s.c_str () + b, e - b);
+
+          // Lookup and substiute the variable.
+          //
+          ++e;
+          string v (s, e, p - e);
+
+          if (semantics::doc* d = u.lookup<semantics::doc> ("", "var: " + v))
+            os << d->front ();
+          else
+          {
+            cerr << "error: undefined variable '" << v << "' in '" << s << "'"
+                 << endl;
+            throw generation_failed ();
+          }
+
+          e = p;
+          b = e + 1;
+        }
+      }
+    }
+
+    os.write (s.c_str () + b, e - b); // Last chunk.
+    os << endl;
+  }
+
+  void
+  append (ostream& os,
+          vector<string> const& text,
+          string const& file,
+          semantics::cli_unit& u)
   {
     for (vector<string>::const_iterator i (text.begin ());
          i != text.end (); ++i)
-    {
-      os << *i << endl;
-    }
+      append (os, *i, u);
 
     if (!file.empty ())
     {
       ifstream ifs;
       open (ifs, file);
-      os << ifs.rdbuf ();
+
+      // getline() will set the failbit if it failed to extract anything,
+      // not even the delimiter and eofbit if it reached eof before seeing
+      // the delimiter.
+      //
+      for (string s; getline (ifs, s); )
+        append (os, s, u);
     }
   }
 }
@@ -274,7 +342,7 @@ generate (options const& ops, semantics::cli_unit& unit, path const& p)
         //
         hxx << "// Begin prologue." << endl
             << "//" << endl;
-        append (hxx, ops.hxx_prologue (), ops.hxx_prologue_file ());
+        append (hxx, ops.hxx_prologue (), ops.hxx_prologue_file (), unit);
         hxx << "//" << endl
             << "// End prologue." << endl
             << endl;
@@ -301,7 +369,7 @@ generate (options const& ops, semantics::cli_unit& unit, path const& p)
         //
         hxx << "// Begin epilogue." << endl
             << "//" << endl;
-        append (hxx, ops.hxx_epilogue (), ops.hxx_epilogue_file ());
+        append (hxx, ops.hxx_epilogue (), ops.hxx_epilogue_file (), unit);
         hxx << "//" << endl
             << "// End epilogue." << endl
             << endl;
@@ -319,7 +387,7 @@ generate (options const& ops, semantics::cli_unit& unit, path const& p)
         //
         ixx << "// Begin prologue." << endl
             << "//" << endl;
-        append (ixx, ops.ixx_prologue (), ops.ixx_prologue_file ());
+        append (ixx, ops.ixx_prologue (), ops.ixx_prologue_file (), unit);
         ixx << "//" << endl
             << "// End prologue." << endl
             << endl;
@@ -339,7 +407,7 @@ generate (options const& ops, semantics::cli_unit& unit, path const& p)
         //
         ixx << "// Begin epilogue." << endl
             << "//" << endl;
-        append (ixx, ops.ixx_epilogue (), ops.ixx_epilogue_file ());
+        append (ixx, ops.ixx_epilogue (), ops.ixx_epilogue_file (), unit);
         ixx << "//" << endl
             << "// End epilogue." << endl;
       }
@@ -353,7 +421,7 @@ generate (options const& ops, semantics::cli_unit& unit, path const& p)
         //
         cxx << "// Begin prologue." << endl
             << "//" << endl;
-        append (cxx, ops.cxx_prologue (), ops.cxx_prologue_file ());
+        append (cxx, ops.cxx_prologue (), ops.cxx_prologue_file (), unit);
         cxx << "//" << endl
             << "// End prologue." << endl
             << endl;
@@ -382,7 +450,7 @@ generate (options const& ops, semantics::cli_unit& unit, path const& p)
         //
         cxx << "// Begin epilogue." << endl
             << "//" << endl;
-        append (cxx, ops.cxx_epilogue (), ops.cxx_epilogue_file ());
+        append (cxx, ops.cxx_epilogue (), ops.cxx_epilogue_file (), unit);
         cxx << "//" << endl
             << "// End epilogue." << endl
             << endl;
@@ -418,14 +486,14 @@ generate (options const& ops, semantics::cli_unit& unit, path const& p)
       //
       ostream& os (ops.stdout_ () ? cout : static_cast<ostream&> (man));
 
-      append (os, ops.man_prologue (), ops.man_prologue_file ());
+      append (os, ops.man_prologue (), ops.man_prologue_file (), unit);
 
       os << man_header;
 
       context ctx (os, unit, ops);
       generate_man (ctx);
 
-      append (os, ops.man_epilogue (), ops.man_epilogue_file ());
+      append (os, ops.man_epilogue (), ops.man_epilogue_file (), unit);
     }
 
     // HTML output
@@ -457,14 +525,14 @@ generate (options const& ops, semantics::cli_unit& unit, path const& p)
       //
       ostream& os (ops.stdout_ () ? cout : static_cast<ostream&> (html));
 
-      append (os, ops.html_prologue (), ops.html_prologue_file ());
+      append (os, ops.html_prologue (), ops.html_prologue_file (), unit);
 
       os << html_header;
 
       context ctx (os, unit, ops);
       generate_html (ctx);
 
-      append (os, ops.html_epilogue (), ops.html_epilogue_file ());
+      append (os, ops.html_epilogue (), ops.html_epilogue_file (), unit);
     }
 
     auto_rm.cancel ();
