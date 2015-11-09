@@ -53,26 +53,66 @@ namespace
 
     size_t b (0), e (0), i (0);
 
+    bool nl (true); // True if last written to os character is a newline.
+
     for (size_t n (d.size ()); i < n; ++i)
     {
+      // First handle <pre>.
+      //
+      if (d.compare (i, 5, "<pre>") == 0)
+      {
+        // Write what might have already accumulated.
+        //
+        if (b != i)
+        {
+          if (nl)
+            os << ind;
+
+          os << string (d, b, i - b);
+          nl = false;
+        }
+
+        // Output everything until (and including) closing </pre> as is.
+        //
+        e = d.find ("</pre>", i + 5);
+        assert (e != string::npos);
+        e += 6; // Now points past '>'.
+
+        if (nl)
+          os << ind;
+
+        os << string (d, i, e - i);
+
+        b = e;
+        i = e - 1; // For ++i in loop header.
+        nl = false;
+        continue;
+      }
+
       if (d[i] == ' ' || d[i] == '\n')
         e = i;
 
       if (d[i] == '\n' || (i - b >= lim && e != b))
       {
-        os << (b != 0 ? "\n" : "") << ind << string (d, b, e - b);
+        if (nl && b != e)
+          os << ind;
 
-        if (d[i] == '\n')
-          os << endl;
+        os << string (d, b, e - b) << endl;
 
         b = e = e + 1;
+        nl = true;
       }
     }
 
     // Write the last line.
     //
     if (b != i)
-      os << (b != 0 ? "\n" : "") << ind << string (d, b, i - b);
+    {
+      if (nl)
+        os << ind;
+
+      os << string (d, b, i - b);
+    }
   }
 
   struct doc: traversal::doc, context

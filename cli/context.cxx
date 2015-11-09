@@ -662,19 +662,45 @@ format (output_type ot, string const& s, bool para)
 {
   string r;
 
-  // Iterate over lines (paragraphs).
+  // Iterate over lines (paragraphs) or pre-formatted sections.
   //
-  for (size_t b (0), e (s.find ('\n')); b != e;)
+  for (size_t b (0), e; ; b = e + 1)
   {
-    bool first (b == 0), last (e == string::npos);
+    bool pre (s[b] == 0x02);
+    bool first (b == 0), last;
+
+    if (pre)
+    {
+      e = s.find (0x03, ++b);
+      assert (e != string::npos);
+      last = (e + 1 == s.size ());
+    }
+    else
+    {
+      e = s.find ('\n', b);
+      last = (e == string::npos);
+    }
 
     const char* l (s.c_str () + b);
-    size_t n ((last ? s.size () : e) - b);
+    size_t n ((e != string::npos ? e : s.size ()) - b);
 
+    if (pre)
+    {
+      ++e; // Skip newline that follows 0x03.
+
+      if (ot == ot_html)
+        r += "<pre>";
+
+      r.append (l, n);
+
+      if (ot == ot_html)
+        r += "</pre>";
+    }
+    //
     // Some paragraph blocks are only valid if we are required to start
     // a new paragraph (para is true).
     //
-    if (n >= 3 && strncmp (l, "\\h|", 3) == 0)
+    else if (n >= 3 && strncmp (l, "\\h|", 3) == 0)
     {
       if (!para)
       {
@@ -721,16 +747,12 @@ format (output_type ot, string const& s, bool para)
       }
     }
 
+    if (last)
+      break;
+
     // Separate paragraphs with newline.
     //
-    if (!last)
-      r += '\n';
-
-    // Get next line.
-    //
-    b = e;
-    if (!last)
-      e = s.find ('\n', ++b);
+    r += "\n\n";
   }
 
   return r;

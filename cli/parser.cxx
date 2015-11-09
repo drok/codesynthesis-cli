@@ -948,7 +948,7 @@ doc_string (const char* l, size_t n)
 {
   // Get rid of '"'.
   //
-  string t1, t2;
+  string t1, t2, t3;
   char p ('\0');
 
   for (size_t i (0); i < n; ++i)
@@ -967,12 +967,16 @@ doc_string (const char* l, size_t n)
     t1 += l[i];
   }
 
-  // Get rid of leading and trailing spaces in each line.
+  // Get rid of leading and trailing spaces in each line. Also handle
+  // pre-formatted fragments.
   //
   if (t1.size () != 0)
   {
     bool more (true);
     size_t b (0), e, p;
+
+    bool pre (false);
+    size_t m; // Number of leading spaces to remove in pre.
 
     while (more)
     {
@@ -984,15 +988,35 @@ doc_string (const char* l, size_t n)
         more = false;
       }
 
-      while (b < e && (t1[b] == 0x20 || t1[b] == 0x0D || t1[b] == 0x09))
-        ++b;
+      // In the pre mode we only remove up to m leading whitespaces.
+      //
+      {
+        size_t i (0);
+        while (b < e &&
+               (t1[b] == 0x20 || t1[b] == 0x0D || t1[b] == 0x09) &&
+               (!pre || i != m))
+        {
+          ++b;
+          ++i;
+        }
+
+        if (!pre)
+          m = i;
+      }
 
       --e;
-
       while (e > b && (t1[e] == 0x20 || t1[e] == 0x0D || t1[e] == 0x09))
         --e;
 
-      if (b <= e)
+      if (b == e && t1[b] == '\\')
+      {
+        // Use Start of Text (0x02) and End of Text (0x03) special
+        // characters as pre-formatted fragment markers.
+        //
+        pre = !pre;
+        t2 += (pre ? 0x02 : 0x03);
+      }
+      else if (b <= e)
         t2.append (t1, b, e - b + 1);
 
       if (more)
@@ -1001,27 +1025,75 @@ doc_string (const char* l, size_t n)
         b = p + 1;
       }
     }
+
+    if (pre)
+    {
+      cerr << *path_ << ": error: missing pre-formatted fragment end marker "
+           << "in documentation string '" << t1 << "'" << endl;
+      throw error ();
+    }
   }
 
-  // Replace every single newlines with single space and all
-  // multiple new lines (paragraph marker) with a single newline.
+  // Replace every single newlines with single space and all multiple new
+  // lines (paragraph marker) with a single newline, unless we are in a
+  // pre-formatted fragment.
   //
-  t1.clear ();
+  bool pre (false);
   for (size_t i (0), n (t2.size ()); i < n; ++i)
   {
-    if (t2[i] == '\n')
+    char c (t2[i]);
+
+    if (c == '\n' && !pre)
     {
       size_t j (i);
       for (; i + 1 < n && t2[i + 1] == '\n'; ++i) ;
 
       if (j != 0 && i + 1 != n) // Strip leading and trailing newlines.
-        t1 += i != j ? '\n' : ' ';
+        t3 += i != j ? '\n' : ' ';
     }
     else
-      t1 += t2[i];
+    {
+      if (c == (pre ? 0x03 : 0x02))
+      {
+        pre = !pre;
+
+        // Kill "inner" newlines (after opening and before closing '/'
+        // markers). Also check for "outer" newlines so that we always
+        // have paragraph separation.
+        //
+        size_t k (t3.size ());
+        if (pre)
+        {
+          if (k != 0 && t3[k - 1] != '\n') // Outer.
+          {
+            cerr << *path_ << ": error: missing empty line before pre-"
+                 << "formatted fragment start marker in documentation "
+                 << "string '" << t1 << "'" << endl;
+            throw error ();
+          }
+
+          ++i; // Skip inner.
+        }
+        else
+        {
+          if (t3[k - 1] == '\n') // Could be the same as opnening if empty.
+            t3.resize (k - 1); // Pop inner.
+
+          if (i + 2 < n && (t2[i + 1] != '\n' || t2[i + 2] != '\n')) // Outer.
+          {
+            cerr << *path_ << ": error: missing empty line after pre-"
+                 << "formatted fragment end marker in documentation "
+                 << "string '" << t1 << "'" << endl;
+            throw error ();
+          }
+        }
+      }
+
+      t3 += c;
+    }
   }
 
-  return t1;
+  return t3;
 }
 
 
