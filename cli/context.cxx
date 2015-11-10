@@ -634,33 +634,27 @@ format_line (output_type ot, string& r, const char* s, size_t n)
   }
 }
 
-// Return true if this line ends the paragraph, that is, ends with an
-// unescaped '|'.
-//
-static bool
-end_para (const char* l, size_t n)
+struct block
 {
-  if (l[n - 1] != '|')
-    return false;
+  enum value {none, h/*, ul, li*/} v_;
+  block (value v = h): v_ (v) {}
+  operator value () const {return v_;}
+};
 
-  if (n == 1 || l[n - 2] != '\\')
-    return true;
+const char* block_str[] = {"", "\\h", "\\ul", "\\li"};
 
-  // To determine whether this is an escape sequence we have to find
-  // first non-backslash character and then figure out who escapes who.
-  //
-  size_t i (n - 2);
-  for (; i != 0 && l[i - 1] == '\\'; --i) ;
-
-  // If we have an even number of backslashes, the it is unescaped.
-  //
-  return (n - i - 1) % 2 == 0;
+inline ostream&
+operator<< (ostream& os, block b)
+{
+  return os << block_str[b];
 }
 
 string context::
 format (output_type ot, string const& s, bool para)
 {
   string r;
+
+  stack<block> blocks;
 
   // Iterate over lines (paragraphs) or pre-formatted sections.
   //
@@ -696,54 +690,128 @@ format (output_type ot, string const& s, bool para)
       if (ot == ot_html)
         r += "</pre>";
     }
-    //
-    // Some paragraph blocks are only valid if we are required to start
-    // a new paragraph (para is true).
-    //
-    else if (n >= 3 && strncmp (l, "\\h|", 3) == 0)
+    else
     {
-      if (!para)
+      const char* ol (l); // Original, full line, for diagnostics.
+      size_t on (n);
+
+      block b (block::none);
+
+      // Some paragraph blocks are only valid if we are required to start
+      // a new paragraph (para is true).
+      //
+      if (n >= 3 && strncmp (l, "\\h|", 3) == 0)
       {
-        cerr << "error: invalid context '" << s << "' for paragraph '"
-             << string (l, 0, n) << "'" << endl;
-        throw generation_failed ();
-      }
+        if (!blocks.empty ())
+        {
+          cerr << "error: '\\h' inside '" << blocks.top () << "' "
+               << "in documentation string '" << s << "'" << endl;
+          throw generation_failed ();
+        }
 
-      if (!end_para (l, n))
-      {
-        cerr << "error: '|' expected at the end of paragraph '"
-             << string (l, 0, n) << "'" << endl;
-        throw generation_failed ();
-      }
+        if (!para)
+        {
+          cerr << "error: paragraph '" << string (ol, 0, on) << "' "
+               << "not allowed in '" << s << "'" << endl;
+          throw generation_failed ();
+        }
 
-      if (n == 4)
-      {
-        cerr << "error: empty paragraph '" << string (l, 0, n) << "'" << endl;
-        throw generation_failed ();
-      }
-
-      if (ot == ot_html)
-        r += "<h1>";
-
-      format_line (ot, r, l + 3, n - 4);
-
-      if (ot == ot_html)
-        r += "</h1>";
-    }
-    else // Normal text.
-    {
-      if (para || !first) // Start a paragraph?
-      {
         if (ot == ot_html)
-          r += "<p>";
+          r += "<h1>";
+
+        l += 3;
+        n -= 3;
+        blocks.push (b = block::h);
+      }
+
+      // Figure out how many blocks we need to pop. Things get complicated
+      // since '|' could be escaped.
+      //
+      size_t pc (0); // Pop count.
+      for (; n - pc > 0 && l[n - pc - 1] == '|'; ++pc) ;
+      if (pc != 0)
+      {
+        // To determine whether the first '|' is part of an escape sequence
+        // we have to find the first non-backslash character and then figure
+        // out who escapes whom.
+        //
+        size_t ec (0); // Escape count.
+        for (; n - pc - ec > 0 && l[n - pc - ec - 1] == '\\'; ++ec) ;
+
+        // If we have an odd number of backslashes, then the last '|' is
+        // escaped.
+        //
+        if (ec % 2 != 0)
+          --pc;
+      }
+
+      if (pc > blocks.size ())
+      {
+        cerr << "error: extraneous '|' at the end of paragraph '"
+             << string (ol, 0, on) << "'" << endl;
+        throw generation_failed ();
+      }
+
+      n -= pc; // Number of special '|' at the end.
+
+      // Some blocks, like \h, are single-paragraph and cannot be empty.
+      //
+      if (b == block::h && n == 0)
+      {
+        cerr << "error: empty paragraph '" << string (ol, 0, on) << "' "
+             << "in documentation string '" << s << "'" << endl;
+        throw generation_failed ();
+      }
+
+      if (b == block::none) // Normal text.
+      {
+        if (para || !first) // Start a paragraph?
+        {
+          if (ot == ot_html)
+            r += "<p>";
+        }
       }
 
       format_line (ot, r, l, n);
 
-      if (para || !first) // End a paragraph?
+      if (b == block::none) // Normal text.
       {
-        if (ot == ot_html)
-          r += "</p>";
+        if (para || !first) // End a paragraph?
+        {
+          if (ot == ot_html)
+            r += "</p>";
+        }
+      }
+
+      // Pop paragraph blocks.
+      //
+      for (; pc != 0; --pc)
+      {
+        switch (blocks.top ())
+        {
+        case block::h:
+          {
+            if (ot == ot_html)
+              r += "</h1>";
+
+            break;
+          }
+        case block::none:
+          break;
+        }
+
+        blocks.pop ();
+      }
+
+      // Some blocks, like \h, must be single-paragraph.
+      //
+      b = blocks.empty () ? block (block::none) : blocks.top ();
+
+      if (b == block::h)
+      {
+        cerr << "error: '|' expected at the end of paragraph '"
+             << string (ol, 0, on) << "'" << endl;
+        throw generation_failed ();
       }
     }
 
@@ -753,6 +821,13 @@ format (output_type ot, string const& s, bool para)
     // Separate paragraphs with newline.
     //
     r += "\n\n";
+  }
+
+  if (!blocks.empty ())
+  {
+    cerr << "error: unterminated paragraph '\\" << blocks.top () << "' "
+         << "in documentation string '" << s << "'" << endl;
+    throw generation_failed ();
   }
 
   return r;
