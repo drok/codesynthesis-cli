@@ -636,12 +636,12 @@ format_line (output_type ot, string& r, const char* s, size_t n)
 
 struct block
 {
-  enum value {none, h/*, ul, li*/} v_;
-  block (value v = h): v_ (v) {}
+  enum value {h, ul, ol, dl, li, text} v_;
+  block (value v = text): v_ (v) {}
   operator value () const {return v_;}
 };
 
-const char* block_str[] = {"", "\\h", "\\ul", "\\li"};
+const char* block_str[] = {"\\h", "\\ul", "\\ol", "\\dl", "\\li", "text"};
 
 inline ostream&
 operator<< (ostream& os, block b)
@@ -650,18 +650,22 @@ operator<< (ostream& os, block b)
 }
 
 string context::
-format (output_type ot, string const& s, bool para)
+format (output_type ot, string const& s, bool first_para)
 {
   string r;
-
   stack<block> blocks;
+
+  // Flag that indicates whether the next fragment of text should start
+  // in its own paragraph.
+  //
+  bool para (first_para);
 
   // Iterate over lines (paragraphs) or pre-formatted sections.
   //
   for (size_t b (0), e; ; b = e + 1)
   {
     bool pre (s[b] == 0x02);
-    bool first (b == 0), last;
+    bool last;
 
     if (pre)
     {
@@ -689,42 +693,53 @@ format (output_type ot, string const& s, bool para)
 
       if (ot == ot_html)
         r += "</pre>";
+
+      para = true;
     }
     else
     {
       const char* ol (l); // Original, full line, for diagnostics.
       size_t on (n);
 
-      block b (block::none);
-
-      // Some paragraph blocks are only valid if we are required to start
-      // a new paragraph (para is true).
+      // First determine what kind of paragraph block this is (i.e.,
+      // handle the "prefix").
       //
+      block b (block::text);
+
       if (n >= 3 && strncmp (l, "\\h|", 3) == 0)
       {
-        if (!blocks.empty ())
-        {
-          cerr << "error: '\\h' inside '" << blocks.top () << "' "
-               << "in documentation string '" << s << "'" << endl;
-          throw generation_failed ();
-        }
-
-        if (!para)
-        {
-          cerr << "error: paragraph '" << string (ol, 0, on) << "' "
-               << "not allowed in '" << s << "'" << endl;
-          throw generation_failed ();
-        }
-
-        if (ot == ot_html)
-          r += "<h1>";
-
+        b = block::h;
         l += 3;
         n -= 3;
-        blocks.push (b = block::h);
+      }
+      else if (n >= 4 &&
+               (strncmp (l, "\\ul|", 4) == 0 ||
+                strncmp (l, "\\ol|", 4) == 0 ||
+                strncmp (l, "\\dl|", 4) == 0))
+      {
+        switch (l[1])
+        {
+        case 'u': b = block::ul; break;
+        case 'o': b = block::ol; break;
+        case 'd': b = block::dl; break;
+        }
+
+        l += 4;
+        n -= 4;
+      }
+      else if (n >= 4 && strncmp (l, "\\li|", 4) == 0)
+      {
+        b = block::li;
+        l += 4;
+        n -= 4;
       }
 
-      // Figure out how many blocks we need to pop. Things get complicated
+      // Skip leading spaces after opening '|'.
+      //
+      while (n != 0 && (*l == 0x20 || *l == 0x0D || *l == 0x09)) {l++; n--;}
+
+      // Next figure out how many blocks we need to pop at the end of this
+      // paragraph (i.e., handle the "suffix"). Things get a bit complicated
       // since '|' could be escaped.
       //
       size_t pc (0); // Pop count.
@@ -743,75 +758,203 @@ format (output_type ot, string const& s, bool para)
         //
         if (ec % 2 != 0)
           --pc;
+
+        n -= pc; // Number of special '|' at the end.
+
+        // Skip trailing spaces before closing '|'.
+        //
+        while (n != 0 && (l[n - 1] == 0x20 ||
+                          l[n - 1] == 0x0D ||
+                          l[n - 1] == 0x09))
+          n--;
       }
 
-      if (pc > blocks.size ())
+      if (pc > blocks.size () + (b != block::text ? 1 : 0))
       {
         cerr << "error: extraneous '|' at the end of paragraph '"
              << string (ol, 0, on) << "'" << endl;
         throw generation_failed ();
       }
 
-      n -= pc; // Number of special '|' at the end.
-
-      // Some blocks, like \h, are single-paragraph and cannot be empty.
+      // Verify that this block type is valid in this context. Skip
+      // empty text blocks (can happen if we just have '|').
       //
-      if (b == block::h && n == 0)
+      if (b != block::text || n != 0)
       {
-        cerr << "error: empty paragraph '" << string (ol, 0, on) << "' "
-             << "in documentation string '" << s << "'" << endl;
-        throw generation_failed ();
+        bool good (true);
+        block ob (blocks.empty () ? block (block::text) : blocks.top ());
+
+        switch (ob)
+        {
+        case block::h: good = false; break;
+        case block::ul:
+        case block::ol:
+        case block::dl: good = (b == block::li); break;
+        case block::li: good = (b == block::text); break;
+        case block::text: good = (b != block::li); break;
+        }
+
+        if (!good)
+        {
+          cerr << "error: " << b << " inside " << ob << " "
+               << "in documentation string '" << s << "'" << endl;
+          throw generation_failed ();
+        }
       }
 
-      if (b == block::none) // Normal text.
+      // Verify the block itself.
+      //
+      switch (b)
       {
-        if (para || !first) // Start a paragraph?
+      case block::h:
+
+        // \h blocks are only valid if we are required to start a new
+        // paragraph (first_para is true).
+        //
+        if (!first_para)
         {
-          if (ot == ot_html)
+          cerr << "error: paragraph '" << string (ol, 0, on) << "' "
+               << "not allowed in '" << s << "'" << endl;
+          throw generation_failed ();
+        }
+
+        // \h must be single-paragraph.
+        //
+        if (pc == 0)
+        {
+          cerr << "error: '|' expected at the end of paragraph '"
+               << string (ol, 0, on) << "'" << endl;
+          throw generation_failed ();
+        }
+
+        // \h must not be empty.
+        //
+        if (n == 0)
+        {
+          cerr << "error: empty paragraph '" << string (ol, 0, on) << "' "
+               << "in documentation string '" << s << "'" << endl;
+          throw generation_failed ();
+        }
+
+        break;
+      case block::ul:
+      case block::ol:
+      case block::dl:
+
+        if (pc != 0)
+        {
+          cerr << "error: empty list '" << string (ol, 0, on) << "' "
+               << "in documentation string '" << s << "'" << endl;
+          throw generation_failed ();
+        }
+
+        if (n != 0)
+        {
+          cerr << "error: unexpected text after " << b << "| "
+               << "in paragraph '" << string (ol, 0, on) << "'" << endl;
+          throw generation_failed ();
+        }
+
+        break;
+      case block::li:
+
+        if (blocks.top () == block::dl)
+        {
+          if (n == 0)
+          {
+            cerr << "error: term text missing in paragraph '"
+                 << string (ol, 0, on) << "'" << endl;
+            throw generation_failed ();
+          }
+        }
+
+        break;
+      case block::text:
+        break;
+      }
+
+      // Output opening markup.
+      //
+      if (ot == ot_html)
+      {
+        switch (b)
+        {
+        case block::h:  r += "<h1>"; break;
+        case block::ul: r += "<ul>"; break;
+        case block::ol: r += "<ol>"; break;
+        case block::dl: r += "<dl>"; break;
+        case block::li:
+          r += (blocks.top () == block::dl ? "<dt>" : "<li>");
+          break;
+        case block::text:
+          if (n != 0 && para)
             r += "<p>";
+          break;
         }
       }
 
-      format_line (ot, r, l, n);
+      // Output paragraph text.
+      //
+      if (n != 0)
+        format_line (ot, r, l, n);
 
-      if (b == block::none) // Normal text.
+      // Output intermediate markup, if any.
+      //
+      if (ot == ot_html)
       {
-        if (para || !first) // End a paragraph?
+        switch (b)
         {
-          if (ot == ot_html)
+        case block::li:
+          if (blocks.top () == block::dl)
+            r += "</dt>\n<dd>";
+          break;
+        case block::text:
+          if (n != 0 && para)
             r += "</p>";
+          break;
+        default: break;
         }
       }
+
+      // Set the para flag.
+      //
+      switch (b)
+      {
+      case block::li: para = (blocks.top () != block::dl); break;
+      case block::text: para = para || (n != 0); break;
+      default: para = true; break;
+      }
+
+      // Push the paragraph block.
+      //
+      if (b != block::text)
+        blocks.push (b);
 
       // Pop paragraph blocks.
       //
       for (; pc != 0; --pc)
       {
-        switch (blocks.top ())
-        {
-        case block::h:
-          {
-            if (ot == ot_html)
-              r += "</h1>";
+        b = blocks.top ();
+        blocks.pop ();
 
+        if (ot == ot_html)
+        {
+          switch (b)
+          {
+          case block::h:  r += "</h1>"; break;
+          case block::ul: r += "</ul>"; break;
+          case block::ol: r += "</ol>"; break;
+          case block::dl: r += "</dl>"; break;
+          case block::li: r += blocks.top () == block::dl ? "</dd>" : "</li>";
             break;
+          case block::text: break;
           }
-        case block::none:
-          break;
+
+          if (pc != 1) // Add empty line unless this is the last separator.
+            r += "\n\n";
         }
 
-        blocks.pop ();
-      }
-
-      // Some blocks, like \h, must be single-paragraph.
-      //
-      b = blocks.empty () ? block (block::none) : blocks.top ();
-
-      if (b == block::h)
-      {
-        cerr << "error: '|' expected at the end of paragraph '"
-             << string (ol, 0, on) << "'" << endl;
-        throw generation_failed ();
+        para = true; // End of a block always means new paragraph.
       }
     }
 
@@ -820,12 +963,13 @@ format (output_type ot, string const& s, bool para)
 
     // Separate paragraphs with newline.
     //
-    r += "\n\n";
+    if (para)
+      r += "\n\n";
   }
 
   if (!blocks.empty ())
   {
-    cerr << "error: unterminated paragraph '\\" << blocks.top () << "' "
+    cerr << "error: unterminated paragraph " << blocks.top () << " "
          << "in documentation string '" << s << "'" << endl;
     throw generation_failed ();
   }
