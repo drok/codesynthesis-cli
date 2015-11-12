@@ -241,8 +241,7 @@ namespace
 
       if (!c.names_empty ())
       {
-        os << "  <dl class=\"options\">" << endl
-           << endl;
+        os << "  <dl class=\"options\">" << endl;
         names (c, names_option_);
         os << "  </dl>" << endl
            << endl;
