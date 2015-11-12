@@ -5,6 +5,7 @@
 
 #include <stack>
 #include <cstring>  // strncmp()
+#include <sstream>
 #include <iostream>
 
 #include "context.hxx"
@@ -662,6 +663,11 @@ format (output_type ot, string const& s, bool para)
   stack<block> blocks;
   blocks.push (block (block::text, para)); // Top-level.
 
+  // Number of li in ol. Since we don't support nested lists, we don't
+  // need to push it into the stack.
+  //
+  size_t ol_count;
+
   bool last (false);
   for (size_t b (0), e; !last; b = e + 1)
   {
@@ -881,15 +887,29 @@ format (output_type ot, string const& s, bool para)
     {
     case block::h: blocks.push (block (k, false)); break;
     case block::ul:
-    case block::ol:
+    case block::ol: ol_count = 0; // Fall through.
     case block::dl: blocks.push (block (k, true)); break;
     case block::li:
       {
         string h;
-        if (blocks.top ().kind == block::dl)
+
+        switch (blocks.top ().kind)
         {
-          format_line (ot, h, l, n);
-          n = 0;
+        case block::ol:
+          {
+            ostringstream os;
+            os << ++ol_count;
+            h = os.str ();
+            break;
+          }
+        case block::dl:
+          {
+            format_line (ot, h, l, n);
+            n = 0;
+            break;
+          }
+        default:
+          break;
         }
 
         blocks.push (block (k, false, h));
@@ -960,33 +980,70 @@ format (output_type ot, string const& s, bool para)
       block& b (blocks.top ());
       string& v (b.value);
 
-      if (ot == ot_html)
+      switch (ot)
       {
-        // Separate paragraphs with a blank line.
-        //
-        if (!v.empty ())
-          v += "\n\n";
-
-        switch (pb.kind)
+      case ot_plain:
         {
-        case block::h:  v += "<h1>" + pv + "</h1>"; break;
-        case block::ul: v += "<ul>\n" + pv + "\n</ul>"; break;
-        case block::ol: v += "<ol>\n" + pv + "\n</ol>"; break;
-        case block::dl: v += "<dl>\n" + pv + "\n</dl>"; break;
-        case block::li:
-          {
-            if (b.kind == block::dl)
-            {
-              v += "<dt>" + ph + "</dt>\n";
-              v += "<dd>" + pv + "</dd>";
-            }
-            else
-              v += "<li>" + pv + "</li>";
+          const char* sn (v.empty () ? "" : "\n");
+          const char* dn (v.empty () ? "" : "\n\n");
 
-            break;
+          switch (pb.kind)
+          {
+          case block::h:  v += dn + pv; break;
+          case block::ul:
+          case block::ol:
+          case block::dl: v += dn + pv; break;
+          case block::li:
+            {
+              v += sn;
+
+              switch (b.kind)
+              {
+              case block::ul: v += "* " + pv; break;
+              case block::ol: v += ph + ". " + pv; break;
+              case block::dl: v += ph + "\n        " + pv; break;
+              default: break;
+              }
+              break;
+            }
+          case block::text:
+          case block::pre: assert (false);
           }
-        case block::text:
-        case block::pre: assert (false);
+
+          break;
+        }
+      case ot_html:
+        {
+          if (!v.empty ())
+            v += "\n\n";
+
+          switch (pb.kind)
+          {
+          case block::h:  v += "<h1>" + pv + "</h1>"; break;
+          case block::ul: v += "<ul>\n" + pv + "\n</ul>"; break;
+          case block::ol: v += "<ol>\n" + pv + "\n</ol>"; break;
+          case block::dl: v += "<dl>\n" + pv + "\n</dl>"; break;
+          case block::li:
+            {
+              if (b.kind == block::dl)
+              {
+                v += "<dt>" + ph + "</dt>\n";
+                v += "<dd>" + pv + "</dd>";
+              }
+              else
+                v += "<li>" + pv + "</li>";
+
+              break;
+            }
+          case block::text:
+          case block::pre: assert (false);
+          }
+
+          break;
+        }
+      case ot_man:
+        {
+          break; // @@ TODO
         }
       }
     }
@@ -1003,370 +1060,6 @@ format (output_type ot, string const& s, bool para)
 
   return blocks.top ().value;
 }
-
-/*
-
-struct block
-{
-  enum value {h, ul, ol, dl, li, text} v_;
-  block (value v = text): v_ (v) {}
-  operator value () const {return v_;}
-};
-
-const char* block_str[] = {"\\h", "\\ul", "\\ol", "\\dl", "\\li", "text"};
-
-inline ostream&
-operator<< (ostream& os, block b)
-{
-  return os << block_str[b];
-}
-
-string context::
-format (output_type ot, string const& s, bool first_para)
-{
-  string r;
-  stack<block> blocks;
-
-  // Flag that indicates whether this is the first paragraph.
-  //
-  bool para (first_para);
-
-  // Iterate over lines (paragraphs) or pre-formatted sections.
-  //
-  for (size_t b (0), e; ; b = e + 1)
-  {
-    bool pre (s[b] == 0x02);
-    bool last;
-
-    if (pre)
-    {
-      e = s.find (0x03, ++b);
-      assert (e != string::npos);
-      last = (e + 1 == s.size ());
-    }
-    else
-    {
-      e = s.find ('\n', b);
-      last = (e == string::npos);
-    }
-
-    const char* l (s.c_str () + b);
-    size_t n ((e != string::npos ? e : s.size ()) - b);
-
-    if (pre)
-    {
-      ++e; // Skip newline that follows 0x03.
-
-      if (ot == ot_html)
-        r += "<pre>";
-
-      r.append (l, n);
-
-      if (ot == ot_html)
-        r += "</pre>";
-
-      para = true;
-    }
-    else
-    {
-      const char* ol (l); // Original, full line, for diagnostics.
-      size_t on (n);
-
-      // First determine what kind of paragraph block this is (i.e.,
-      // handle the "prefix").
-      //
-      block b (block::text);
-
-      if (n >= 3 && strncmp (l, "\\h|", 3) == 0)
-      {
-        b = block::h;
-        l += 3;
-        n -= 3;
-      }
-      else if (n >= 4 &&
-               (strncmp (l, "\\ul|", 4) == 0 ||
-                strncmp (l, "\\ol|", 4) == 0 ||
-                strncmp (l, "\\dl|", 4) == 0))
-      {
-        switch (l[1])
-        {
-        case 'u': b = block::ul; break;
-        case 'o': b = block::ol; break;
-        case 'd': b = block::dl; break;
-        }
-
-        l += 4;
-        n -= 4;
-      }
-      else if (n >= 4 && strncmp (l, "\\li|", 4) == 0)
-      {
-        b = block::li;
-        l += 4;
-        n -= 4;
-      }
-
-      // Skip leading spaces after opening '|'.
-      //
-      while (n != 0 && (*l == 0x20 || *l == 0x0D || *l == 0x09)) {l++; n--;}
-
-      // Next figure out how many blocks we need to pop at the end of this
-      // paragraph (i.e., handle the "suffix"). Things get a bit complicated
-      // since '|' could be escaped.
-      //
-      size_t pc (0); // Pop count.
-      for (; n - pc > 0 && l[n - pc - 1] == '|'; ++pc) ;
-      if (pc != 0)
-      {
-        // To determine whether the first '|' is part of an escape sequence
-        // we have to find the first non-backslash character and then figure
-        // out who escapes whom.
-        //
-        size_t ec (0); // Escape count.
-        for (; n - pc - ec > 0 && l[n - pc - ec - 1] == '\\'; ++ec) ;
-
-        // If we have an odd number of backslashes, then the last '|' is
-        // escaped.
-        //
-        if (ec % 2 != 0)
-          --pc;
-
-        n -= pc; // Number of special '|' at the end.
-
-        // Skip trailing spaces before closing '|'.
-        //
-        while (n != 0 && (l[n - 1] == 0x20 ||
-                          l[n - 1] == 0x0D ||
-                          l[n - 1] == 0x09))
-          n--;
-      }
-
-      if (pc > blocks.size () + (b != block::text ? 1 : 0))
-      {
-        cerr << "error: extraneous '|' at the end of paragraph '"
-             << string (ol, 0, on) << "'" << endl;
-        throw generation_failed ();
-      }
-
-      // Outer block or 'text' if top level.
-      //
-      block ob (blocks.empty () ? block (block::text) : blocks.top ());
-
-      // Verify that this block type is valid in this context. Skip
-      // empty text blocks (can happen if we just have '|').
-      //
-      if (b != block::text || n != 0)
-      {
-        bool good (true);
-
-        switch (ob)
-        {
-        case block::h: good = false; break;
-        case block::ul:
-        case block::ol:
-        case block::dl: good = (b == block::li); break;
-        case block::li: good = (b == block::text); break;
-        case block::text: good = (b != block::li); break;
-        }
-
-        if (!good)
-        {
-          cerr << "error: " << b << " inside " << ob << " "
-               << "in documentation string '" << s << "'" << endl;
-          throw generation_failed ();
-        }
-      }
-
-      // Verify the block itself.
-      //
-      switch (b)
-      {
-      case block::h:
-
-        // \h blocks are only valid if we are required to start a new
-        // paragraph (first_para is true).
-        //
-        if (!first_para)
-        {
-          cerr << "error: paragraph '" << string (ol, 0, on) << "' "
-               << "not allowed in '" << s << "'" << endl;
-          throw generation_failed ();
-        }
-
-        // \h must be single-paragraph.
-        //
-        if (pc == 0)
-        {
-          cerr << "error: '|' expected at the end of paragraph '"
-               << string (ol, 0, on) << "'" << endl;
-          throw generation_failed ();
-        }
-
-        // \h must not be empty.
-        //
-        if (n == 0)
-        {
-          cerr << "error: empty paragraph '" << string (ol, 0, on) << "' "
-               << "in documentation string '" << s << "'" << endl;
-          throw generation_failed ();
-        }
-
-        break;
-      case block::ul:
-      case block::ol:
-      case block::dl:
-
-        if (pc != 0)
-        {
-          cerr << "error: empty list '" << string (ol, 0, on) << "' "
-               << "in documentation string '" << s << "'" << endl;
-          throw generation_failed ();
-        }
-
-        if (n != 0)
-        {
-          cerr << "error: unexpected text after " << b << "| "
-               << "in paragraph '" << string (ol, 0, on) << "'" << endl;
-          throw generation_failed ();
-        }
-
-        break;
-      case block::li:
-
-        if (ob == block::dl)
-        {
-          if (n == 0)
-          {
-            cerr << "error: term text missing in paragraph '"
-                 << string (ol, 0, on) << "'" << endl;
-            throw generation_failed ();
-          }
-        }
-
-        break;
-      case block::text:
-        break;
-      }
-
-      // Push the paragraph block.
-      //
-      if (b != block::text)
-        blocks.push (b);
-
-      // Output opening markup.
-      //
-      switch (ot)
-      {
-      case ot_plain:
-        switch (b)
-        {
-        case block::li:
-          switch (ob)
-          {
-          case block::ul: r += "* "; break;
-          case block::ol:
-          case block::dl:
-          default: break;
-          }
-        case block::h:
-        case block::ul:
-        case block::ol:
-        case block::dl:
-        case block::text:
-          break;
-        }
-        break;
-      case ot_html:
-        switch (b)
-        {
-        case block::h:  r += "<h1>"; break;
-        case block::ul: r += "<ul>"; break;
-        case block::ol: r += "<ol>"; break;
-        case block::dl: r += "<dl>"; break;
-        case block::li: r += (ob == block::dl ? "<dt>" : "<li>"); break;
-        case block::text: if (n != 0 && para) r += "<p>"; break;
-        }
-        break;
-      case ot_man:
-        break; // @@ TODO
-      }
-
-      // Output paragraph text.
-      //
-      if (n != 0)
-        format_line (ot, r, l, n);
-
-      // Set the para flag and output intermediate markup, if any.
-      //
-      switch (ot)
-      {
-      case ot_plain:
-        break;
-      case ot_html:
-        switch (b)
-        {
-        case block::li:
-          if (ob == block::dl) r += "</dt>\n<dd>";
-          para = (ob != block::dl && n != 0);
-          break;
-        case block::text:
-          if (n != 0 && para) r += "</p>";
-          para = para || (n != 0);
-          break;
-        default:
-          para = true;
-          break;
-        }
-        break;
-      case ot_man:
-        break; // @@ TODO
-      }
-
-      // Pop paragraph blocks.
-      //
-      for (; pc != 0; --pc)
-      {
-        b = blocks.top ();
-        blocks.pop ();
-
-        ob = blocks.empty () ? block (block::text) : blocks.top ();
-
-        if (ot == ot_html)
-        {
-          switch (b)
-          {
-          case block::h:  r += "</h1>"; break;
-          case block::ul: r += "</ul>"; break;
-          case block::ol: r += "</ol>"; break;
-          case block::dl: r += "</dl>"; break;
-          case block::li: r += (ob == block::dl ? "</dd>" : "</li>"); break;
-          case block::text: break;
-          }
-
-          if (pc != 1) // Add empty line unless this is the last separator.
-            r += "\n\n";
-
-          para = true; // End of a block always means new paragraph.
-        }
-      }
-    }
-
-    if (last)
-      break;
-
-    if (para)
-      r += "\n\n";
-  }
-
-  if (!blocks.empty ())
-  {
-    cerr << "error: unterminated paragraph " << blocks.top () << " "
-         << "in documentation string '" << s << "'" << endl;
-    throw generation_failed ();
-  }
-
-  return r;
-}
-*/
 
 string context::
 fq_name (semantics::nameable& n, bool cxx_name)

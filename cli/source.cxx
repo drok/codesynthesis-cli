@@ -319,13 +319,13 @@ namespace
           if (d[i] == ' ' || d[i] == '\n')
             e = i;
 
-          // Assume we have 78 characters instead of 79 per line to make
-          // sure we get the same output on Windows (which has two character
-          // for a newline).
+          // Assume we have 78 characters instead of 79 per line to make sure
+          // we get the same output on Windows (which has two characters for
+          // a newline).
           //
           if (d[i] == '\n' || i - b == 78 - length_)
           {
-            if (b != 0)
+            if (b != 0) // Not a first line.
             {
               os << endl
                  << "   << \"";
@@ -335,9 +335,14 @@ namespace
             string s (d, b, (e != b ? e : i) - b);
             os << escape_str (s) << "\" << ::std::endl";
 
+            // Handle consecutive newlines (e.g., pre, paragraph separator).
+            //
             if (d[i] == '\n')
-              os << endl
-                 << "   << ::std::endl";
+            {
+              for (; i + 1 < n && d[i + 1] == '\n'; e = ++i)
+                os << endl
+                   << "   << ::std::endl";
+            }
 
             b = e = (e != b ? e : i) + 1;
           }
