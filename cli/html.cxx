@@ -46,15 +46,12 @@ namespace
   static void
   wrap_lines (ostream& os, const string& d, size_t indent)
   {
-    assert (!d.empty ());
-
     size_t lim (78 - indent);
     string ind (indent, ' ');
 
-    size_t b (0), e (0), i (0);
-
     bool nl (true); // True if last written to os character is a newline.
 
+    size_t b (0), e (0), i (0);
     for (size_t n (d.size ()); i < n; ++i)
     {
       // First handle <pre>.
@@ -218,8 +215,6 @@ namespace
       os << endl
          << endl;
     }
-
-  private:
   };
 
   //

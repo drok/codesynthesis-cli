@@ -641,8 +641,10 @@ struct block
 
   kind_type kind;
   bool para;     // True if first text fragment should be in own paragraph.
-  string header; // Term in dl's li.
+
+  string header;
   string value;
+  string trailer;
 
   block (kind_type k, bool p, const string& h = "")
       : kind (k), para (p), header (h) {}
@@ -927,35 +929,86 @@ format (output_type ot, string const& s, bool para)
       string& v (b.value);
       bool first (v.empty ());
 
-      // Separate paragraphs with a blank line.
-      //
-      if (!first)
-        v += "\n\n";
-
-      if (k == block::pre)
+      switch (ot)
       {
-        if (ot == ot_html)
-          v += "<pre>";
-
-        v.append (l, n);
-
-        if (ot == ot_html)
-          v += "</pre>";
-      }
-      else
-      {
-        if (!first || b.para)
+      case ot_plain:
         {
-          if (ot == ot_html)
-            v += "<p>";
+          // Separate paragraphs with a blank line.
+          //
+          if (!first)
+            v += "\n\n";
+
+          if (k == block::pre)
+            v.append (l, n);
+          else
+            format_line (ot, v, l, n);
+
+          break;
         }
-
-        format_line (ot, v, l, n);
-
-        if (!first || b.para)
+      case ot_html:
         {
-          if (ot == ot_html)
-            v += "</p>";
+          // Separate paragraphs with a blank line.
+          //
+          if (!first)
+            v += "\n\n";
+
+          if (k == block::pre)
+          {
+            v += "<pre>";
+            v.append (l, n);
+            v += "</pre>";
+          }
+          else
+          {
+            if (!first || b.para) v += "<p>";
+            format_line (ot, v, l, n);
+            if (!first || b.para) v += "</p>";
+          }
+
+          break;
+        }
+      case ot_man:
+        {
+          if (b.para)
+          {
+            if (!first)
+              v += "\n";
+
+            v += ".PP\n";
+          }
+          else
+          {
+            if (!first)
+              v += "\n\n";
+          }
+
+          if (k == block::pre)
+          {
+            v += ".nf\n";
+
+            // Note that if we have several consequtive blank lines, they
+            // will be collapsed into a single one. No, .sp doesn't work.
+            //
+            char c, p ('\n'); // Current and previous characters.
+            for (size_t i (0); i != n; p = c, ++i)
+            {
+              switch (c = l[i])
+              {
+              case '\\': v += '\\'; break;
+              case '.':  v += p != '\n' ? "\\" : "\\&\\"; break;
+              }
+
+              v += c;
+            }
+
+            v += "\n.fi";
+          }
+          else
+          {
+            format_line (ot, v, l, n);
+          }
+
+          break;
         }
       }
     }
@@ -1043,7 +1096,51 @@ format (output_type ot, string const& s, bool para)
         }
       case ot_man:
         {
-          break; // @@ TODO
+          // Seeing that we always write a macro, one newline is enough.
+          //
+          if (!v.empty ())
+            v += "\n";
+
+          switch (pb.kind)
+          {
+          case block::h:  v += ".SH \"" + pv + "\""; break;
+          case block::ul:
+          case block::ol:
+          case block::dl:
+            {
+              if (!b.para) // First list inside .IP.
+              {
+                // .IP within .IP? Just shoot me in the head already! We
+                // have to manually indent it with .RS/.RE *and* everything
+                // that comes after it (since .PP resets the indent). Why
+                // not just indent the whole list content? Because then the
+                // first line will never start on the same line as the term.
+                //
+                v += ".RS\n";
+                b.trailer = "\n.RE";
+                b.para = true; // Start emitting .PP from now on.
+              }
+
+              v += pv;
+              break;
+            }
+          case block::li:
+            {
+              switch (b.kind)
+              {
+              case block::ul: v += ".IP \\(bu 2em\n" + pv; break;
+              case block::ol: v += ".IP " + ph + ". 4em\n" + pv; break;
+              case block::dl: v += ".IP \"" + ph + "\"\n" + pv; break;
+              default: break;
+              }
+
+              break;
+            }
+          case block::text:
+          case block::pre: assert (false);
+          }
+
+          break;
         }
       }
     }
@@ -1058,7 +1155,14 @@ format (output_type ot, string const& s, bool para)
     throw generation_failed ();
   }
 
-  return blocks.top ().value;
+  block& b (blocks.top ());
+
+  switch (ot)
+  {
+  case ot_plain:
+  case ot_html: return b.value;
+  case ot_man: return b.value + b.trailer;
+  }
 }
 
 string context::

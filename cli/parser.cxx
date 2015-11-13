@@ -946,25 +946,34 @@ option_def (token& t)
 string parser::
 doc_string (const char* l, size_t n)
 {
-  // Get rid of '"'.
+  // Get rid of '"', convert '\"' to just '"'.
   //
   string t1, t2, t3;
   char p ('\0');
 
   for (size_t i (0); i < n; ++i)
   {
-    if (l[i] == '"' && p != '\\')
+    char c (l[i]);
+
+    if (c == '"')
+    {
+      if (p == '\\')
+      {
+        t1[t1.size () - 1] = '"'; // Replace '\' with '"'.
+        p = c;
+      }
       continue;
+    }
 
     // We need to keep track of \\ escapings so we don't confuse
     // them with \", as in "\\".
     //
-    if (l[i] == '\\' && p == '\\')
+    if (c == '\\' && p == '\\')
       p = '\0';
     else
-      p = l[i];
+      p = c;
 
-    t1 += l[i];
+    t1 += c;
   }
 
   // Get rid of leading and trailing spaces in each line. Also handle

@@ -12,6 +12,93 @@ using namespace std;
 
 namespace
 {
+  static string
+  escape_line (const string& s, size_t b, size_t e)
+  {
+    string r;
+    size_t n (e - b);
+
+    // Escaping leading '.' with '\' is not sufficient.
+    //
+    if (n > 1 && s[b] == '\\' && s[b + 1] == '.')
+      r = "\\&";
+
+    r.append (s, b, n);
+    return r;
+  }
+
+  static void
+  wrap_lines (ostream& os, const string& d)
+  {
+    size_t b (0), e (0), i (0);
+    for (size_t n (d.size ()); i < n; ++i)
+    {
+      // First handle preformatted text (.nf/.fi).
+      //
+      if (d.compare (i, 4, ".nf\n") == 0 && (i == 0 || d[i - 1] == '\n'))
+      {
+        assert (b == i); // We should have nothing accumulated.
+
+        // Output everything until (and including) closing .fi as is.
+        //
+        e = d.find ("\n.fi", i + 4);
+        assert (e != string::npos);
+        e += 4; // Now points past 'i'.
+
+        os << string (d, i, e - i);
+
+        b = e;
+        i = e - 1; // For ++i in loop header.
+        continue;
+      }
+
+      if (d[i] == ' ' || d[i] == '\n')
+        e = i;
+
+      if (d[i] == '\n' || (i - b >= 78 && e != b))
+      {
+        os << escape_line (d, b, e) << endl;
+        b = e = e + 1;
+      }
+    }
+
+    // Flush the last line.
+    //
+    if (b != i)
+      os << escape_line (d, b, i);
+  }
+
+  struct doc: traversal::doc, context
+  {
+    doc (context& c): context (c) {}
+
+    virtual void
+    traverse (type& ds)
+    {
+      if (ds.name ().compare (0, 3, "doc") != 0) // Ignore doc variables.
+        return;
+
+      // n = 1 - common doc string
+      // n = 2 - arg string, common doc string
+      // n > 2 - arg string, usage string, man string
+      //
+      size_t n (ds.size ());
+      const string& d (n == 1 ? ds[0] : n == 2 ? ds[1] : ds[2]);
+
+      if (d.empty ())
+        return;
+
+      std::set<string> arg_set;
+      if (n > 1)
+        translate_arg (ds[0], arg_set);
+
+      string s (format (ot_man, translate (d, arg_set), true));
+
+      wrap_lines (os, s);
+      os << endl;
+    }
+  };
+
   struct option: traversal::option, context
   {
     option (context& c) : context (c) {}
@@ -79,42 +166,8 @@ namespace
       //
       d = format (ot_man, translate (d, arg_set), false);
 
-      if (!d.empty ())
-      {
-        size_t b (0), e (0), i (0);
-
-        for (size_t n (d.size ()); i < n; ++i)
-        {
-          if (d[i] == ' ' || d[i] == '\n')
-            e = i;
-
-          if (d[i] == '\n' || (i - b >= 76 && e != b))
-          {
-            if (b != 0)
-              os << endl;
-
-            os << string (d, b, e - b);
-
-            if (d[i] == '\n')
-              os << endl;
-
-            b = e = e + 1;
-          }
-        }
-
-        // Flush the last line.
-        //
-        if (b != i)
-        {
-          if (b != 0)
-            os << endl;
-
-          os << string (d, b, i - b);
-        }
-      }
-
-      os << endl
-         << endl;
+      wrap_lines (os, d);
+      os << endl;
     }
   };
 
@@ -125,9 +178,7 @@ namespace
     class_ (context& c)
         : context (c), option_ (c)
     {
-      *this >> inherits_base_ >> base_ >> inherits_base_;
-      base_ >> names_option_;
-
+      *this >> inherits_base_ >> *this;
       names_option_ >> option_;
     }
 
@@ -141,11 +192,10 @@ namespace
     }
 
   private:
+    traversal::inherits inherits_base_;
+
     option option_;
     traversal::names names_option_;
-
-    traversal::class_ base_;
-    traversal::inherits inherits_base_;
   };
 }
 
@@ -155,14 +205,19 @@ generate_man (context& ctx)
   traversal::cli_unit unit;
   traversal::names unit_names;
   traversal::namespace_ ns;
+  doc dc (ctx);
   class_ cl (ctx);
 
-  unit >> unit_names >> ns;
+  unit >> unit_names;
+  unit_names >> ns;
+  unit_names >> dc;
   unit_names >> cl;
 
   traversal::names ns_names;
 
-  ns >> ns_names >> ns;
+  ns >> ns_names;
+  ns_names >> ns;
+  ns_names >> dc;
   ns_names >> cl;
 
   if (ctx.options.class_ ().empty ())
