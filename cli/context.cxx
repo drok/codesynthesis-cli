@@ -1159,9 +1159,8 @@ format (output_type ot, string const& s, bool para)
 
   switch (ot)
   {
-  case ot_plain:
-  case ot_html: return b.value;
   case ot_man: return b.value + b.trailer;
+  default: return b.value;
   }
 }
 
