@@ -595,49 +595,33 @@ generate_runtime_source (context& ctx, bool complete)
      << "parse (std::map<K, V>& m, " << (sp ? "bool& xs, " : "") <<
     "scanner& s)"
      << "{"
-     << "std::string o (s.next ());"
+     << "const char* o (s.next ());"
      << endl
      << "if (s.more ())"
      << "{"
      << "std::string ov (s.next ());"
      << "std::string::size_type p = ov.find ('=');"
      << endl
-     << "if (p == std::string::npos)"
-     << "{"
-     << "K k = K ();"
-     << endl
-     << "if (!ov.empty ())"
-     << "{"
-     << "std::istringstream ks (ov);"
-     << endl
-     << "if (!(ks >> k && ks.eof ()))" << endl
-     << "throw invalid_value (o, ov);"
-     << "}"
-     << "m[k] = V ();"
-     << "}"
-     << "else"
-     << "{"
      << "K k = K ();"
      << "V v = V ();"
      << "std::string kstr (ov, 0, p);"
-     << "std::string vstr (ov, p + 1);"
+     << "std::string vstr (ov, (p != std::string::npos ? p + 1 : ov.size ()));"
      << endl
+     << "int ac (2);"
+     << "char* av[] = {const_cast<char*> (o), 0};"
      << "if (!kstr.empty ())"
      << "{"
-     << "std::istringstream ks (kstr);"
-     << endl
-     << "if (!(ks >> k && ks.eof ()))" << endl
-     << "throw invalid_value (o, ov);"
+     << "av[1] = const_cast<char*> (kstr.c_str ());"
+     << "argv_scanner s (0, ac, av);"
+     << "parser<K>::parse (k, s);"
      << "}"
      << "if (!vstr.empty ())"
      << "{"
-     << "std::istringstream vs (vstr);"
-     << endl
-     << "if (!(vs >> v && vs.eof ()))" << endl
-     << "throw invalid_value (o, ov);"
+     << "av[1] = const_cast<char*> (vstr.c_str ());"
+     << "argv_scanner s (0, ac, av);"
+     << "parser<V>::parse (v, s);"
      << "}"
      << "m[k] = v;"
-     << "}"
      << "}"
      << "else" << endl
      << "throw missing_value (o);";
