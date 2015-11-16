@@ -293,6 +293,7 @@ namespace semantics
     {
     }
 
+    using namespace_::add_edge_left;
     using namespace_::add_edge_right;
 
   private:

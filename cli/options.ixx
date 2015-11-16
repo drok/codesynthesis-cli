@@ -264,9 +264,39 @@ suppress_inline () const
 }
 
 inline const std::string& options::
+cli_namespace () const
+{
+  return this->cli_namespace_;
+}
+
+inline const std::string& options::
 ostream_type () const
 {
   return this->ostream_type_;
+}
+
+inline const bool& options::
+generate_cxx () const
+{
+  return this->generate_cxx_;
+}
+
+inline const bool& options::
+generate_man () const
+{
+  return this->generate_man_;
+}
+
+inline const bool& options::
+generate_html () const
+{
+  return this->generate_html_;
+}
+
+inline const bool& options::
+stdout_ () const
+{
+  return this->stdout__;
 }
 
 inline const bool& options::
@@ -305,28 +335,16 @@ exclude_base () const
   return this->exclude_base_;
 }
 
-inline const std::string& options::
-cli_namespace () const
+inline const std::vector<std::string>& options::
+class_ () const
 {
-  return this->cli_namespace_;
+  return this->class__;
 }
 
-inline const bool& options::
-generate_cxx () const
+inline const std::map<std::string, std::string>& options::
+docvar () const
 {
-  return this->generate_cxx_;
-}
-
-inline const bool& options::
-generate_man () const
-{
-  return this->generate_man_;
-}
-
-inline const bool& options::
-generate_html () const
-{
-  return this->generate_html_;
+  return this->docvar_;
 }
 
 inline const std::vector<std::string>& options::
@@ -447,18 +465,6 @@ inline const std::string& options::
 html_epilogue_file () const
 {
   return this->html_epilogue_file_;
-}
-
-inline const std::vector<std::string>& options::
-class_ () const
-{
-  return this->class__;
-}
-
-inline const bool& options::
-stdout_ () const
-{
-  return this->stdout__;
 }
 
 inline const std::string& options::

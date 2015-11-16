@@ -393,7 +393,22 @@ class options
   suppress_inline () const;
 
   const std::string&
+  cli_namespace () const;
+
+  const std::string&
   ostream_type () const;
+
+  const bool&
+  generate_cxx () const;
+
+  const bool&
+  generate_man () const;
+
+  const bool&
+  generate_html () const;
+
+  const bool&
+  stdout_ () const;
 
   const bool&
   suppress_undocumented () const;
@@ -413,17 +428,11 @@ class options
   const bool&
   exclude_base () const;
 
-  const std::string&
-  cli_namespace () const;
+  const std::vector<std::string>&
+  class_ () const;
 
-  const bool&
-  generate_cxx () const;
-
-  const bool&
-  generate_man () const;
-
-  const bool&
-  generate_html () const;
+  const std::map<std::string, std::string>&
+  docvar () const;
 
   const std::vector<std::string>&
   hxx_prologue () const;
@@ -484,12 +493,6 @@ class options
 
   const std::string&
   html_epilogue_file () const;
-
-  const std::vector<std::string>&
-  class_ () const;
-
-  const bool&
-  stdout_ () const;
 
   const std::string&
   hxx_suffix () const;
@@ -555,17 +558,20 @@ class options
   bool generate_description_;
   bool generate_file_scanner_;
   bool suppress_inline_;
+  std::string cli_namespace_;
   std::string ostream_type_;
+  bool generate_cxx_;
+  bool generate_man_;
+  bool generate_html_;
+  bool stdout__;
   bool suppress_undocumented_;
   bool suppress_usage_;
   bool long_usage_;
   bool short_usage_;
   std::size_t option_length_;
   bool exclude_base_;
-  std::string cli_namespace_;
-  bool generate_cxx_;
-  bool generate_man_;
-  bool generate_html_;
+  std::vector<std::string> class__;
+  std::map<std::string, std::string> docvar_;
   std::vector<std::string> hxx_prologue_;
   std::vector<std::string> ixx_prologue_;
   std::vector<std::string> cxx_prologue_;
@@ -586,8 +592,6 @@ class options
   std::string cxx_epilogue_file_;
   std::string man_epilogue_file_;
   std::string html_epilogue_file_;
-  std::vector<std::string> class__;
-  bool stdout__;
   std::string hxx_suffix_;
   std::string ixx_suffix_;
   std::string cxx_suffix_;

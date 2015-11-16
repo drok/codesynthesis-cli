@@ -11,6 +11,8 @@
 
 #include <cutl/compiler/code-stream.hxx>
 
+#include <semantics/doc.hxx>
+
 #include "options.hxx"
 #include "parser.hxx"
 #include "generator.hxx"
@@ -96,6 +98,24 @@ main (int argc, char* argv[])
     //
     parser p (include_paths);
     auto_ptr<semantics::cli_unit> unit (p.parse (ifs, path));
+
+    // Merge documentation variables from the command line.
+    //
+    for (map<string, string>::const_iterator i (ops.docvar ().begin ());
+         i != ops.docvar ().end ();
+         ++i)
+    {
+      using semantics::doc;
+
+      // Values specified in the .cli file override command line.
+      //
+      if (unit->lookup<doc> ("", "var: " + i->first) != 0)
+        continue;
+
+      doc& d (unit->new_node<doc> (semantics::path ("<command line>"), 0, 0));
+      unit->new_edge<semantics::names> (*unit, d, "var: " + i->first);
+      d.push_back (i->second);
+    }
 
     generator g;
     g.generate (ops, *unit, path);

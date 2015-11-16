@@ -488,52 +488,40 @@ namespace cli
     static void
     parse (std::map<K, V>& m, scanner& s)
     {
-      std::string o (s.next ());
+      const char* o (s.next ());
 
       if (s.more ())
       {
         std::string ov (s.next ());
         std::string::size_type p = ov.find ('=');
 
-        if (p == std::string::npos)
+        K k = K ();
+        V v = V ();
+        std::string kstr (ov, 0, p);
+        std::string vstr (ov, (p != std::string::npos ? p + 1 : ov.size ()));
+
+        int ac (2);
+        char* av[] = 
         {
-          K k = K ();
+          const_cast<char*> (o), 0
+        };
 
-          if (!ov.empty ())
-          {
-            std::istringstream ks (ov);
 
-            if (!(ks >> k && ks.eof ()))
-              throw invalid_value (o, ov);
-          }
-
-          m[k] = V ();
-        }
-        else
+        if (!kstr.empty ())
         {
-          K k = K ();
-          V v = V ();
-          std::string kstr (ov, 0, p);
-          std::string vstr (ov, p + 1);
-
-          if (!kstr.empty ())
-          {
-            std::istringstream ks (kstr);
-
-            if (!(ks >> k && ks.eof ()))
-              throw invalid_value (o, ov);
-          }
-
-          if (!vstr.empty ())
-          {
-            std::istringstream vs (vstr);
-
-            if (!(vs >> v && vs.eof ()))
-              throw invalid_value (o, ov);
-          }
-
-          m[k] = v;
+          av[1] = const_cast<char*> (kstr.c_str ());
+          argv_scanner s (0, ac, av);
+          parser<K>::parse (k, s);
         }
+
+        if (!vstr.empty ())
+        {
+          av[1] = const_cast<char*> (vstr.c_str ());
+          argv_scanner s (0, ac, av);
+          parser<V>::parse (v, s);
+        }
+
+        m[k] = v;
       }
       else
         throw missing_value (o);
@@ -566,17 +554,20 @@ options ()
   generate_description_ (),
   generate_file_scanner_ (),
   suppress_inline_ (),
+  cli_namespace_ ("::cli"),
   ostream_type_ ("::std::ostream"),
+  generate_cxx_ (),
+  generate_man_ (),
+  generate_html_ (),
+  stdout__ (),
   suppress_undocumented_ (),
   suppress_usage_ (),
   long_usage_ (),
   short_usage_ (),
   option_length_ (0),
   exclude_base_ (),
-  cli_namespace_ ("::cli"),
-  generate_cxx_ (),
-  generate_man_ (),
-  generate_html_ (),
+  class__ (),
+  docvar_ (),
   hxx_prologue_ (),
   ixx_prologue_ (),
   cxx_prologue_ (),
@@ -597,8 +588,6 @@ options ()
   cxx_epilogue_file_ (),
   man_epilogue_file_ (),
   html_epilogue_file_ (),
-  class__ (),
-  stdout__ (),
   hxx_suffix_ (".hxx"),
   ixx_suffix_ (".ixx"),
   cxx_suffix_ (".cxx"),
@@ -630,17 +619,20 @@ options (int& argc,
   generate_description_ (),
   generate_file_scanner_ (),
   suppress_inline_ (),
+  cli_namespace_ ("::cli"),
   ostream_type_ ("::std::ostream"),
+  generate_cxx_ (),
+  generate_man_ (),
+  generate_html_ (),
+  stdout__ (),
   suppress_undocumented_ (),
   suppress_usage_ (),
   long_usage_ (),
   short_usage_ (),
   option_length_ (0),
   exclude_base_ (),
-  cli_namespace_ ("::cli"),
-  generate_cxx_ (),
-  generate_man_ (),
-  generate_html_ (),
+  class__ (),
+  docvar_ (),
   hxx_prologue_ (),
   ixx_prologue_ (),
   cxx_prologue_ (),
@@ -661,8 +653,6 @@ options (int& argc,
   cxx_epilogue_file_ (),
   man_epilogue_file_ (),
   html_epilogue_file_ (),
-  class__ (),
-  stdout__ (),
   hxx_suffix_ (".hxx"),
   ixx_suffix_ (".ixx"),
   cxx_suffix_ (".cxx"),
@@ -697,17 +687,20 @@ options (int start,
   generate_description_ (),
   generate_file_scanner_ (),
   suppress_inline_ (),
+  cli_namespace_ ("::cli"),
   ostream_type_ ("::std::ostream"),
+  generate_cxx_ (),
+  generate_man_ (),
+  generate_html_ (),
+  stdout__ (),
   suppress_undocumented_ (),
   suppress_usage_ (),
   long_usage_ (),
   short_usage_ (),
   option_length_ (0),
   exclude_base_ (),
-  cli_namespace_ ("::cli"),
-  generate_cxx_ (),
-  generate_man_ (),
-  generate_html_ (),
+  class__ (),
+  docvar_ (),
   hxx_prologue_ (),
   ixx_prologue_ (),
   cxx_prologue_ (),
@@ -728,8 +721,6 @@ options (int start,
   cxx_epilogue_file_ (),
   man_epilogue_file_ (),
   html_epilogue_file_ (),
-  class__ (),
-  stdout__ (),
   hxx_suffix_ (".hxx"),
   ixx_suffix_ (".ixx"),
   cxx_suffix_ (".cxx"),
@@ -764,17 +755,20 @@ options (int& argc,
   generate_description_ (),
   generate_file_scanner_ (),
   suppress_inline_ (),
+  cli_namespace_ ("::cli"),
   ostream_type_ ("::std::ostream"),
+  generate_cxx_ (),
+  generate_man_ (),
+  generate_html_ (),
+  stdout__ (),
   suppress_undocumented_ (),
   suppress_usage_ (),
   long_usage_ (),
   short_usage_ (),
   option_length_ (0),
   exclude_base_ (),
-  cli_namespace_ ("::cli"),
-  generate_cxx_ (),
-  generate_man_ (),
-  generate_html_ (),
+  class__ (),
+  docvar_ (),
   hxx_prologue_ (),
   ixx_prologue_ (),
   cxx_prologue_ (),
@@ -795,8 +789,6 @@ options (int& argc,
   cxx_epilogue_file_ (),
   man_epilogue_file_ (),
   html_epilogue_file_ (),
-  class__ (),
-  stdout__ (),
   hxx_suffix_ (".hxx"),
   ixx_suffix_ (".ixx"),
   cxx_suffix_ (".cxx"),
@@ -833,17 +825,20 @@ options (int start,
   generate_description_ (),
   generate_file_scanner_ (),
   suppress_inline_ (),
+  cli_namespace_ ("::cli"),
   ostream_type_ ("::std::ostream"),
+  generate_cxx_ (),
+  generate_man_ (),
+  generate_html_ (),
+  stdout__ (),
   suppress_undocumented_ (),
   suppress_usage_ (),
   long_usage_ (),
   short_usage_ (),
   option_length_ (0),
   exclude_base_ (),
-  cli_namespace_ ("::cli"),
-  generate_cxx_ (),
-  generate_man_ (),
-  generate_html_ (),
+  class__ (),
+  docvar_ (),
   hxx_prologue_ (),
   ixx_prologue_ (),
   cxx_prologue_ (),
@@ -864,8 +859,6 @@ options (int start,
   cxx_epilogue_file_ (),
   man_epilogue_file_ (),
   html_epilogue_file_ (),
-  class__ (),
-  stdout__ (),
   hxx_suffix_ (".hxx"),
   ixx_suffix_ (".ixx"),
   cxx_suffix_ (".cxx"),
@@ -898,17 +891,20 @@ options (::cli::scanner& s,
   generate_description_ (),
   generate_file_scanner_ (),
   suppress_inline_ (),
+  cli_namespace_ ("::cli"),
   ostream_type_ ("::std::ostream"),
+  generate_cxx_ (),
+  generate_man_ (),
+  generate_html_ (),
+  stdout__ (),
   suppress_undocumented_ (),
   suppress_usage_ (),
   long_usage_ (),
   short_usage_ (),
   option_length_ (0),
   exclude_base_ (),
-  cli_namespace_ ("::cli"),
-  generate_cxx_ (),
-  generate_man_ (),
-  generate_html_ (),
+  class__ (),
+  docvar_ (),
   hxx_prologue_ (),
   ixx_prologue_ (),
   cxx_prologue_ (),
@@ -929,8 +925,6 @@ options (::cli::scanner& s,
   cxx_epilogue_file_ (),
   man_epilogue_file_ (),
   html_epilogue_file_ (),
-  class__ (),
-  stdout__ (),
   hxx_suffix_ (".hxx"),
   ixx_suffix_ (".ixx"),
   cxx_suffix_ (".cxx"),
@@ -976,9 +970,20 @@ print_usage (::std::ostream& os)
 
   os << "--suppress-inline            Generate all functions non-inline." << ::std::endl;
 
+  os << "--cli-namespace <ns>         Generate the CLI support types in the <ns>" << ::std::endl
+     << "                             namespace ('cli' by default)." << ::std::endl;
+
   os << "--ostream-type <type>        Output stream type instead of the default" << ::std::endl
      << "                             'std::ostream' that should be used to print usage" << ::std::endl
      << "                             and exception information." << ::std::endl;
+
+  os << "--generate-cxx               Generate C++ code." << ::std::endl;
+
+  os << "--generate-man               Generate documentation in the man page format." << ::std::endl;
+
+  os << "--generate-html              Generate documentation in the HTML format." << ::std::endl;
+
+  os << "--stdout                     Write output to STDOUT instead of a file." << ::std::endl;
 
   os << "--suppress-undocumented      Suppress the generation of documentation entries" << ::std::endl
      << "                             for undocumented options." << ::std::endl;
@@ -998,14 +1003,11 @@ print_usage (::std::ostream& os)
   os << "--exclude-base               Exclude base class information from usage and" << ::std::endl
      << "                             documentation." << ::std::endl;
 
-  os << "--cli-namespace <ns>         Generate the CLI support types in the <ns>" << ::std::endl
-     << "                             namespace ('cli' by default)." << ::std::endl;
+  os << "--class <fq-name>            Generate the man page or HTML documentation only" << ::std::endl
+     << "                             for the <fq-name> options class." << ::std::endl;
 
-  os << "--generate-cxx               Generate C++ code." << ::std::endl;
-
-  os << "--generate-man               Generate documentation in the man page format." << ::std::endl;
-
-  os << "--generate-html              Generate documentation in the HTML format." << ::std::endl;
+  os << "--docvar|-v <name>=<val>     Set documentation variable <name> to the value" << ::std::endl
+     << "                             <val>." << ::std::endl;
 
   os << "--hxx-prologue <text>        Insert <text> at the beginning of the generated" << ::std::endl
      << "                             C++ header file." << ::std::endl;
@@ -1066,11 +1068,6 @@ print_usage (::std::ostream& os)
 
   os << "--html-epilogue-file <file>  Insert the content of <file> at the end of the" << ::std::endl
      << "                             generated HTML file." << ::std::endl;
-
-  os << "--class <fq-name>            Generate the man page or HTML documentation only" << ::std::endl
-     << "                             for the <fq-name> options class." << ::std::endl;
-
-  os << "--stdout                     Write output to STDOUT instead of a file." << ::std::endl;
 
   os << "--hxx-suffix <suffix>        Use <suffix> instead of the default '.hxx' to" << ::std::endl
      << "                             construct the name of the generated header file." << ::std::endl;
@@ -1145,8 +1142,18 @@ struct _cli_options_map_init
     &::cli::thunk< options, bool, &options::generate_file_scanner_ >;
     _cli_options_map_["--suppress-inline"] = 
     &::cli::thunk< options, bool, &options::suppress_inline_ >;
+    _cli_options_map_["--cli-namespace"] = 
+    &::cli::thunk< options, std::string, &options::cli_namespace_ >;
     _cli_options_map_["--ostream-type"] = 
     &::cli::thunk< options, std::string, &options::ostream_type_ >;
+    _cli_options_map_["--generate-cxx"] = 
+    &::cli::thunk< options, bool, &options::generate_cxx_ >;
+    _cli_options_map_["--generate-man"] = 
+    &::cli::thunk< options, bool, &options::generate_man_ >;
+    _cli_options_map_["--generate-html"] = 
+    &::cli::thunk< options, bool, &options::generate_html_ >;
+    _cli_options_map_["--stdout"] = 
+    &::cli::thunk< options, bool, &options::stdout__ >;
     _cli_options_map_["--suppress-undocumented"] = 
     &::cli::thunk< options, bool, &options::suppress_undocumented_ >;
     _cli_options_map_["--suppress-usage"] = 
@@ -1159,14 +1166,12 @@ struct _cli_options_map_init
     &::cli::thunk< options, std::size_t, &options::option_length_ >;
     _cli_options_map_["--exclude-base"] = 
     &::cli::thunk< options, bool, &options::exclude_base_ >;
-    _cli_options_map_["--cli-namespace"] = 
-    &::cli::thunk< options, std::string, &options::cli_namespace_ >;
-    _cli_options_map_["--generate-cxx"] = 
-    &::cli::thunk< options, bool, &options::generate_cxx_ >;
-    _cli_options_map_["--generate-man"] = 
-    &::cli::thunk< options, bool, &options::generate_man_ >;
-    _cli_options_map_["--generate-html"] = 
-    &::cli::thunk< options, bool, &options::generate_html_ >;
+    _cli_options_map_["--class"] = 
+    &::cli::thunk< options, std::vector<std::string>, &options::class__ >;
+    _cli_options_map_["--docvar"] = 
+    &::cli::thunk< options, std::map<std::string, std::string>, &options::docvar_ >;
+    _cli_options_map_["-v"] = 
+    &::cli::thunk< options, std::map<std::string, std::string>, &options::docvar_ >;
     _cli_options_map_["--hxx-prologue"] = 
     &::cli::thunk< options, std::vector<std::string>, &options::hxx_prologue_ >;
     _cli_options_map_["--ixx-prologue"] = 
@@ -1207,10 +1212,6 @@ struct _cli_options_map_init
     &::cli::thunk< options, std::string, &options::man_epilogue_file_ >;
     _cli_options_map_["--html-epilogue-file"] = 
     &::cli::thunk< options, std::string, &options::html_epilogue_file_ >;
-    _cli_options_map_["--class"] = 
-    &::cli::thunk< options, std::vector<std::string>, &options::class__ >;
-    _cli_options_map_["--stdout"] = 
-    &::cli::thunk< options, bool, &options::stdout__ >;
     _cli_options_map_["--hxx-suffix"] = 
     &::cli::thunk< options, std::string, &options::hxx_suffix_ >;
     _cli_options_map_["--ixx-suffix"] = 
