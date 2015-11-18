@@ -489,6 +489,8 @@ generate (options const& ops, semantics::cli_unit& unit, path const& p)
 
       if (!ops.stdout_ ())
       {
+        // Remember to update link derivation if changing this.
+        //
         path html_path (base + ops.html_suffix ());
 
         if (!ops.output_dir ().empty ())

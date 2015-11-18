@@ -320,16 +320,27 @@ translate (string const& s, std::set<string> const& set)
 void context::
 format_line (output_type ot, string& r, const char* s, size_t n)
 {
-  bool escape (false);
-  stack<unsigned char> blocks; // Bit 0: code; 1: italic; 2: bold.
+  typedef unsigned char block; // Mask.
 
+  const block code = 1;
+  const block itlc = 2;
+  const block bold = 4;
+  const block link = 8;
+
+  stack<block> blocks;
+
+  string link_target;
+  string link_section; // If not empty, man section; target is man name.
+  bool link_empty; // Link has no text.
+
+  bool escape (false);
   for (size_t i (0); i < n; ++i)
   {
     char c (s[i]);
 
     if (escape)
     {
-      bool block (false);
+      bool new_block (false);
 
       switch (c)
       {
@@ -362,30 +373,30 @@ format_line (output_type ot, string& r, const char* s, size_t n)
         }
       case 'c':
         {
-          unsigned char b (1);
+          block b (code);
           size_t j (i + 1);
 
           if (j < n)
           {
             if (s[j] == 'i')
             {
-              b |= 2;
+              b |= itlc;
               j++;
 
               if (j < n && s[j] == 'b')
               {
-                b |= 4;
+                b |= bold;
                 j++;
               }
             }
             else if (s[j] == 'b')
             {
-              b |= 4;
+              b |= bold;
               j++;
 
               if (j < n && s[j] == 'i')
               {
-                b |= 2;
+                b |= itlc;
                 j++;
               }
             }
@@ -395,7 +406,7 @@ format_line (output_type ot, string& r, const char* s, size_t n)
           {
             i = j;
             blocks.push (b);
-            block = true;
+            new_block = true;
             break;
           }
 
@@ -404,30 +415,30 @@ format_line (output_type ot, string& r, const char* s, size_t n)
         }
       case 'i':
         {
-          unsigned char b (2);
+          block b (itlc);
           size_t j (i + 1);
 
           if (j < n)
           {
             if (s[j] == 'c')
             {
-              b |= 1;
+              b |= code;
               j++;
 
               if (j < n && s[j] == 'b')
               {
-                b |= 4;
+                b |= bold;
                 j++;
               }
             }
             else if (s[j] == 'b')
             {
-              b |= 4;
+              b |= bold;
               j++;
 
               if (j < n && s[j] == 'c')
               {
-                b |= 1;
+                b |= code;
                 j++;
               }
             }
@@ -437,7 +448,7 @@ format_line (output_type ot, string& r, const char* s, size_t n)
           {
             i = j;
             blocks.push (b);
-            block = true;
+            new_block = true;
             break;
           }
 
@@ -446,30 +457,30 @@ format_line (output_type ot, string& r, const char* s, size_t n)
         }
       case 'b':
         {
-          unsigned char b (4);
+          block b (bold);
           size_t j (i + 1);
 
           if (j < n)
           {
             if (s[j] == 'c')
             {
-              b |= 1;
+              b |= code;
               j++;
 
               if (j < n && s[j] == 'i')
               {
-                b |= 2;
+                b |= itlc;
                 j++;
               }
             }
             else if (s[j] == 'i')
             {
-              b |= 2;
+              b |= itlc;
               j++;
 
               if (j < n && s[j] == 'c')
               {
-                b |= 1;
+                b |= code;
                 j++;
               }
             }
@@ -479,11 +490,92 @@ format_line (output_type ot, string& r, const char* s, size_t n)
           {
             i = j;
             blocks.push (b);
-            block = true;
+            new_block = true;
             break;
           }
 
           r += 'b';
+          break;
+        }
+      case 'l':
+        {
+          if (i + 1 < n && s[i + 1] == '{')
+          {
+            string& t (link_target);
+
+            if (!t.empty ())
+            {
+              cerr << "error: nested links in documentation paragraph '"
+                   << string (s, 0, n) << "'" << endl;
+              throw generation_failed ();
+            }
+
+            // Extract the link target.
+            //
+            for (++i; i + 1 < n; ++i)
+            {
+              char c (s[i + 1]);
+
+              if (c == ' ')
+              {
+                for (++i; i + 1 < n && s[i + 1] == ' '; ++i) ; // Skip spaces.
+                break;
+              }
+
+              if (c == '}')
+                break;
+
+              t += c;
+            }
+
+            if (t.empty ())
+            {
+              cerr << "error: missing link target in documentation paragraph '"
+                   << string (s, 0, n) << "'" << endl;
+              throw generation_failed ();
+            }
+
+            // See if link_target is a man page name/section.
+            //
+            if (t.find (':') == string::npos) // No protocol.
+            {
+              size_t o (t.find ('('));
+
+              if (o == string::npos)
+              {
+                cerr << "error: missing man section in '" << t << "'" << endl;
+                throw generation_failed ();
+              }
+
+              link_section.assign (t, o + 1, t.size () - o - 2);
+
+              if (t[t.size () - 1] != ')' || link_section.empty ())
+              {
+                cerr << "error: missing man section in '" << t << "'" << endl;
+                throw generation_failed ();
+              }
+
+              string n (t, 0, o);
+
+              if (n.empty ())
+              {
+                cerr << "error: missing man page in '" << t << "'" << endl;
+                throw generation_failed ();
+              }
+
+              t = n;
+            }
+            else
+              link_section.clear ();
+
+            link_empty = i + 1 < n && s[i + 1] == '}';
+
+            blocks.push (link);
+            new_block = true;
+            break;
+          }
+
+          r += 'l';
           break;
         }
       case '}':
@@ -507,38 +599,50 @@ format_line (output_type ot, string& r, const char* s, size_t n)
 
       // If we just added a new block, add corresponding output markup.
       //
-      if (block)
+      if (new_block)
       {
-        unsigned char b (blocks.top ());
+        block b (blocks.top ());
 
         switch (ot)
         {
         case ot_plain:
           {
-            if (b & 1)
+            if (b & code)
               r += "'";
             break;
           }
         case ot_html:
           {
-            if (b & 1)
+            if (b & code)
               r += "<code>";
 
-            if (b & 2)
+            if (b & itlc)
               r += "<i>";
 
-            if (b & 4)
+            if (b & bold)
               r += "<b>";
+
+            if (b & link)
+            {
+              r += "<a href=\"";
+
+              if (link_section.empty ())
+                r += link_target;
+              else
+                r += link_target + options.html_suffix ();
+
+              r += "\">";
+            }
 
             break;
           }
         case ot_man:
           {
-            if ((b & 6) == 6)
+            if ((b & itlc) && (b & bold))
               r += "\\f(BI";
-            else if (b & 2)
+            else if (b & itlc)
               r += "\\fI";
-            else if (b & 4)
+            else if (b & bold)
               r += "\\fB";
 
             break;
@@ -569,36 +673,90 @@ format_line (output_type ot, string& r, const char* s, size_t n)
         {
           if (!blocks.empty ())
           {
-            unsigned char b (blocks.top ());
+            block b (blocks.top ());
 
             switch (ot)
             {
             case ot_plain:
               {
-                if (b & 1)
+                if (b & code)
                   r += "'";
+
+                if (b & link)
+                {
+                  if (!link_empty)
+                    r += " (";
+
+                  if (link_section.empty ())
+                    r += link_target;
+                  else
+                    r += link_target + "(" + link_section + ")";
+
+                  if (!link_empty)
+                    r += ")";
+                }
+
                 break;
               }
             case ot_html:
               {
-                if (b & 4)
+                if (b & bold)
                   r += "</b>";
 
-                if (b & 2)
+                if (b & itlc)
                   r += "</i>";
 
-                if (b & 1)
+                if (b & code)
                   r += "</code>";
+
+                if (b & link)
+                {
+                  if (link_empty)
+                  {
+                    if (link_section.empty ())
+                      r += link_target;
+                    else
+                    {
+                      r += "<code>";
+                      r += "<b>" + link_target + "</b>";
+                      r += "(" + link_section + ")";
+                      r += "</code>";
+                    }
+                  }
+
+                  r += "</a>";
+                }
 
                 break;
               }
             case ot_man:
               {
-                if (b & 6)
+                if (b & (itlc | bold))
                   r += "\\fP";
+
+                if (b & link)
+                {
+                  if (!link_empty)
+                    r += " (";
+
+                  if (link_section.empty ())
+                    r += link_target;
+                  else
+                  {
+                    r += "\\fB" + link_target + "\\fP";
+                    r += "(" + link_section + ")";
+                  }
+
+                  if (!link_empty)
+                    r += ")";
+                }
+
                 break;
               }
             }
+
+            if (b & link)
+              link_target.clear ();
 
             blocks.pop ();
             break;
@@ -625,9 +783,10 @@ format_line (output_type ot, string& r, const char* s, size_t n)
     unsigned char b (blocks.top ());
     string bs;
 
-    if (b & 1) bs += 'c';
-    if (b & 2) bs += 'i';
-    if (b & 4) bs += 'b';
+    if (b & code) bs += 'c';
+    if (b & itlc) bs += 'i';
+    if (b & bold) bs += 'b';
+    if (b & link) bs  = 'l';
 
     cerr << "error: unterminated formatting block '\\" << bs << "' "
          << "in documentation paragraph '" << string (s, 0, n) << "'" << endl;
