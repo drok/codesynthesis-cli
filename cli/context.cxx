@@ -614,8 +614,23 @@ format_line (output_type ot, string& r, const char* s, size_t n)
         {
         case ot_plain:
           {
-            if (b & code)
-              r += "'";
+            if ((b & link) == 0)
+            {
+              if (options.ansi_color ())
+              {
+                if (b & bold)
+                  r += "\033[1m";
+
+                if (b & itlc)
+                  r += "\033[4m";
+              }
+              else
+              {
+                if (b & code)
+                  r += "'";
+              }
+            }
+
             break;
           }
         case ot_html:
@@ -713,8 +728,25 @@ format_line (output_type ot, string& r, const char* s, size_t n)
                 }
                 else
                 {
-                  if (b & code)
-                    r += "'";
+                  if (options.ansi_color ())
+                  {
+                    // While there are codes to turn off bold (22) and
+                    // underline (24), it is not clear how widely they
+                    // are supported.
+                    //
+                    r += "\033[0m"; // Clear all.
+
+                    if (eb & bold)
+                      r += "\033[1m";
+
+                    if (eb & itlc)
+                      r += "\033[4m";
+                  }
+                  else
+                  {
+                    if (b & code)
+                      r += "'";
+                  }
                 }
 
                 break;

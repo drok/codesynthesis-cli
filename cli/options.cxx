@@ -506,7 +506,6 @@ namespace cli
           const_cast<char*> (o), 0
         };
 
-
         if (!kstr.empty ())
         {
           av[1] = const_cast<char*> (kstr.c_str ());
@@ -565,6 +564,7 @@ options ()
   long_usage_ (),
   short_usage_ (),
   option_length_ (0),
+  ansi_color_ (),
   exclude_base_ (),
   class__ (),
   docvar_ (),
@@ -630,6 +630,7 @@ options (int& argc,
   long_usage_ (),
   short_usage_ (),
   option_length_ (0),
+  ansi_color_ (),
   exclude_base_ (),
   class__ (),
   docvar_ (),
@@ -698,6 +699,7 @@ options (int start,
   long_usage_ (),
   short_usage_ (),
   option_length_ (0),
+  ansi_color_ (),
   exclude_base_ (),
   class__ (),
   docvar_ (),
@@ -766,6 +768,7 @@ options (int& argc,
   long_usage_ (),
   short_usage_ (),
   option_length_ (0),
+  ansi_color_ (),
   exclude_base_ (),
   class__ (),
   docvar_ (),
@@ -836,6 +839,7 @@ options (int start,
   long_usage_ (),
   short_usage_ (),
   option_length_ (0),
+  ansi_color_ (),
   exclude_base_ (),
   class__ (),
   docvar_ (),
@@ -902,6 +906,7 @@ options (::cli::scanner& s,
   long_usage_ (),
   short_usage_ (),
   option_length_ (0),
+  ansi_color_ (),
   exclude_base_ (),
   class__ (),
   docvar_ (),
@@ -999,6 +1004,9 @@ print_usage (::std::ostream& os)
 
   os << "--option-length <len>        Indent option descriptions <len> characters when" << ::std::endl
      << "                             printing usage." << ::std::endl;
+
+  os << "--ansi-color                 Use ANSI color escape sequences when printing" << ::std::endl
+     << "                             usage." << ::std::endl;
 
   os << "--exclude-base               Exclude base class information from usage and" << ::std::endl
      << "                             documentation." << ::std::endl;
@@ -1164,6 +1172,8 @@ struct _cli_options_map_init
     &::cli::thunk< options, bool, &options::short_usage_ >;
     _cli_options_map_["--option-length"] = 
     &::cli::thunk< options, std::size_t, &options::option_length_ >;
+    _cli_options_map_["--ansi-color"] = 
+    &::cli::thunk< options, bool, &options::ansi_color_ >;
     _cli_options_map_["--exclude-base"] = 
     &::cli::thunk< options, bool, &options::exclude_base_ >;
     _cli_options_map_["--class"] = 

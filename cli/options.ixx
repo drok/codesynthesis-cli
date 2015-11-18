@@ -330,6 +330,12 @@ option_length () const
 }
 
 inline const bool& options::
+ansi_color () const
+{
+  return this->ansi_color_;
+}
+
+inline const bool& options::
 exclude_base () const
 {
   return this->exclude_base_;

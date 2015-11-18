@@ -426,6 +426,9 @@ class options
   option_length () const;
 
   const bool&
+  ansi_color () const;
+
+  const bool&
   exclude_base () const;
 
   const std::vector<std::string>&
@@ -569,6 +572,7 @@ class options
   bool long_usage_;
   bool short_usage_;
   std::size_t option_length_;
+  bool ansi_color_;
   bool exclude_base_;
   std::vector<std::string> class__;
   std::map<std::string, std::string> docvar_;

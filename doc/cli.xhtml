@@ -165,6 +165,13 @@
     separate files, and would like their usage to have the same indentation
     level.</dd>
 
+    <dt><code><b>--ansi-color</b></code></dt>
+    <dd>Use ANSI color escape sequences when printing usage. By "color" we
+    really only mean the bold and underline modifiers. Note that Windows
+    console does not recognize ANSI escape sequences and will display them as
+    garbage. However, if you pipe such output through
+    <code><b>less</b>(1)</code>, it will display them correctly.</dd>
+
     <dt><code><b>--exclude-base</b></code></dt>
     <dd>Exclude base class information from usage and documentation.</dd>
 

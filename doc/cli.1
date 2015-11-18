@@ -120,6 +120,12 @@ provided\.
 Indent option descriptions \fIlen\fR characters when printing usage\. This is
 useful when you have multiple options classes, potentially in separate files,
 and would like their usage to have the same indentation level\.
+.IP "\fB--ansi-color\fR"
+Use ANSI color escape sequences when printing usage\. By "color" we really
+only mean the bold and underline modifiers\. Note that Windows console does
+not recognize ANSI escape sequences and will display them as garbage\.
+However, if you pipe such output through \fBless\fR(1)\fR, it will display
+them correctly\.
 .IP "\fB--exclude-base\fR"
 Exclude base class information from usage and documentation\.
 .IP "\fB--class\fR \fIfq-name\fR"

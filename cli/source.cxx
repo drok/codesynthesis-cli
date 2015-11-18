@@ -7,7 +7,7 @@
 
 #include "source.hxx"
 
-using std::cerr;
+using namespace std;
 
 namespace
 {
@@ -171,8 +171,36 @@ namespace
     }
   };
 
+
+  // Return the number of "text characters", ignoring any escape sequences
+  // (e.g., ANSI color).
   //
-  //
+  static size_t
+  text_size (const string& s, size_t p = 0, size_t n = string::npos)
+  {
+    size_t r (0);
+
+    n = n == string::npos ? s.size () : n + p;
+
+    // The start position (p) might be pointing half-way into the
+    // escape sequence. So we always have to scan from the start.
+    //
+    for (size_t i (0), m (s.size ()); i < n; ++i)
+    {
+      if (s[i] == '\033') // ANSI escape: "\033[Nm"
+      {
+        i += 3;
+        assert (i < m && s[i] == 'm');
+        continue;
+      }
+
+      if (i >= p)
+        ++r;
+    }
+
+    return r;
+  }
+
   struct option_length: traversal::option, context
   {
     option_length (context& c, size_t& l, type*& o)
@@ -189,6 +217,8 @@ namespace
 
       if (options.suppress_undocumented () && doc.empty ())
         return;
+
+      bool color (options.ansi_color ());
 
       size_t l (0);
       names& n (o.named ());
@@ -207,10 +237,15 @@ namespace
       {
         l++; // ' ' seperator
 
-        if (doc.size () > 0)
-          l += format (ot_plain, doc[0], false).size ();
-        else
-          l += 5; // <arg>
+        string s (doc.size () > 0 ? doc[0] : string ("<arg>"));
+
+        if (color)
+        {
+          std::set<string> arg_set;
+          s = translate_arg (s, arg_set);
+        }
+
+        l += text_size (format (ot_plain, s, false));
       }
 
       if (l > length_)
@@ -242,6 +277,8 @@ namespace
       if (options.suppress_undocumented () && doc.empty ())
         return;
 
+      bool color (options.ansi_color ());
+
       size_t l (0);
       names& n (o.named ());
 
@@ -255,28 +292,34 @@ namespace
           l++;
         }
 
+        if (color)
+          os << "\\033[1m"; // Bold.
+
         os << escape_str (*i);
+
+        if (color)
+          os << "\\033[0m";
+
         l += i->size ();
       }
 
       string type (o.type ().name ());
 
+      std::set<string> arg_set;
       if (type != "bool" || doc.size () >= 3)
       {
         os << ' ';
         l++;
 
-        if (doc.size () > 0)
-        {
-          string s (format (ot_plain, doc[0], false));
-          os << escape_str (s);
-          l += s.size ();
-        }
-        else
-        {
-          os << "<arg>";
-          l += 5;
-        }
+        string s (doc.size () > 0 ? doc[0] : string ("<arg>"));
+
+        if (color)
+          s = translate_arg (s, arg_set);
+
+        s = format (ot_plain, s, false);
+
+        os << escape_str (s);
+        l += text_size (s);
       }
 
       // Figure out which documentation string we should use.
@@ -306,6 +349,9 @@ namespace
 
       // Format the documentation string.
       //
+      if (color)
+        d = translate (d, arg_set);
+
       d = format (ot_plain, d, false);
 
       if (!d.empty ())
@@ -323,7 +369,7 @@ namespace
           // we get the same output on Windows (which has two characters for
           // a newline).
           //
-          if (d[i] == '\n' || i - b == 78 - length_)
+          if (d[i] == '\n' || text_size (d, b, i - b) == 78 - length_)
           {
             if (b != 0) // Not a first line.
             {
@@ -421,6 +467,11 @@ namespace
         case '"':
           {
             r += "\\\"";
+            break;
+          }
+        case '\033':
+          {
+            r += "\\033";
             break;
           }
         default:

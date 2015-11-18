@@ -139,6 +139,15 @@ class options
      files, and would like their usage to have the same indentation level."
   };
 
+  bool --ansi-color
+  {
+    "Use ANSI color escape sequences when printing usage. By \"color\" we
+     really only mean the bold and underline modifiers. Note that Windows
+     console does not recognize ANSI escape sequences and will display
+     them as garbage. However, if you pipe such output through \c{\b{less}(1)},
+     it will display them correctly."
+  };
+
   bool --exclude-base
   {
     "Exclude base class information from usage and documentation."
