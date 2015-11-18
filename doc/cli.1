@@ -57,181 +57,181 @@ option can be used to redirect the output to STDOUT instead of a file.
 .\"--------------------------------------------------------------------
 .SH OPTIONS
 .\"--------------------------------------------------------------------
-.IP "\fB--help\fP"
+.IP "\fB--help\fR"
 Print usage information and exit\.
-.IP "\fB--version\fP"
+.IP "\fB--version\fR"
 Print version and exit\.
-.IP "\fB--include-path\fP|\fB-I\fP \fIdir\fP"
-Search \fIdir\fP for bracket-included (\fB<>\fP) options files\.
-.IP "\fB--output-dir\fP|\fB-o\fP \fIdir\fP"
-Write the generated files to \fIdir\fP instead of the current directory\.
-.IP "\fB--generate-modifier\fP"
+.IP "\fB--include-path\fR|\fB-I\fR \fIdir\fR"
+Search \fIdir\fR for bracket-included (\fB<>\fR) options files\.
+.IP "\fB--output-dir\fR|\fB-o\fR \fIdir\fR"
+Write the generated files to \fIdir\fR instead of the current directory\.
+.IP "\fB--generate-modifier\fR"
 Generate option value modifiers in addition to accessors\.
-.IP "\fB--generate-specifier\fP"
+.IP "\fB--generate-specifier\fR"
 Generate functions for determining whether the option was specified on the
 command line\.
-.IP "\fB--generate-parse\fP"
-Generate \fBparse()\fP functions instead of parsing constructors\. This is
+.IP "\fB--generate-parse\fR"
+Generate \fBparse()\fR functions instead of parsing constructors\. This is
 primarily useful for being able to parse into an already initialized options
 class instance, for example, to implement merging/overriding\.
-.IP "\fB--generate-description\fP"
+.IP "\fB--generate-description\fR"
 Generate the option description list that can be examined at runtime\.
-.IP "\fB--generate-file-scanner\fP"
-Generate the argv_file_scanner implementation\. This scanner is capable of
-reading command line arguments from the argv array as well as files specified
-with command line options\.
-.IP "\fB--suppress-inline\fP"
+.IP "\fB--generate-file-scanner\fR"
+Generate the argv_file_scanner\fR implementation\. This scanner is capable of
+reading command line arguments from the argv\fR array as well as files
+specified with command line options\.
+.IP "\fB--suppress-inline\fR"
 Generate all functions non-inline\. By default simple functions are made
 inline\. This option suppresses creation of the inline file\.
-.IP "\fB--cli-namespace\fP \fIns\fP"
-Generate the CLI support types in the \fIns\fP namespace (\fBcli\fP by
-default)\. The namespace can be nested, for example \fBdetails::cli\fP\. If
+.IP "\fB--cli-namespace\fR \fIns\fR"
+Generate the CLI support types in the \fIns\fR namespace (\fBcli\fR by
+default)\. The namespace can be nested, for example \fBdetails::cli\fR\. If
 the namespace is empty, then the support types are generated in the global
 namespace\.
-.IP "\fB--ostream-type\fP \fItype\fP"
-Output stream type instead of the default \fBstd::ostream\fP that should be
+.IP "\fB--ostream-type\fR \fItype\fR"
+Output stream type instead of the default \fBstd::ostream\fR that should be
 used to print usage and exception information\.
-.IP "\fB--generate-cxx\fP"
-Generate C++ code\. If neither \fB--generate-man\fP nor \fB--generate-html\fP
+.IP "\fB--generate-cxx\fR"
+Generate C++ code\. If neither \fB--generate-man\fR nor \fB--generate-html\fR
 is specified, this mode is assumed by default\.
-.IP "\fB--generate-man\fP"
+.IP "\fB--generate-man\fR"
 Generate documentation in the man page format\.
-.IP "\fB--generate-html\fP"
+.IP "\fB--generate-html\fR"
 Generate documentation in the HTML format\.
-.IP "\fB--stdout\fP"
+.IP "\fB--stdout\fR"
 Write output to STDOUT instead of a file\. This option is not valid when
 generating C++ code and is normally used to combine generated documentation
 for several option classes in a single file\.
-.IP "\fB--suppress-undocumented\fP"
+.IP "\fB--suppress-undocumented\fR"
 Suppress the generation of documentation entries for undocumented options\.
-.IP "\fB--suppress-usage\fP"
+.IP "\fB--suppress-usage\fR"
 Suppress the generation of the usage printing code\.
-.IP "\fB--long-usage\fP"
+.IP "\fB--long-usage\fR"
 If no short documentation string is provided, use the complete long
 documentation string in usage\. By default, in this situation only the first
 sentence from the long string is used\.
-.IP "\fB--short-usage\fP"
-If specified together with \fB--long-usage\fP, generate both short and long
+.IP "\fB--short-usage\fR"
+If specified together with \fB--long-usage\fR, generate both short and long
 usage versions\. In this mode, the usage printing functions are called
-\fBprint_short_usage()\fP and \fBprint_long_usage()\fP and for the long usage
+\fBprint_short_usage()\fR and \fBprint_long_usage()\fR and for the long usage
 the long documentation string is always used, even if the short version is
 provided\.
-.IP "\fB--option-length\fP \fIlen\fP"
-Indent option descriptions \fIlen\fP characters when printing usage\. This is
+.IP "\fB--option-length\fR \fIlen\fR"
+Indent option descriptions \fIlen\fR characters when printing usage\. This is
 useful when you have multiple options classes, potentially in separate files,
 and would like their usage to have the same indentation level\.
-.IP "\fB--exclude-base\fP"
+.IP "\fB--exclude-base\fR"
 Exclude base class information from usage and documentation\.
-.IP "\fB--class\fP \fIfq-name\fP"
-Generate the man page or HTML documentation only for the \fIfq-name\fP options
-class\. The \fIfq-name\fP name should be a fully-qualified options class name,
-for example, \fBapp::options\fP\. To generate documentation for multiple
+.IP "\fB--class\fR \fIfq-name\fR"
+Generate the man page or HTML documentation only for the \fIfq-name\fR options
+class\. The \fIfq-name\fR name should be a fully-qualified options class name,
+for example, \fBapp::options\fR\. To generate documentation for multiple
 classes, repeat this option and the documentation will be produced in the
 order specified\. This functionality is useful if you need to assemble
 documentation from multiple classes in a specific order or to insert custom
 documentation between options belonging to different classes\.
-.IP "\fB--docvar\fP|\fB-v\fP \fIname\fP=\fIval\fP"
-Set documentation variable \fIname\fP to the value \fIval\fP\. Documentation
+.IP "\fB--docvar\fR|\fB-v\fR \fIname\fR=\fIval\fR"
+Set documentation variable \fIname\fR to the value \fIval\fR\. Documentation
 variables can be substituted in prologues and epilogues (see
-\fB--*-prologue*\fP and \fB--*-epilogue*\fP options) using the
-\fB$\fP\fIname\fP\fB$\fP expansion syntax (use \fB$$\fP to escape expansion)\.
-They can also be defined in \fB\.cli\fP files using the
-"\e\fIname\fP=\fIval\fP" syntax\.
-.IP "\fB--hxx-prologue\fP \fItext\fP"
-Insert \fItext\fP at the beginning of the generated C++ header file\.
-.IP "\fB--ixx-prologue\fP \fItext\fP"
-Insert \fItext\fP at the beginning of the generated C++ inline file\.
-.IP "\fB--cxx-prologue\fP \fItext\fP"
-Insert \fItext\fP at the beginning of the generated C++ source file\.
-.IP "\fB--man-prologue\fP \fItext\fP"
-Insert \fItext\fP at the beginning of the generated man page file\.
-.IP "\fB--html-prologue\fP \fItext\fP"
-Insert \fItext\fP at the beginning of the generated HTML file\.
-.IP "\fB--hxx-epilogue\fP \fItext\fP"
-Insert \fItext\fP at the end of the generated C++ header file\.
-.IP "\fB--ixx-epilogue\fP \fItext\fP"
-Insert \fItext\fP at the end of the generated C++ inline file\.
-.IP "\fB--cxx-epilogue\fP \fItext\fP"
-Insert \fItext\fP at the end of the generated C++ source file\.
-.IP "\fB--man-epilogue\fP \fItext\fP"
-Insert \fItext\fP at the end of the generated man page text\.
-.IP "\fB--html-epilogue\fP \fItext\fP"
-Insert \fItext\fP at the end of the generated HTML text\.
-.IP "\fB--hxx-prologue-file\fP \fIfile\fP"
-Insert the content of \fIfile\fP at the beginning of the generated C++ header
+\fB--*-prologue*\fR and \fB--*-epilogue*\fR options) using the
+\fB$\fR\fIname\fR\fB$\fR expansion syntax (use \fB$$\fR to escape expansion)\.
+They can also be defined in \fB\.cli\fR files using the
+"\e\fIname\fR=\fIval\fR"\fR syntax\.
+.IP "\fB--hxx-prologue\fR \fItext\fR"
+Insert \fItext\fR at the beginning of the generated C++ header file\.
+.IP "\fB--ixx-prologue\fR \fItext\fR"
+Insert \fItext\fR at the beginning of the generated C++ inline file\.
+.IP "\fB--cxx-prologue\fR \fItext\fR"
+Insert \fItext\fR at the beginning of the generated C++ source file\.
+.IP "\fB--man-prologue\fR \fItext\fR"
+Insert \fItext\fR at the beginning of the generated man page file\.
+.IP "\fB--html-prologue\fR \fItext\fR"
+Insert \fItext\fR at the beginning of the generated HTML file\.
+.IP "\fB--hxx-epilogue\fR \fItext\fR"
+Insert \fItext\fR at the end of the generated C++ header file\.
+.IP "\fB--ixx-epilogue\fR \fItext\fR"
+Insert \fItext\fR at the end of the generated C++ inline file\.
+.IP "\fB--cxx-epilogue\fR \fItext\fR"
+Insert \fItext\fR at the end of the generated C++ source file\.
+.IP "\fB--man-epilogue\fR \fItext\fR"
+Insert \fItext\fR at the end of the generated man page text\.
+.IP "\fB--html-epilogue\fR \fItext\fR"
+Insert \fItext\fR at the end of the generated HTML text\.
+.IP "\fB--hxx-prologue-file\fR \fIfile\fR"
+Insert the content of \fIfile\fR at the beginning of the generated C++ header
 file\.
-.IP "\fB--ixx-prologue-file\fP \fIfile\fP"
-Insert the content of \fIfile\fP at the beginning of the generated C++ inline
+.IP "\fB--ixx-prologue-file\fR \fIfile\fR"
+Insert the content of \fIfile\fR at the beginning of the generated C++ inline
 file\.
-.IP "\fB--cxx-prologue-file\fP \fIfile\fP"
-Insert the content of \fIfile\fP at the beginning of the generated C++ source
+.IP "\fB--cxx-prologue-file\fR \fIfile\fR"
+Insert the content of \fIfile\fR at the beginning of the generated C++ source
 file\.
-.IP "\fB--man-prologue-file\fP \fIfile\fP"
-Insert the content of \fIfile\fP at the beginning of the generated man page
+.IP "\fB--man-prologue-file\fR \fIfile\fR"
+Insert the content of \fIfile\fR at the beginning of the generated man page
 file\.
-.IP "\fB--html-prologue-file\fP \fIfile\fP"
-Insert the content of \fIfile\fP at the beginning of the generated HTML file\.
-.IP "\fB--hxx-epilogue-file\fP \fIfile\fP"
-Insert the content of \fIfile\fP at the end of the generated C++ header file\.
-.IP "\fB--ixx-epilogue-file\fP \fIfile\fP"
-Insert the content of \fIfile\fP at the end of the generated C++ inline file\.
-.IP "\fB--cxx-epilogue-file\fP \fIfile\fP"
-Insert the content of \fIfile\fP at the end of the generated C++ source file\.
-.IP "\fB--man-epilogue-file\fP \fIfile\fP"
-Insert the content of \fIfile\fP at the end of the generated man page file\.
-.IP "\fB--html-epilogue-file\fP \fIfile\fP"
-Insert the content of \fIfile\fP at the end of the generated HTML file\.
-.IP "\fB--hxx-suffix\fP \fIsuffix\fP"
-Use \fIsuffix\fP instead of the default \fB\.hxx\fP to construct the name of
+.IP "\fB--html-prologue-file\fR \fIfile\fR"
+Insert the content of \fIfile\fR at the beginning of the generated HTML file\.
+.IP "\fB--hxx-epilogue-file\fR \fIfile\fR"
+Insert the content of \fIfile\fR at the end of the generated C++ header file\.
+.IP "\fB--ixx-epilogue-file\fR \fIfile\fR"
+Insert the content of \fIfile\fR at the end of the generated C++ inline file\.
+.IP "\fB--cxx-epilogue-file\fR \fIfile\fR"
+Insert the content of \fIfile\fR at the end of the generated C++ source file\.
+.IP "\fB--man-epilogue-file\fR \fIfile\fR"
+Insert the content of \fIfile\fR at the end of the generated man page file\.
+.IP "\fB--html-epilogue-file\fR \fIfile\fR"
+Insert the content of \fIfile\fR at the end of the generated HTML file\.
+.IP "\fB--hxx-suffix\fR \fIsuffix\fR"
+Use \fIsuffix\fR instead of the default \fB\.hxx\fR to construct the name of
 the generated header file\.
-.IP "\fB--ixx-suffix\fP \fIsuffix\fP"
-Use \fIsuffix\fP instead of the default \fB\.ixx\fP to construct the name of
+.IP "\fB--ixx-suffix\fR \fIsuffix\fR"
+Use \fIsuffix\fR instead of the default \fB\.ixx\fR to construct the name of
 the generated inline file\.
-.IP "\fB--cxx-suffix\fP \fIsuffix\fP"
-Use \fIsuffix\fP instead of the default \fB\.cxx\fP to construct the name of
+.IP "\fB--cxx-suffix\fR \fIsuffix\fR"
+Use \fIsuffix\fR instead of the default \fB\.cxx\fR to construct the name of
 the generated source file\.
-.IP "\fB--man-suffix\fP \fIsuffix\fP"
-Use \fIsuffix\fP instead of the default \fB\.1\fP to construct the name of the
+.IP "\fB--man-suffix\fR \fIsuffix\fR"
+Use \fIsuffix\fR instead of the default \fB\.1\fR to construct the name of the
 generated man page file\.
-.IP "\fB--html-suffix\fP \fIsuffix\fP"
-Use \fIsuffix\fP instead of the default \fB\.html\fP to construct the name of
+.IP "\fB--html-suffix\fR \fIsuffix\fR"
+Use \fIsuffix\fR instead of the default \fB\.html\fR to construct the name of
 the generated HTML file\.
-.IP "\fB--option-prefix\fP \fIprefix\fP"
-Use \fIprefix\fP instead of the default \fB-\fP as an option prefix\. Unknown
+.IP "\fB--option-prefix\fR \fIprefix\fR"
+Use \fIprefix\fR instead of the default \fB-\fR as an option prefix\. Unknown
 command line arguments that start with this prefix are treated as unknown
 options\. If you set the option prefix to the empty value, then all the
 unknown command line arguments will be treated as program arguments\.
-.IP "\fB--option-separator\fP \fIsep\fP"
-Use \fIsep\fP instead of the default \fB--\fP as an optional separator between
+.IP "\fB--option-separator\fR \fIsep\fR"
+Use \fIsep\fR instead of the default \fB--\fR as an optional separator between
 options and arguments\. All the command line arguments that are parsed after
 this separator are treated as program arguments\. Set the option separator to
 the empty value if you don't want this functionality\.
-.IP "\fB--include-with-brackets\fP"
-Use angle brackets (<>) instead of quotes ("") in the generated \fB#include\fP
+.IP "\fB--include-with-brackets\fR"
+Use angle brackets (<>) instead of quotes ("") in the generated \fB#include\fR
 directives\.
-.IP "\fB--include-prefix\fP \fIprefix\fP"
-Add \fIprefix\fP to the generated \fB#include\fP directive paths\.
-.IP "\fB--guard-prefix\fP \fIprefix\fP"
-Add \fIprefix\fP to the generated header inclusion guards\. The prefix is
+.IP "\fB--include-prefix\fR \fIprefix\fR"
+Add \fIprefix\fR to the generated \fB#include\fR directive paths\.
+.IP "\fB--guard-prefix\fR \fIprefix\fR"
+Add \fIprefix\fR to the generated header inclusion guards\. The prefix is
 transformed to upper case and characters that are illegal in a preprocessor
 macro name are replaced with underscores\.
-.IP "\fB--reserved-name\fP \fIname\fP=\fIrep\fP"
-Add \fIname\fP with an optional \fIrep\fP replacement to the list of names
+.IP "\fB--reserved-name\fR \fIname\fR=\fIrep\fR"
+Add \fIname\fR with an optional \fIrep\fR replacement to the list of names
 that should not be used as identifiers\. If provided, the replacement name is
 used instead\. All C++ keywords are already in this list\.
-.IP "\fB--options-file\fP \fIfile\fP"
-Read additional options from \fIfile\fP with each option appearing on a
+.IP "\fB--options-file\fR \fIfile\fR"
+Read additional options from \fIfile\fR with each option appearing on a
 separate line optionally followed by space and an option value\. Empty lines
-and lines starting with \fB#\fP are ignored\. Option values can be enclosed in
-double (\fB"\fP) or single (\fB'\fP) quotes  to preserve leading and trailing
+and lines starting with \fB#\fR are ignored\. Option values can be enclosed in
+double (\fB"\fR) or single (\fB'\fR) quotes  to preserve leading and trailing
 whitespaces as well as to specify empty values\. If the value itself contains
 trailing or leading quotes, enclose it with an extra pair of quotes, for
-example \fB'"x"'\fP\. Non-leading and non-trailing quotes are interpreted as
+example \fB'"x"'\fR\. Non-leading and non-trailing quotes are interpreted as
 being part of the option value\.
 
 The semantics of providing options in a file is equivalent to providing the
 same set of options in the same order on the command line at the point where
-the \fB--options-file\fP option is specified except that the shell escaping
+the \fB--options-file\fR option is specified except that the shell escaping
 and quoting is not required\. Repeat this option to specify more than one
 options file\.
 .\"

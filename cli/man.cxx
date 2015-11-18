@@ -120,12 +120,12 @@ namespace
       for (names::name_iterator i (n.name_begin ()); i != n.name_end (); ++i)
       {
         if (i != n.name_begin ())
-          os << "\\fP|\\fB";
+          os << "\\fR|\\fB";
 
         os << *i;
       }
 
-      os << "\\fP";
+      os << "\\fR";
 
       string type (o.type ().name ());
 

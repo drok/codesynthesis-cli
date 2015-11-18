@@ -4,6 +4,7 @@
 // license   : MIT; see accompanying LICENSE file
 
 #include <stack>
+#include <vector>
 #include <cstring>  // strncmp()
 #include <sstream>
 #include <iostream>
@@ -327,7 +328,7 @@ format_line (output_type ot, string& r, const char* s, size_t n)
   const block bold = 4;
   const block link = 8;
 
-  stack<block> blocks;
+  vector<block> blocks;
 
   string link_target;
   string link_section; // If not empty, man section; target is man name.
@@ -405,7 +406,7 @@ format_line (output_type ot, string& r, const char* s, size_t n)
           if (j < n && s[j] == '{')
           {
             i = j;
-            blocks.push (b);
+            blocks.push_back (b);
             new_block = true;
             break;
           }
@@ -447,7 +448,7 @@ format_line (output_type ot, string& r, const char* s, size_t n)
           if (j < n && s[j] == '{')
           {
             i = j;
-            blocks.push (b);
+            blocks.push_back (b);
             new_block = true;
             break;
           }
@@ -489,7 +490,7 @@ format_line (output_type ot, string& r, const char* s, size_t n)
           if (j < n && s[j] == '{')
           {
             i = j;
-            blocks.push (b);
+            blocks.push_back (b);
             new_block = true;
             break;
           }
@@ -570,7 +571,7 @@ format_line (output_type ot, string& r, const char* s, size_t n)
 
             link_empty = i + 1 < n && s[i + 1] == '}';
 
-            blocks.push (link);
+            blocks.push_back (link);
             new_block = true;
             break;
           }
@@ -601,7 +602,13 @@ format_line (output_type ot, string& r, const char* s, size_t n)
       //
       if (new_block)
       {
-        block b (blocks.top ());
+        block b (blocks.back ());
+
+        block eb (0); // Effective block.
+        for (vector<block>::iterator i (blocks.begin ());
+             i != blocks.end ();
+             ++i)
+          eb |= *i & (code | itlc | bold);
 
         switch (ot)
         {
@@ -613,15 +620,6 @@ format_line (output_type ot, string& r, const char* s, size_t n)
           }
         case ot_html:
           {
-            if (b & code)
-              r += "<code>";
-
-            if (b & itlc)
-              r += "<i>";
-
-            if (b & bold)
-              r += "<b>";
-
             if (b & link)
             {
               r += "<a href=\"";
@@ -633,17 +631,31 @@ format_line (output_type ot, string& r, const char* s, size_t n)
 
               r += "\">";
             }
+            else
+            {
+              if (b & code)
+                r += "<code>";
+
+              if (b & itlc)
+                r += "<i>";
+
+              if (b & bold)
+                r += "<b>";
+            }
 
             break;
           }
         case ot_man:
           {
-            if ((b & itlc) && (b & bold))
-              r += "\\f(BI";
-            else if (b & itlc)
-              r += "\\fI";
-            else if (b & bold)
-              r += "\\fB";
+            if ((b & link) == 0)
+            {
+              if ((eb & itlc) && (eb & bold))
+                r += "\\f(BI";
+              else if (eb & itlc)
+                r += "\\fI";
+              else if (eb & bold)
+                r += "\\fB";
+            }
 
             break;
           }
@@ -673,15 +685,19 @@ format_line (output_type ot, string& r, const char* s, size_t n)
         {
           if (!blocks.empty ())
           {
-            block b (blocks.top ());
+            block b (blocks.back ());
+            blocks.pop_back ();
+
+            block eb (0); // New effective block.
+            for (vector<block>::iterator i (blocks.begin ());
+                 i != blocks.end ();
+                 ++i)
+              eb |= *i & (code | itlc | bold);
 
             switch (ot)
             {
             case ot_plain:
               {
-                if (b & code)
-                  r += "'";
-
                 if (b & link)
                 {
                   if (!link_empty)
@@ -695,20 +711,16 @@ format_line (output_type ot, string& r, const char* s, size_t n)
                   if (!link_empty)
                     r += ")";
                 }
+                else
+                {
+                  if (b & code)
+                    r += "'";
+                }
 
                 break;
               }
             case ot_html:
               {
-                if (b & bold)
-                  r += "</b>";
-
-                if (b & itlc)
-                  r += "</i>";
-
-                if (b & code)
-                  r += "</code>";
-
                 if (b & link)
                 {
                   if (link_empty)
@@ -726,14 +738,22 @@ format_line (output_type ot, string& r, const char* s, size_t n)
 
                   r += "</a>";
                 }
+                else
+                {
+                  if (b & bold)
+                    r += "</b>";
+
+                  if (b & itlc)
+                    r += "</i>";
+
+                  if (b & code)
+                    r += "</code>";
+                }
 
                 break;
               }
             case ot_man:
               {
-                if (b & (itlc | bold))
-                  r += "\\fP";
-
                 if (b & link)
                 {
                   if (!link_empty)
@@ -750,6 +770,21 @@ format_line (output_type ot, string& r, const char* s, size_t n)
                   if (!link_empty)
                     r += ")";
                 }
+                else
+                {
+                  // At first sight, \fP (select previous font) looks like
+                  // exactly what we need here. However, it doesn't quite
+                  // have the stack semantics that we need.
+                  //
+                  if ((eb & itlc) && (eb & bold))
+                    r += "\\f(BI";
+                  else if (eb & itlc)
+                    r += "\\fI";
+                  else if (eb & bold)
+                    r += "\\fB";
+                  else
+                    r += "\\fR";
+                }
 
                 break;
               }
@@ -758,7 +793,6 @@ format_line (output_type ot, string& r, const char* s, size_t n)
             if (b & link)
               link_target.clear ();
 
-            blocks.pop ();
             break;
           }
 
@@ -780,7 +814,7 @@ format_line (output_type ot, string& r, const char* s, size_t n)
 
   if (!blocks.empty ())
   {
-    unsigned char b (blocks.top ());
+    unsigned char b (blocks.back ());
     string bs;
 
     if (b & code) bs += 'c';
