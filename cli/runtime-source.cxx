@@ -608,18 +608,20 @@ generate_runtime_source (context& ctx, bool complete)
      << "std::string vstr (ov, (p != std::string::npos ? p + 1 : ov.size ()));"
      << endl
      << "int ac (2);"
-     << "char* av[] = {const_cast<char*> (o), 0};"
-     << "if (!kstr.empty ())"
+     << "char* av[] = {const_cast<char*> (o), 0};";
+  if (sp)
+    os << "bool dummy;";
+  os << "if (!kstr.empty ())"
      << "{"
      << "av[1] = const_cast<char*> (kstr.c_str ());"
      << "argv_scanner s (0, ac, av);"
-     << "parser<K>::parse (k, s);"
+     << "parser<K>::parse (k, " << (sp ? "dummy, " : "") << "s);"
      << "}"
      << "if (!vstr.empty ())"
      << "{"
      << "av[1] = const_cast<char*> (vstr.c_str ());"
      << "argv_scanner s (0, ac, av);"
-     << "parser<V>::parse (v, s);"
+     << "parser<V>::parse (v, " << (sp ? "dummy, " : "") << "s);"
      << "}"
      << "m[k] = v;"
      << "}"
