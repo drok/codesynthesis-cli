@@ -371,8 +371,14 @@ class options
   const std::vector<std::string>&
   include_path () const;
 
+  bool
+  include_path_specified () const;
+
   const std::string&
   output_dir () const;
+
+  bool
+  output_dir_specified () const;
 
   const bool&
   generate_modifier () const;
@@ -395,8 +401,14 @@ class options
   const std::string&
   cli_namespace () const;
 
+  bool
+  cli_namespace_specified () const;
+
   const std::string&
   ostream_type () const;
+
+  bool
+  ostream_type_specified () const;
 
   const bool&
   generate_cxx () const;
@@ -422,8 +434,17 @@ class options
   const bool&
   short_usage () const;
 
+  const std::string&
+  page_usage () const;
+
+  bool
+  page_usage_specified () const;
+
   const std::size_t&
   option_length () const;
+
+  bool
+  option_length_specified () const;
 
   const bool&
   ansi_color () const;
@@ -434,89 +455,176 @@ class options
   const std::vector<std::string>&
   class_ () const;
 
+  bool
+  class__specified () const;
+
   const std::map<std::string, std::string>&
   docvar () const;
+
+  bool
+  docvar_specified () const;
 
   const std::vector<std::string>&
   hxx_prologue () const;
 
+  bool
+  hxx_prologue_specified () const;
+
   const std::vector<std::string>&
   ixx_prologue () const;
+
+  bool
+  ixx_prologue_specified () const;
 
   const std::vector<std::string>&
   cxx_prologue () const;
 
+  bool
+  cxx_prologue_specified () const;
+
   const std::vector<std::string>&
   man_prologue () const;
+
+  bool
+  man_prologue_specified () const;
 
   const std::vector<std::string>&
   html_prologue () const;
 
+  bool
+  html_prologue_specified () const;
+
   const std::vector<std::string>&
   hxx_epilogue () const;
+
+  bool
+  hxx_epilogue_specified () const;
 
   const std::vector<std::string>&
   ixx_epilogue () const;
 
+  bool
+  ixx_epilogue_specified () const;
+
   const std::vector<std::string>&
   cxx_epilogue () const;
+
+  bool
+  cxx_epilogue_specified () const;
 
   const std::vector<std::string>&
   man_epilogue () const;
 
+  bool
+  man_epilogue_specified () const;
+
   const std::vector<std::string>&
   html_epilogue () const;
+
+  bool
+  html_epilogue_specified () const;
 
   const std::string&
   hxx_prologue_file () const;
 
+  bool
+  hxx_prologue_file_specified () const;
+
   const std::string&
   ixx_prologue_file () const;
+
+  bool
+  ixx_prologue_file_specified () const;
 
   const std::string&
   cxx_prologue_file () const;
 
+  bool
+  cxx_prologue_file_specified () const;
+
   const std::string&
   man_prologue_file () const;
+
+  bool
+  man_prologue_file_specified () const;
 
   const std::string&
   html_prologue_file () const;
 
+  bool
+  html_prologue_file_specified () const;
+
   const std::string&
   hxx_epilogue_file () const;
+
+  bool
+  hxx_epilogue_file_specified () const;
 
   const std::string&
   ixx_epilogue_file () const;
 
+  bool
+  ixx_epilogue_file_specified () const;
+
   const std::string&
   cxx_epilogue_file () const;
+
+  bool
+  cxx_epilogue_file_specified () const;
 
   const std::string&
   man_epilogue_file () const;
 
+  bool
+  man_epilogue_file_specified () const;
+
   const std::string&
   html_epilogue_file () const;
+
+  bool
+  html_epilogue_file_specified () const;
 
   const std::string&
   hxx_suffix () const;
 
+  bool
+  hxx_suffix_specified () const;
+
   const std::string&
   ixx_suffix () const;
+
+  bool
+  ixx_suffix_specified () const;
 
   const std::string&
   cxx_suffix () const;
 
+  bool
+  cxx_suffix_specified () const;
+
   const std::string&
   man_suffix () const;
+
+  bool
+  man_suffix_specified () const;
 
   const std::string&
   html_suffix () const;
 
+  bool
+  html_suffix_specified () const;
+
   const std::string&
   option_prefix () const;
 
+  bool
+  option_prefix_specified () const;
+
   const std::string&
   option_separator () const;
+
+  bool
+  option_separator_specified () const;
 
   const bool&
   include_with_brackets () const;
@@ -524,14 +632,26 @@ class options
   const std::string&
   include_prefix () const;
 
+  bool
+  include_prefix_specified () const;
+
   const std::string&
   guard_prefix () const;
+
+  bool
+  guard_prefix_specified () const;
 
   const std::map<std::string, std::string>&
   reserved_name () const;
 
+  bool
+  reserved_name_specified () const;
+
   const std::string&
   options_file () const;
+
+  bool
+  options_file_specified () const;
 
   // Print usage information.
   //
@@ -554,7 +674,9 @@ class options
   bool help_;
   bool version_;
   std::vector<std::string> include_path_;
+  bool include_path_specified_;
   std::string output_dir_;
+  bool output_dir_specified_;
   bool generate_modifier_;
   bool generate_specifier_;
   bool generate_parse_;
@@ -562,7 +684,9 @@ class options
   bool generate_file_scanner_;
   bool suppress_inline_;
   std::string cli_namespace_;
+  bool cli_namespace_specified_;
   std::string ostream_type_;
+  bool ostream_type_specified_;
   bool generate_cxx_;
   bool generate_man_;
   bool generate_html_;
@@ -571,43 +695,79 @@ class options
   bool suppress_usage_;
   bool long_usage_;
   bool short_usage_;
+  std::string page_usage_;
+  bool page_usage_specified_;
   std::size_t option_length_;
+  bool option_length_specified_;
   bool ansi_color_;
   bool exclude_base_;
   std::vector<std::string> class__;
+  bool class__specified_;
   std::map<std::string, std::string> docvar_;
+  bool docvar_specified_;
   std::vector<std::string> hxx_prologue_;
+  bool hxx_prologue_specified_;
   std::vector<std::string> ixx_prologue_;
+  bool ixx_prologue_specified_;
   std::vector<std::string> cxx_prologue_;
+  bool cxx_prologue_specified_;
   std::vector<std::string> man_prologue_;
+  bool man_prologue_specified_;
   std::vector<std::string> html_prologue_;
+  bool html_prologue_specified_;
   std::vector<std::string> hxx_epilogue_;
+  bool hxx_epilogue_specified_;
   std::vector<std::string> ixx_epilogue_;
+  bool ixx_epilogue_specified_;
   std::vector<std::string> cxx_epilogue_;
+  bool cxx_epilogue_specified_;
   std::vector<std::string> man_epilogue_;
+  bool man_epilogue_specified_;
   std::vector<std::string> html_epilogue_;
+  bool html_epilogue_specified_;
   std::string hxx_prologue_file_;
+  bool hxx_prologue_file_specified_;
   std::string ixx_prologue_file_;
+  bool ixx_prologue_file_specified_;
   std::string cxx_prologue_file_;
+  bool cxx_prologue_file_specified_;
   std::string man_prologue_file_;
+  bool man_prologue_file_specified_;
   std::string html_prologue_file_;
+  bool html_prologue_file_specified_;
   std::string hxx_epilogue_file_;
+  bool hxx_epilogue_file_specified_;
   std::string ixx_epilogue_file_;
+  bool ixx_epilogue_file_specified_;
   std::string cxx_epilogue_file_;
+  bool cxx_epilogue_file_specified_;
   std::string man_epilogue_file_;
+  bool man_epilogue_file_specified_;
   std::string html_epilogue_file_;
+  bool html_epilogue_file_specified_;
   std::string hxx_suffix_;
+  bool hxx_suffix_specified_;
   std::string ixx_suffix_;
+  bool ixx_suffix_specified_;
   std::string cxx_suffix_;
+  bool cxx_suffix_specified_;
   std::string man_suffix_;
+  bool man_suffix_specified_;
   std::string html_suffix_;
+  bool html_suffix_specified_;
   std::string option_prefix_;
+  bool option_prefix_specified_;
   std::string option_separator_;
+  bool option_separator_specified_;
   bool include_with_brackets_;
   std::string include_prefix_;
+  bool include_prefix_specified_;
   std::string guard_prefix_;
+  bool guard_prefix_specified_;
   std::map<std::string, std::string> reserved_name_;
+  bool reserved_name_specified_;
   std::string options_file_;
+  bool options_file_specified_;
 };
 
 #include "options.ixx"

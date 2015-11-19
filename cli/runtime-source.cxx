@@ -25,7 +25,7 @@ generate_runtime_source (context& ctx, bool complete)
 
   os << endl;
 
-  ctx.cli_open ();
+  ctx.ns_open (ctx.cli);
 
   if (complete)
   {
@@ -652,5 +652,5 @@ generate_runtime_source (context& ctx, bool complete)
        << "parser<T>::parse (x.*M, x.*S, s);"
        << "}";
 
-  ctx.cli_close ();
+  ctx.ns_close (ctx.cli);
 }

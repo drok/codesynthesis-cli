@@ -5,6 +5,8 @@
 
 #include "header.hxx"
 
+using namespace std;
+
 namespace
 {
   //
@@ -308,6 +310,8 @@ namespace
 void
 generate_header (context& ctx)
 {
+  ostream& os (ctx.os);
+
   traversal::cli_unit unit;
   includes includes (ctx);
   traversal::names unit_names;
@@ -324,4 +328,31 @@ generate_header (context& ctx)
   ns_names >> cl;
 
   unit.dispatch (ctx.unit);
+
+  // Entire page usage.
+  //
+  if (ctx.usage != ut_none && ctx.options.page_usage_specified ())
+  {
+    os << "// Print page usage information." << endl
+       << "//" << endl;
+
+    const string& qn (ctx.options.page_usage ());
+    string n (ctx.escape (ctx.substitute (ctx.ns_open (qn, false))));
+
+    string const& ost (ctx.options.ostream_type ());
+
+    if (ctx.usage != ut_both)
+      os << "void" << endl
+         << n << "usage (" << ost << "&);"
+         << endl;
+    else
+      os << "void" << endl
+         << n << "short_usage (" << ost << "&);"
+         << endl
+         << "void" << endl
+         << n << "long_usage (" << ost << "&);"
+         << endl;
+
+    ctx.ns_close (qn, false);
+  }
 }

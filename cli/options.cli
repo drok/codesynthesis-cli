@@ -131,6 +131,30 @@ class options
      even if the short version is provided."
   };
 
+  std::string --page-usage
+  {
+    "<name>",
+    "Generate the combined usage printing code for the entire page.
+     Specifically, this will include all the namespace-level documentation as
+     well as usage for all the options classes printed in the order they are
+     defined in the main translation unit (documentation/classes from included
+     units are ignored except for base classes).
+
+     The <name> argument is used as a prefix to form the name of the usage
+     printing function. It can include the namespace qualification as well
+     as documentation variable expansion, for example:
+
+     \
+     --page-usage print_         # print_usage() in global namespace
+     --page-usage app::print_    # print_usage() in app namespace
+     --page-usage print_$name$_  # print_foo_usage() if name is foo
+     \
+
+     If both \cb{--long-usage} and \cb{--short-usage} options are specified,
+     then two functions are generated with the \cb{*short_usage()} and
+     \cb{*long_usage()} suffixes."
+  };
+
   std::size_t --option-length = 0
   {
     "<len>",

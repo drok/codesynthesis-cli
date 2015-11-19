@@ -159,6 +159,26 @@
     documentation string is always used, even if the short version is
     provided.</dd>
 
+    <dt><code><b>--page-usage</b></code> <i>name</i></dt>
+    <dd>Generate the combined usage printing code for the entire page.
+    Specifically, this will include all the namespace-level documentation as
+    well as usage for all the options classes printed in the order they are
+    defined in the main translation unit (documentation/classes from included
+    units are ignored except for base classes).
+
+    <p>The <i>name</i> argument is used as a prefix to form the name of the
+    usage printing function. It can include the namespace qualification as
+    well as documentation variable expansion, for example:</p>
+
+    <pre>--page-usage print_         # print_usage() in global namespace
+--page-usage app::print_    # print_usage() in app namespace
+--page-usage print_$name$_  # print_foo_usage() if name is foo</pre>
+
+    <p>If both <code><b>--long-usage</b></code> and
+    <code><b>--short-usage</b></code> options are specified, then two
+    functions are generated with the <code><b>*short_usage()</b></code> and
+    <code><b>*long_usage()</b></code> suffixes.</p></dd>
+
     <dt><code><b>--option-length</b></code> <i>len</i></dt>
     <dd>Indent option descriptions <i>len</i> characters when printing usage.
     This is useful when you have multiple options classes, potentially in

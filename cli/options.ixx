@@ -221,10 +221,22 @@ include_path () const
   return this->include_path_;
 }
 
+inline bool options::
+include_path_specified () const
+{
+  return this->include_path_specified_;
+}
+
 inline const std::string& options::
 output_dir () const
 {
   return this->output_dir_;
+}
+
+inline bool options::
+output_dir_specified () const
+{
+  return this->output_dir_specified_;
 }
 
 inline const bool& options::
@@ -269,10 +281,22 @@ cli_namespace () const
   return this->cli_namespace_;
 }
 
+inline bool options::
+cli_namespace_specified () const
+{
+  return this->cli_namespace_specified_;
+}
+
 inline const std::string& options::
 ostream_type () const
 {
   return this->ostream_type_;
+}
+
+inline bool options::
+ostream_type_specified () const
+{
+  return this->ostream_type_specified_;
 }
 
 inline const bool& options::
@@ -323,10 +347,28 @@ short_usage () const
   return this->short_usage_;
 }
 
+inline const std::string& options::
+page_usage () const
+{
+  return this->page_usage_;
+}
+
+inline bool options::
+page_usage_specified () const
+{
+  return this->page_usage_specified_;
+}
+
 inline const std::size_t& options::
 option_length () const
 {
   return this->option_length_;
+}
+
+inline bool options::
+option_length_specified () const
+{
+  return this->option_length_specified_;
 }
 
 inline const bool& options::
@@ -347,10 +389,22 @@ class_ () const
   return this->class__;
 }
 
+inline bool options::
+class__specified () const
+{
+  return this->class__specified_;
+}
+
 inline const std::map<std::string, std::string>& options::
 docvar () const
 {
   return this->docvar_;
+}
+
+inline bool options::
+docvar_specified () const
+{
+  return this->docvar_specified_;
 }
 
 inline const std::vector<std::string>& options::
@@ -359,10 +413,22 @@ hxx_prologue () const
   return this->hxx_prologue_;
 }
 
+inline bool options::
+hxx_prologue_specified () const
+{
+  return this->hxx_prologue_specified_;
+}
+
 inline const std::vector<std::string>& options::
 ixx_prologue () const
 {
   return this->ixx_prologue_;
+}
+
+inline bool options::
+ixx_prologue_specified () const
+{
+  return this->ixx_prologue_specified_;
 }
 
 inline const std::vector<std::string>& options::
@@ -371,10 +437,22 @@ cxx_prologue () const
   return this->cxx_prologue_;
 }
 
+inline bool options::
+cxx_prologue_specified () const
+{
+  return this->cxx_prologue_specified_;
+}
+
 inline const std::vector<std::string>& options::
 man_prologue () const
 {
   return this->man_prologue_;
+}
+
+inline bool options::
+man_prologue_specified () const
+{
+  return this->man_prologue_specified_;
 }
 
 inline const std::vector<std::string>& options::
@@ -383,10 +461,22 @@ html_prologue () const
   return this->html_prologue_;
 }
 
+inline bool options::
+html_prologue_specified () const
+{
+  return this->html_prologue_specified_;
+}
+
 inline const std::vector<std::string>& options::
 hxx_epilogue () const
 {
   return this->hxx_epilogue_;
+}
+
+inline bool options::
+hxx_epilogue_specified () const
+{
+  return this->hxx_epilogue_specified_;
 }
 
 inline const std::vector<std::string>& options::
@@ -395,10 +485,22 @@ ixx_epilogue () const
   return this->ixx_epilogue_;
 }
 
+inline bool options::
+ixx_epilogue_specified () const
+{
+  return this->ixx_epilogue_specified_;
+}
+
 inline const std::vector<std::string>& options::
 cxx_epilogue () const
 {
   return this->cxx_epilogue_;
+}
+
+inline bool options::
+cxx_epilogue_specified () const
+{
+  return this->cxx_epilogue_specified_;
 }
 
 inline const std::vector<std::string>& options::
@@ -407,10 +509,22 @@ man_epilogue () const
   return this->man_epilogue_;
 }
 
+inline bool options::
+man_epilogue_specified () const
+{
+  return this->man_epilogue_specified_;
+}
+
 inline const std::vector<std::string>& options::
 html_epilogue () const
 {
   return this->html_epilogue_;
+}
+
+inline bool options::
+html_epilogue_specified () const
+{
+  return this->html_epilogue_specified_;
 }
 
 inline const std::string& options::
@@ -419,10 +533,22 @@ hxx_prologue_file () const
   return this->hxx_prologue_file_;
 }
 
+inline bool options::
+hxx_prologue_file_specified () const
+{
+  return this->hxx_prologue_file_specified_;
+}
+
 inline const std::string& options::
 ixx_prologue_file () const
 {
   return this->ixx_prologue_file_;
+}
+
+inline bool options::
+ixx_prologue_file_specified () const
+{
+  return this->ixx_prologue_file_specified_;
 }
 
 inline const std::string& options::
@@ -431,10 +557,22 @@ cxx_prologue_file () const
   return this->cxx_prologue_file_;
 }
 
+inline bool options::
+cxx_prologue_file_specified () const
+{
+  return this->cxx_prologue_file_specified_;
+}
+
 inline const std::string& options::
 man_prologue_file () const
 {
   return this->man_prologue_file_;
+}
+
+inline bool options::
+man_prologue_file_specified () const
+{
+  return this->man_prologue_file_specified_;
 }
 
 inline const std::string& options::
@@ -443,10 +581,22 @@ html_prologue_file () const
   return this->html_prologue_file_;
 }
 
+inline bool options::
+html_prologue_file_specified () const
+{
+  return this->html_prologue_file_specified_;
+}
+
 inline const std::string& options::
 hxx_epilogue_file () const
 {
   return this->hxx_epilogue_file_;
+}
+
+inline bool options::
+hxx_epilogue_file_specified () const
+{
+  return this->hxx_epilogue_file_specified_;
 }
 
 inline const std::string& options::
@@ -455,10 +605,22 @@ ixx_epilogue_file () const
   return this->ixx_epilogue_file_;
 }
 
+inline bool options::
+ixx_epilogue_file_specified () const
+{
+  return this->ixx_epilogue_file_specified_;
+}
+
 inline const std::string& options::
 cxx_epilogue_file () const
 {
   return this->cxx_epilogue_file_;
+}
+
+inline bool options::
+cxx_epilogue_file_specified () const
+{
+  return this->cxx_epilogue_file_specified_;
 }
 
 inline const std::string& options::
@@ -467,10 +629,22 @@ man_epilogue_file () const
   return this->man_epilogue_file_;
 }
 
+inline bool options::
+man_epilogue_file_specified () const
+{
+  return this->man_epilogue_file_specified_;
+}
+
 inline const std::string& options::
 html_epilogue_file () const
 {
   return this->html_epilogue_file_;
+}
+
+inline bool options::
+html_epilogue_file_specified () const
+{
+  return this->html_epilogue_file_specified_;
 }
 
 inline const std::string& options::
@@ -479,10 +653,22 @@ hxx_suffix () const
   return this->hxx_suffix_;
 }
 
+inline bool options::
+hxx_suffix_specified () const
+{
+  return this->hxx_suffix_specified_;
+}
+
 inline const std::string& options::
 ixx_suffix () const
 {
   return this->ixx_suffix_;
+}
+
+inline bool options::
+ixx_suffix_specified () const
+{
+  return this->ixx_suffix_specified_;
 }
 
 inline const std::string& options::
@@ -491,10 +677,22 @@ cxx_suffix () const
   return this->cxx_suffix_;
 }
 
+inline bool options::
+cxx_suffix_specified () const
+{
+  return this->cxx_suffix_specified_;
+}
+
 inline const std::string& options::
 man_suffix () const
 {
   return this->man_suffix_;
+}
+
+inline bool options::
+man_suffix_specified () const
+{
+  return this->man_suffix_specified_;
 }
 
 inline const std::string& options::
@@ -503,16 +701,34 @@ html_suffix () const
   return this->html_suffix_;
 }
 
+inline bool options::
+html_suffix_specified () const
+{
+  return this->html_suffix_specified_;
+}
+
 inline const std::string& options::
 option_prefix () const
 {
   return this->option_prefix_;
 }
 
+inline bool options::
+option_prefix_specified () const
+{
+  return this->option_prefix_specified_;
+}
+
 inline const std::string& options::
 option_separator () const
 {
   return this->option_separator_;
+}
+
+inline bool options::
+option_separator_specified () const
+{
+  return this->option_separator_specified_;
 }
 
 inline const bool& options::
@@ -527,10 +743,22 @@ include_prefix () const
   return this->include_prefix_;
 }
 
+inline bool options::
+include_prefix_specified () const
+{
+  return this->include_prefix_specified_;
+}
+
 inline const std::string& options::
 guard_prefix () const
 {
   return this->guard_prefix_;
+}
+
+inline bool options::
+guard_prefix_specified () const
+{
+  return this->guard_prefix_specified_;
 }
 
 inline const std::map<std::string, std::string>& options::
@@ -539,10 +767,22 @@ reserved_name () const
   return this->reserved_name_;
 }
 
+inline bool options::
+reserved_name_specified () const
+{
+  return this->reserved_name_specified_;
+}
+
 inline const std::string& options::
 options_file () const
 {
   return this->options_file_;
+}
+
+inline bool options::
+options_file_specified () const
+{
+  return this->options_file_specified_;
 }
 
 // Begin epilogue.

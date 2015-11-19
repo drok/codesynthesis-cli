@@ -22,21 +22,22 @@ using std::endl;
 
 class generation_failed {};
 
+enum usage
+{
+  ut_none,
+  ut_short,
+  ut_long,
+  ut_both
+};
+
 class context
 {
 public:
   typedef std::size_t size_t;
   typedef std::string string;
-  typedef ::options options_type;
 
-public:
-  enum usage_type
-  {
-    ut_none,
-    ut_short,
-    ut_long,
-    ut_both
-  };
+  typedef ::options options_type;
+  typedef ::usage usage_type;
 
 private:
   struct data;
@@ -101,6 +102,14 @@ public:
   void
   format_line (output_type, string&, const char*, size_t);
 
+  // Substitute doc variable expansions ($var$).
+  //
+  static string
+  substitute (const string&, semantics::cli_unit&);
+
+  string
+  substitute (const string& s) {return substitute (s, unit);}
+
 public:
   static string const&
   ename (semantics::nameable& n)
@@ -132,14 +141,16 @@ public:
   string
   fq_name (semantics::nameable& n, bool cxx_name = true);
 
-  // Open/close cli namespace.
+  // Open/close namespace. If last is false, then the last name
+  // component is not treated as a namespace. The open function
+  // also returns the last name component.
   //
 public:
-  void
-  cli_open ();
+  string
+  ns_open (const string& name, bool last = true);
 
   void
-  cli_close ();
+  ns_close (const string& name, bool last = true);
 
 public:
   context (std::ostream&, semantics::cli_unit&, options_type const&);

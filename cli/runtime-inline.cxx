@@ -14,7 +14,7 @@ generate_runtime_inline (context& ctx)
   string const& inl (ctx.inl);
   string const& os_type (ctx.options.ostream_type ());
 
-  ctx.cli_open ();
+  ctx.ns_open (ctx.cli);
 
   // unknown_mode
   //
@@ -305,5 +305,5 @@ generate_runtime_inline (context& ctx)
        << "}";
   }
 
-  ctx.cli_close ();
+  ctx.ns_close (ctx.cli);
 }

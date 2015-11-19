@@ -79,67 +79,6 @@ namespace
   }
 
   void
-  append (ostream& os, const string& s, semantics::cli_unit& u)
-  {
-    // Scan the string looking for variable substitutions ($var$).
-    //
-    size_t b (0), e (b);
-    for (size_t n (s.size ()); e != n; ++e)
-    {
-      if (s[e] == '$' && e + 1 != n)
-      {
-        if (s[e + 1] == '$') // Escape.
-        {
-          os.write (s.c_str () + b, ++e - b); // Write one, skip the other.
-          b = e + 1;
-          continue;
-        }
-
-        // Scan for as long as it is a C identifier.
-        //
-        size_t p (e + 1); // Position of the second '$'.
-        for (; p != n; ++p)
-        {
-          char c (s[p]);
-
-          if (!(c == '_' ||
-                ('a' <= c && c <= 'z') ||
-                ('A' <= c && c <= 'Z') ||
-                (p != e + 1 && '0' <= c && c <= '9')))
-            break;
-        }
-
-        // Note: check that the second '$' is not escaped.
-        //
-        if (p != n && s[p] == '$' && (p + 1 == n || s[p + 1] != '$'))
-        {
-          os.write (s.c_str () + b, e - b);
-
-          // Lookup and substiute the variable.
-          //
-          ++e;
-          string v (s, e, p - e);
-
-          if (semantics::doc* d = u.lookup<semantics::doc> ("", "var: " + v))
-            os << d->front ();
-          else
-          {
-            cerr << "error: undefined variable '" << v << "' in '" << s << "'"
-                 << endl;
-            throw generation_failed ();
-          }
-
-          e = p;
-          b = e + 1;
-        }
-      }
-    }
-
-    os.write (s.c_str () + b, e - b); // Last chunk.
-    os << endl;
-  }
-
-  void
   append (ostream& os,
           vector<string> const& text,
           string const& file,
@@ -147,7 +86,7 @@ namespace
   {
     for (vector<string>::const_iterator i (text.begin ());
          i != text.end (); ++i)
-      append (os, *i, u);
+      os << context::substitute (*i, u) << endl;
 
     if (!file.empty ())
     {
@@ -159,7 +98,7 @@ namespace
       // the delimiter.
       //
       for (string s; getline (ifs, s); )
-        append (os, s, u);
+        os << context::substitute (s, u) << endl;
     }
   }
 }

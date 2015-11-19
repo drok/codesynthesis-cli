@@ -25,7 +25,20 @@ generate_runtime_header (context& ctx)
      << "#include <exception>" << endl
      << endl;
 
-  ctx.cli_open ();
+  // VC++ and xlC don't like the (void)x expression if x is a reference
+  // to an incomplete type. On the other hand, GCC warns that (void*)&x
+  // doesn't have any effect.
+  //
+  os << "#ifndef CLI_POTENTIALLY_UNUSED" << endl
+     << "#  if defined(_MSC_VER) || defined(__xlC__)" << endl
+     << "#    define CLI_POTENTIALLY_UNUSED(x) (void*)&x" << endl
+     << "#  else" << endl
+     << "#    define CLI_POTENTIALLY_UNUSED(x) (void)x" << endl
+     << "#  endif" << endl
+     << "#endif" << endl
+     << endl;
+
+  ctx.ns_open (ctx.cli);
 
   // unknown_mode
   //
@@ -396,5 +409,5 @@ generate_runtime_header (context& ctx)
      << "struct parser;"
      << endl;
 
-  ctx.cli_close ();
+  ctx.ns_close (ctx.cli);
 }

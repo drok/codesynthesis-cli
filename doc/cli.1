@@ -116,6 +116,26 @@ usage versions\. In this mode, the usage printing functions are called
 \fBprint_short_usage()\fR and \fBprint_long_usage()\fR and for the long usage
 the long documentation string is always used, even if the short version is
 provided\.
+.IP "\fB--page-usage\fR \fIname\fR"
+Generate the combined usage printing code for the entire page\. Specifically,
+this will include all the namespace-level documentation as well as usage for
+all the options classes printed in the order they are defined in the main
+translation unit (documentation/classes from included units are ignored except
+for base classes)\.
+
+The \fIname\fR argument is used as a prefix to form the name of the usage
+printing function\. It can include the namespace qualification as well as
+documentation variable expansion, for example:
+
+.nf
+--page-usage print_         # print_usage() in global namespace
+--page-usage app::print_    # print_usage() in app namespace
+--page-usage print_$name$_  # print_foo_usage() if name is foo
+.fi
+
+If both \fB--long-usage\fR and \fB--short-usage\fR options are specified, then
+two functions are generated with the \fB*short_usage()\fR and
+\fB*long_usage()\fR suffixes\.
 .IP "\fB--option-length\fR \fIlen\fR"
 Indent option descriptions \fIlen\fR characters when printing usage\. This is
 useful when you have multiple options classes, potentially in separate files,

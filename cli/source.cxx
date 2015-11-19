@@ -201,12 +201,104 @@ namespace
     return r;
   }
 
+  static string
+  escape_str (string const& s)
+  {
+    string r;
+
+    for (size_t i (0), n (s.size ()); i < n; ++i)
+    {
+      switch (s[i])
+      {
+      case '\\':
+        {
+          r += "\\\\";
+          break;
+        }
+      case '"':
+        {
+          r += "\\\"";
+          break;
+        }
+      case '\033':
+        {
+          r += "\\033";
+          break;
+        }
+      default:
+        {
+          r += s[i];
+          break;
+        }
+      }
+    }
+
+    return r;
+  }
+
+  // This function assumes that the string opening part has already been
+  // written. The 'first' argument is the number of characters already
+  // written in the first line (e.g., an option name).
+  //
+  static void
+  wrap_lines (ostream& os,
+              const string& d,
+              size_t indent = 0,
+              size_t first = 0)
+  {
+    assert (!d.empty ());
+
+    string ind (indent, ' ');
+    os << string (indent - first, ' ');
+
+    size_t b (0), e (0), i (0);
+    for (size_t n (d.size ()); i < n; ++i)
+    {
+      if (d[i] == ' ' || d[i] == '\n')
+        e = i;
+
+      if (d[i] == '\n' || text_size (d, b, i - b) == 79 - indent)
+      {
+        if (b != 0) // Not a first line.
+          os << endl
+             << "   << \"" << ind;
+
+        string s (d, b, (e != b ? e : i) - b);
+        os << escape_str (s) << "\" << ::std::endl";
+
+        // Handle consecutive newlines (e.g., pre, paragraph separator).
+        //
+        if (d[i] == '\n')
+        {
+          for (; i + 1 < n && d[i + 1] == '\n'; e = ++i)
+            os << endl
+               << "   << ::std::endl";
+        }
+
+        b = e = (e != b ? e : i) + 1;
+      }
+    }
+
+    // Flush the last line.
+    //
+    if (b != i)
+    {
+      if (b != 0)
+        os << endl
+           << "   << \"" << ind;
+
+      string s (d, b, i - b);
+      os << escape_str (s) << "\" << ::std::endl";
+    }
+  }
+
   struct option_length: traversal::option, context
   {
+    option_length (context& c, size_t& l)
+        : context (c), length_ (l), option_ (0) {}
+
     option_length (context& c, size_t& l, type*& o)
-        : context (c), length_ (l), option_ (o)
-    {
-    }
+        : context (c), length_ (l), option_ (&o) {}
 
     virtual void
     traverse (type& o)
@@ -217,8 +309,6 @@ namespace
 
       if (options.suppress_undocumented () && doc.empty ())
         return;
-
-      bool color (options.ansi_color ());
 
       size_t l (0);
       names& n (o.named ());
@@ -239,7 +329,7 @@ namespace
 
         string s (doc.size () > 0 ? doc[0] : string ("<arg>"));
 
-        if (color)
+        if (options.ansi_color ())
         {
           std::set<string> arg_set;
           s = translate_arg (s, arg_set);
@@ -251,13 +341,14 @@ namespace
       if (l > length_)
       {
         length_ = l;
-        option_ = &o;
+        if (option_ != 0)
+          *option_ = &o;
       }
     }
 
   private:
     size_t& length_;
-    type*& option_;
+    type** option_;
   };
 
   //
@@ -355,60 +446,7 @@ namespace
       d = format (ot_plain, d, false);
 
       if (!d.empty ())
-      {
-        pad (length_ - l);
-
-        size_t b (0), e (0), i (0);
-
-        for (size_t n (d.size ()); i < n; ++i)
-        {
-          if (d[i] == ' ' || d[i] == '\n')
-            e = i;
-
-          // Assume we have 78 characters instead of 79 per line to make sure
-          // we get the same output on Windows (which has two characters for
-          // a newline).
-          //
-          if (d[i] == '\n' || text_size (d, b, i - b) == 78 - length_)
-          {
-            if (b != 0) // Not a first line.
-            {
-              os << endl
-                 << "   << \"";
-              pad ();
-            }
-
-            string s (d, b, (e != b ? e : i) - b);
-            os << escape_str (s) << "\" << ::std::endl";
-
-            // Handle consecutive newlines (e.g., pre, paragraph separator).
-            //
-            if (d[i] == '\n')
-            {
-              for (; i + 1 < n && d[i + 1] == '\n'; e = ++i)
-                os << endl
-                   << "   << ::std::endl";
-            }
-
-            b = e = (e != b ? e : i) + 1;
-          }
-        }
-
-        // Flush the last line.
-        //
-        if (b != i)
-        {
-          if (b != 0)
-          {
-            os << endl
-               << "   << \"";
-            pad ();
-          }
-
-          string s (d, b, i - b);
-          os << escape_str (s) << "\" << ::std::endl";
-        }
-      }
+        wrap_lines (os, d, length_ + 1, l); // +1 for extra space after arg.
       else
         os << "\" << std::endl";
 
@@ -417,21 +455,6 @@ namespace
     }
 
   private:
-    void
-    pad (size_t n)
-    {
-      for (; n > 0; --n)
-        os << ' ';
-
-      os << ' '; // Space between arg and description.
-    }
-
-    void
-    pad ()
-    {
-      pad (length_);
-    }
-
     string
     first_sentence (string const& s)
     {
@@ -447,42 +470,6 @@ namespace
         p = s.find ('.', p + 1);
 
       return p == string::npos ? s : string (s, 0, p + 1);
-    }
-
-    string
-    escape_str (string const& s)
-    {
-      string r;
-      r.reserve (s.size ());
-
-      for (size_t i (0), n (s.size ()); i < n; ++i)
-      {
-        switch (s[i])
-        {
-        case '\\':
-          {
-            r += "\\\\";
-            break;
-          }
-        case '"':
-          {
-            r += "\\\"";
-            break;
-          }
-        case '\033':
-          {
-            r += "\\033";
-            break;
-          }
-        default:
-          {
-            r += s[i];
-            break;
-          }
-        }
-      }
-
-      return r;
     }
 
   private:
@@ -1000,14 +987,127 @@ namespace
     option_desc option_desc_;
     traversal::names names_option_desc_;
   };
+
+  // Page usage.
+  //
+  enum paragraph {para_none, para_text, para_option};
+
+  struct doc: traversal::doc, context
+  {
+    doc (context& c, usage_type u, paragraph& p)
+        : context (c), usage_ (u), para_ (p) {}
+
+    virtual void
+    traverse (type& ds)
+    {
+      if (ds.name ().compare (0, 3, "doc") != 0) // Ignore doc variables.
+        return;
+
+      // Figure out which documentation string we should use.
+      //
+      // n = 1 - common doc string
+      // n = 2 - arg string, common doc string
+      // n > 2 - arg string, short string, long string
+      //
+      size_t n (ds.size ());
+      string d;
+
+      if (usage == ut_both && usage_ == ut_long)
+      {
+        d = n > 2                     // Have both short and long?
+          ? ds[2]                     // Then use long.
+          : (n == 1 ? ds[0] : ds[1]); // Else, use common.
+      }
+      else // Short or long.
+      {
+        d = n > 2                     // Have both short and long?
+          ? ds[1]                     // Then use short,
+          : (n == 1 ? ds[0] : ds[1]); // Else, use common (no first sentence).
+      }
+
+      std::set<string> arg_set;
+      if (n > 1 && options.ansi_color ())
+        translate_arg (ds[0], arg_set);
+
+      d = format (ot_plain, translate (d, arg_set), true);
+
+      if (d.empty ())
+        return;
+
+      if (para_ == para_none) // First.
+        os << "os << \"";
+      else
+        os << "os << ::std::endl" << endl
+           << "   << \"";
+
+      wrap_lines (os, d);
+      os << ";"
+         << endl;
+
+      para_ = para_text;
+    }
+
+  private:
+    usage_type usage_;
+    paragraph& para_;
+  };
+
+  struct class_usage: traversal::class_, context
+  {
+    class_usage (context& c, usage_type u, paragraph& p)
+        : context (c), usage_ (u), para_ (p) {}
+
+    virtual void
+    traverse (type& c)
+    {
+      // Figure out if this class has any documentation by calculating
+      // the option length. If it is 0, then we don't have any.
+      //
+      size_t len (0);
+      {
+        option_length olt (*this, len);
+        traversal::class_ ct;
+        traversal::inherits i;
+        traversal::names n;
+
+        if (!options.exclude_base ()) // Go into bases unless --exclude-base.
+          ct >> i >> ct;
+
+        ct >> n >> olt;
+        ct.traverse (c);
+      }
+
+      if (len == 0)
+        return;
+
+      if (para_ == para_text)
+        os << "os << ::std::endl;";
+
+      const char* t (
+        usage != ut_both
+        ? ""
+        : usage_ == ut_short ? "short_" : "long_");
+
+      os << fq_name (c) << "::print_" << t << "usage (os);"
+         << endl;
+
+      para_ = para_option;
+    }
+
+  private:
+    usage_type usage_;
+    paragraph& para_;
+  };
 }
 
 void
 generate_source (context& ctx)
 {
-  ctx.os << "#include <map>" << endl
-         << "#include <cstring>" << endl
-         << endl;
+  ostream& os (ctx.os);
+
+  os << "#include <map>" << endl
+     << "#include <cstring>" << endl
+     << endl;
 
   traversal::cli_unit unit;
   traversal::names unit_names;
@@ -1023,4 +1123,84 @@ generate_source (context& ctx)
   ns_names >> cl;
 
   unit.dispatch (ctx.unit);
+
+  // Entire page usage.
+  //
+  if (ctx.usage != ut_none && ctx.options.page_usage_specified ())
+  {
+    const string& qn (ctx.options.page_usage ());
+    string n (ctx.escape (ctx.substitute (ctx.ns_open (qn, false))));
+
+    usage u (ctx.usage);
+    string const& ost (ctx.options.ostream_type ());
+
+    {
+      os << "void" << endl
+         << n << (u == ut_both ? "short_" : "") << "usage (" << ost << "& os)"
+         << "{"
+         << "CLI_POTENTIALLY_UNUSED (os);"
+         << endl;
+
+      paragraph para (para_none);
+
+      traversal::cli_unit unit;
+      traversal::names unit_names;
+      traversal::namespace_ ns;
+      doc dc (ctx, u == ut_both ? ut_short : u, para);
+      class_usage cl (ctx, u == ut_both ? ut_short : u, para);
+
+      unit >> unit_names;
+      unit_names >> dc;
+      unit_names >> ns;
+      unit_names >> cl;
+
+      traversal::names ns_names;
+
+      ns >> ns_names;
+      ns_names >> dc;
+      ns_names >> ns;
+      ns_names >> cl;
+
+      unit.dispatch (ctx.unit);
+
+      os << "}";
+    }
+
+    // Long version.
+    //
+    if (u == ut_both)
+    {
+      os << "void" << endl
+         << n << "long_usage (" << ost << "& os)"
+         << "{"
+         << "CLI_POTENTIALLY_UNUSED (os);"
+         << endl;
+
+      paragraph para (para_none);
+
+      traversal::cli_unit unit;
+      traversal::names unit_names;
+      traversal::namespace_ ns;
+      doc dc (ctx, ut_long, para);
+      class_usage cl (ctx, ut_long, para);
+
+      unit >> unit_names;
+      unit_names >> dc;
+      unit_names >> ns;
+      unit_names >> cl;
+
+      traversal::names ns_names;
+
+      ns >> ns_names;
+      ns_names >> dc;
+      ns_names >> ns;
+      ns_names >> cl;
+
+      unit.dispatch (ctx.unit);
+
+      os << "}";
+    }
+
+    ctx.ns_close (qn, false);
+  }
 }

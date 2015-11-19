@@ -416,7 +416,7 @@ namespace cli
   struct parser
   {
     static void
-    parse (X& x, scanner& s)
+    parse (X& x, bool& xs, scanner& s)
     {
       std::string o (s.next ());
 
@@ -429,6 +429,8 @@ namespace cli
       }
       else
         throw missing_value (o);
+
+      xs = true;
     }
   };
 
@@ -447,7 +449,7 @@ namespace cli
   struct parser<std::string>
   {
     static void
-    parse (std::string& x, scanner& s)
+    parse (std::string& x, bool& xs, scanner& s)
     {
       const char* o (s.next ());
 
@@ -455,6 +457,8 @@ namespace cli
         x = s.next ();
       else
         throw missing_value (o);
+
+      xs = true;
     }
   };
 
@@ -462,11 +466,13 @@ namespace cli
   struct parser<std::vector<X> >
   {
     static void
-    parse (std::vector<X>& c, scanner& s)
+    parse (std::vector<X>& c, bool& xs, scanner& s)
     {
       X x;
-      parser<X>::parse (x, s);
+      bool dummy;
+      parser<X>::parse (x, dummy, s);
       c.push_back (x);
+      xs = true;
     }
   };
 
@@ -474,11 +480,13 @@ namespace cli
   struct parser<std::set<X> >
   {
     static void
-    parse (std::set<X>& c, scanner& s)
+    parse (std::set<X>& c, bool& xs, scanner& s)
     {
       X x;
-      parser<X>::parse (x, s);
+      bool dummy;
+      parser<X>::parse (x, dummy, s);
       c.insert (x);
+      xs = true;
     }
   };
 
@@ -486,7 +494,7 @@ namespace cli
   struct parser<std::map<K, V> >
   {
     static void
-    parse (std::map<K, V>& m, scanner& s)
+    parse (std::map<K, V>& m, bool& xs, scanner& s)
     {
       const char* o (s.next ());
 
@@ -506,24 +514,27 @@ namespace cli
           const_cast<char*> (o), 0
         };
 
+        bool dummy;
         if (!kstr.empty ())
         {
           av[1] = const_cast<char*> (kstr.c_str ());
           argv_scanner s (0, ac, av);
-          parser<K>::parse (k, s);
+          parser<K>::parse (k, dummy, s);
         }
 
         if (!vstr.empty ())
         {
           av[1] = const_cast<char*> (vstr.c_str ());
           argv_scanner s (0, ac, av);
-          parser<V>::parse (v, s);
+          parser<V>::parse (v, dummy, s);
         }
 
         m[k] = v;
       }
       else
         throw missing_value (o);
+
+      xs = true;
     }
   };
 
@@ -532,6 +543,13 @@ namespace cli
   thunk (X& x, scanner& s)
   {
     parser<T>::parse (x.*M, s);
+  }
+
+  template <typename X, typename T, T X::*M, bool X::*S>
+  void
+  thunk (X& x, scanner& s)
+  {
+    parser<T>::parse (x.*M, x.*S, s);
   }
 }
 
@@ -546,7 +564,9 @@ options ()
 : help_ (),
   version_ (),
   include_path_ (),
+  include_path_specified_ (false),
   output_dir_ (),
+  output_dir_specified_ (false),
   generate_modifier_ (),
   generate_specifier_ (),
   generate_parse_ (),
@@ -554,7 +574,9 @@ options ()
   generate_file_scanner_ (),
   suppress_inline_ (),
   cli_namespace_ ("::cli"),
+  cli_namespace_specified_ (false),
   ostream_type_ ("::std::ostream"),
+  ostream_type_specified_ (false),
   generate_cxx_ (),
   generate_man_ (),
   generate_html_ (),
@@ -563,43 +585,79 @@ options ()
   suppress_usage_ (),
   long_usage_ (),
   short_usage_ (),
+  page_usage_ (),
+  page_usage_specified_ (false),
   option_length_ (0),
+  option_length_specified_ (false),
   ansi_color_ (),
   exclude_base_ (),
   class__ (),
+  class__specified_ (false),
   docvar_ (),
+  docvar_specified_ (false),
   hxx_prologue_ (),
+  hxx_prologue_specified_ (false),
   ixx_prologue_ (),
+  ixx_prologue_specified_ (false),
   cxx_prologue_ (),
+  cxx_prologue_specified_ (false),
   man_prologue_ (),
+  man_prologue_specified_ (false),
   html_prologue_ (),
+  html_prologue_specified_ (false),
   hxx_epilogue_ (),
+  hxx_epilogue_specified_ (false),
   ixx_epilogue_ (),
+  ixx_epilogue_specified_ (false),
   cxx_epilogue_ (),
+  cxx_epilogue_specified_ (false),
   man_epilogue_ (),
+  man_epilogue_specified_ (false),
   html_epilogue_ (),
+  html_epilogue_specified_ (false),
   hxx_prologue_file_ (),
+  hxx_prologue_file_specified_ (false),
   ixx_prologue_file_ (),
+  ixx_prologue_file_specified_ (false),
   cxx_prologue_file_ (),
+  cxx_prologue_file_specified_ (false),
   man_prologue_file_ (),
+  man_prologue_file_specified_ (false),
   html_prologue_file_ (),
+  html_prologue_file_specified_ (false),
   hxx_epilogue_file_ (),
+  hxx_epilogue_file_specified_ (false),
   ixx_epilogue_file_ (),
+  ixx_epilogue_file_specified_ (false),
   cxx_epilogue_file_ (),
+  cxx_epilogue_file_specified_ (false),
   man_epilogue_file_ (),
+  man_epilogue_file_specified_ (false),
   html_epilogue_file_ (),
+  html_epilogue_file_specified_ (false),
   hxx_suffix_ (".hxx"),
+  hxx_suffix_specified_ (false),
   ixx_suffix_ (".ixx"),
+  ixx_suffix_specified_ (false),
   cxx_suffix_ (".cxx"),
+  cxx_suffix_specified_ (false),
   man_suffix_ (".1"),
+  man_suffix_specified_ (false),
   html_suffix_ (".html"),
+  html_suffix_specified_ (false),
   option_prefix_ ("-"),
+  option_prefix_specified_ (false),
   option_separator_ ("--"),
+  option_separator_specified_ (false),
   include_with_brackets_ (),
   include_prefix_ (),
+  include_prefix_specified_ (false),
   guard_prefix_ (),
+  guard_prefix_specified_ (false),
   reserved_name_ (),
-  options_file_ ()
+  reserved_name_specified_ (false),
+  options_file_ (),
+  options_file_specified_ (false)
 {
 }
 
@@ -612,7 +670,9 @@ options (int& argc,
 : help_ (),
   version_ (),
   include_path_ (),
+  include_path_specified_ (false),
   output_dir_ (),
+  output_dir_specified_ (false),
   generate_modifier_ (),
   generate_specifier_ (),
   generate_parse_ (),
@@ -620,7 +680,9 @@ options (int& argc,
   generate_file_scanner_ (),
   suppress_inline_ (),
   cli_namespace_ ("::cli"),
+  cli_namespace_specified_ (false),
   ostream_type_ ("::std::ostream"),
+  ostream_type_specified_ (false),
   generate_cxx_ (),
   generate_man_ (),
   generate_html_ (),
@@ -629,43 +691,79 @@ options (int& argc,
   suppress_usage_ (),
   long_usage_ (),
   short_usage_ (),
+  page_usage_ (),
+  page_usage_specified_ (false),
   option_length_ (0),
+  option_length_specified_ (false),
   ansi_color_ (),
   exclude_base_ (),
   class__ (),
+  class__specified_ (false),
   docvar_ (),
+  docvar_specified_ (false),
   hxx_prologue_ (),
+  hxx_prologue_specified_ (false),
   ixx_prologue_ (),
+  ixx_prologue_specified_ (false),
   cxx_prologue_ (),
+  cxx_prologue_specified_ (false),
   man_prologue_ (),
+  man_prologue_specified_ (false),
   html_prologue_ (),
+  html_prologue_specified_ (false),
   hxx_epilogue_ (),
+  hxx_epilogue_specified_ (false),
   ixx_epilogue_ (),
+  ixx_epilogue_specified_ (false),
   cxx_epilogue_ (),
+  cxx_epilogue_specified_ (false),
   man_epilogue_ (),
+  man_epilogue_specified_ (false),
   html_epilogue_ (),
+  html_epilogue_specified_ (false),
   hxx_prologue_file_ (),
+  hxx_prologue_file_specified_ (false),
   ixx_prologue_file_ (),
+  ixx_prologue_file_specified_ (false),
   cxx_prologue_file_ (),
+  cxx_prologue_file_specified_ (false),
   man_prologue_file_ (),
+  man_prologue_file_specified_ (false),
   html_prologue_file_ (),
+  html_prologue_file_specified_ (false),
   hxx_epilogue_file_ (),
+  hxx_epilogue_file_specified_ (false),
   ixx_epilogue_file_ (),
+  ixx_epilogue_file_specified_ (false),
   cxx_epilogue_file_ (),
+  cxx_epilogue_file_specified_ (false),
   man_epilogue_file_ (),
+  man_epilogue_file_specified_ (false),
   html_epilogue_file_ (),
+  html_epilogue_file_specified_ (false),
   hxx_suffix_ (".hxx"),
+  hxx_suffix_specified_ (false),
   ixx_suffix_ (".ixx"),
+  ixx_suffix_specified_ (false),
   cxx_suffix_ (".cxx"),
+  cxx_suffix_specified_ (false),
   man_suffix_ (".1"),
+  man_suffix_specified_ (false),
   html_suffix_ (".html"),
+  html_suffix_specified_ (false),
   option_prefix_ ("-"),
+  option_prefix_specified_ (false),
   option_separator_ ("--"),
+  option_separator_specified_ (false),
   include_with_brackets_ (),
   include_prefix_ (),
+  include_prefix_specified_ (false),
   guard_prefix_ (),
+  guard_prefix_specified_ (false),
   reserved_name_ (),
-  options_file_ ()
+  reserved_name_specified_ (false),
+  options_file_ (),
+  options_file_specified_ (false)
 {
   ::cli::argv_scanner s (argc, argv, erase);
   _parse (s, opt, arg);
@@ -681,7 +779,9 @@ options (int start,
 : help_ (),
   version_ (),
   include_path_ (),
+  include_path_specified_ (false),
   output_dir_ (),
+  output_dir_specified_ (false),
   generate_modifier_ (),
   generate_specifier_ (),
   generate_parse_ (),
@@ -689,7 +789,9 @@ options (int start,
   generate_file_scanner_ (),
   suppress_inline_ (),
   cli_namespace_ ("::cli"),
+  cli_namespace_specified_ (false),
   ostream_type_ ("::std::ostream"),
+  ostream_type_specified_ (false),
   generate_cxx_ (),
   generate_man_ (),
   generate_html_ (),
@@ -698,43 +800,79 @@ options (int start,
   suppress_usage_ (),
   long_usage_ (),
   short_usage_ (),
+  page_usage_ (),
+  page_usage_specified_ (false),
   option_length_ (0),
+  option_length_specified_ (false),
   ansi_color_ (),
   exclude_base_ (),
   class__ (),
+  class__specified_ (false),
   docvar_ (),
+  docvar_specified_ (false),
   hxx_prologue_ (),
+  hxx_prologue_specified_ (false),
   ixx_prologue_ (),
+  ixx_prologue_specified_ (false),
   cxx_prologue_ (),
+  cxx_prologue_specified_ (false),
   man_prologue_ (),
+  man_prologue_specified_ (false),
   html_prologue_ (),
+  html_prologue_specified_ (false),
   hxx_epilogue_ (),
+  hxx_epilogue_specified_ (false),
   ixx_epilogue_ (),
+  ixx_epilogue_specified_ (false),
   cxx_epilogue_ (),
+  cxx_epilogue_specified_ (false),
   man_epilogue_ (),
+  man_epilogue_specified_ (false),
   html_epilogue_ (),
+  html_epilogue_specified_ (false),
   hxx_prologue_file_ (),
+  hxx_prologue_file_specified_ (false),
   ixx_prologue_file_ (),
+  ixx_prologue_file_specified_ (false),
   cxx_prologue_file_ (),
+  cxx_prologue_file_specified_ (false),
   man_prologue_file_ (),
+  man_prologue_file_specified_ (false),
   html_prologue_file_ (),
+  html_prologue_file_specified_ (false),
   hxx_epilogue_file_ (),
+  hxx_epilogue_file_specified_ (false),
   ixx_epilogue_file_ (),
+  ixx_epilogue_file_specified_ (false),
   cxx_epilogue_file_ (),
+  cxx_epilogue_file_specified_ (false),
   man_epilogue_file_ (),
+  man_epilogue_file_specified_ (false),
   html_epilogue_file_ (),
+  html_epilogue_file_specified_ (false),
   hxx_suffix_ (".hxx"),
+  hxx_suffix_specified_ (false),
   ixx_suffix_ (".ixx"),
+  ixx_suffix_specified_ (false),
   cxx_suffix_ (".cxx"),
+  cxx_suffix_specified_ (false),
   man_suffix_ (".1"),
+  man_suffix_specified_ (false),
   html_suffix_ (".html"),
+  html_suffix_specified_ (false),
   option_prefix_ ("-"),
+  option_prefix_specified_ (false),
   option_separator_ ("--"),
+  option_separator_specified_ (false),
   include_with_brackets_ (),
   include_prefix_ (),
+  include_prefix_specified_ (false),
   guard_prefix_ (),
+  guard_prefix_specified_ (false),
   reserved_name_ (),
-  options_file_ ()
+  reserved_name_specified_ (false),
+  options_file_ (),
+  options_file_specified_ (false)
 {
   ::cli::argv_scanner s (start, argc, argv, erase);
   _parse (s, opt, arg);
@@ -750,7 +888,9 @@ options (int& argc,
 : help_ (),
   version_ (),
   include_path_ (),
+  include_path_specified_ (false),
   output_dir_ (),
+  output_dir_specified_ (false),
   generate_modifier_ (),
   generate_specifier_ (),
   generate_parse_ (),
@@ -758,7 +898,9 @@ options (int& argc,
   generate_file_scanner_ (),
   suppress_inline_ (),
   cli_namespace_ ("::cli"),
+  cli_namespace_specified_ (false),
   ostream_type_ ("::std::ostream"),
+  ostream_type_specified_ (false),
   generate_cxx_ (),
   generate_man_ (),
   generate_html_ (),
@@ -767,43 +909,79 @@ options (int& argc,
   suppress_usage_ (),
   long_usage_ (),
   short_usage_ (),
+  page_usage_ (),
+  page_usage_specified_ (false),
   option_length_ (0),
+  option_length_specified_ (false),
   ansi_color_ (),
   exclude_base_ (),
   class__ (),
+  class__specified_ (false),
   docvar_ (),
+  docvar_specified_ (false),
   hxx_prologue_ (),
+  hxx_prologue_specified_ (false),
   ixx_prologue_ (),
+  ixx_prologue_specified_ (false),
   cxx_prologue_ (),
+  cxx_prologue_specified_ (false),
   man_prologue_ (),
+  man_prologue_specified_ (false),
   html_prologue_ (),
+  html_prologue_specified_ (false),
   hxx_epilogue_ (),
+  hxx_epilogue_specified_ (false),
   ixx_epilogue_ (),
+  ixx_epilogue_specified_ (false),
   cxx_epilogue_ (),
+  cxx_epilogue_specified_ (false),
   man_epilogue_ (),
+  man_epilogue_specified_ (false),
   html_epilogue_ (),
+  html_epilogue_specified_ (false),
   hxx_prologue_file_ (),
+  hxx_prologue_file_specified_ (false),
   ixx_prologue_file_ (),
+  ixx_prologue_file_specified_ (false),
   cxx_prologue_file_ (),
+  cxx_prologue_file_specified_ (false),
   man_prologue_file_ (),
+  man_prologue_file_specified_ (false),
   html_prologue_file_ (),
+  html_prologue_file_specified_ (false),
   hxx_epilogue_file_ (),
+  hxx_epilogue_file_specified_ (false),
   ixx_epilogue_file_ (),
+  ixx_epilogue_file_specified_ (false),
   cxx_epilogue_file_ (),
+  cxx_epilogue_file_specified_ (false),
   man_epilogue_file_ (),
+  man_epilogue_file_specified_ (false),
   html_epilogue_file_ (),
+  html_epilogue_file_specified_ (false),
   hxx_suffix_ (".hxx"),
+  hxx_suffix_specified_ (false),
   ixx_suffix_ (".ixx"),
+  ixx_suffix_specified_ (false),
   cxx_suffix_ (".cxx"),
+  cxx_suffix_specified_ (false),
   man_suffix_ (".1"),
+  man_suffix_specified_ (false),
   html_suffix_ (".html"),
+  html_suffix_specified_ (false),
   option_prefix_ ("-"),
+  option_prefix_specified_ (false),
   option_separator_ ("--"),
+  option_separator_specified_ (false),
   include_with_brackets_ (),
   include_prefix_ (),
+  include_prefix_specified_ (false),
   guard_prefix_ (),
+  guard_prefix_specified_ (false),
   reserved_name_ (),
-  options_file_ ()
+  reserved_name_specified_ (false),
+  options_file_ (),
+  options_file_specified_ (false)
 {
   ::cli::argv_scanner s (argc, argv, erase);
   _parse (s, opt, arg);
@@ -821,7 +999,9 @@ options (int start,
 : help_ (),
   version_ (),
   include_path_ (),
+  include_path_specified_ (false),
   output_dir_ (),
+  output_dir_specified_ (false),
   generate_modifier_ (),
   generate_specifier_ (),
   generate_parse_ (),
@@ -829,7 +1009,9 @@ options (int start,
   generate_file_scanner_ (),
   suppress_inline_ (),
   cli_namespace_ ("::cli"),
+  cli_namespace_specified_ (false),
   ostream_type_ ("::std::ostream"),
+  ostream_type_specified_ (false),
   generate_cxx_ (),
   generate_man_ (),
   generate_html_ (),
@@ -838,43 +1020,79 @@ options (int start,
   suppress_usage_ (),
   long_usage_ (),
   short_usage_ (),
+  page_usage_ (),
+  page_usage_specified_ (false),
   option_length_ (0),
+  option_length_specified_ (false),
   ansi_color_ (),
   exclude_base_ (),
   class__ (),
+  class__specified_ (false),
   docvar_ (),
+  docvar_specified_ (false),
   hxx_prologue_ (),
+  hxx_prologue_specified_ (false),
   ixx_prologue_ (),
+  ixx_prologue_specified_ (false),
   cxx_prologue_ (),
+  cxx_prologue_specified_ (false),
   man_prologue_ (),
+  man_prologue_specified_ (false),
   html_prologue_ (),
+  html_prologue_specified_ (false),
   hxx_epilogue_ (),
+  hxx_epilogue_specified_ (false),
   ixx_epilogue_ (),
+  ixx_epilogue_specified_ (false),
   cxx_epilogue_ (),
+  cxx_epilogue_specified_ (false),
   man_epilogue_ (),
+  man_epilogue_specified_ (false),
   html_epilogue_ (),
+  html_epilogue_specified_ (false),
   hxx_prologue_file_ (),
+  hxx_prologue_file_specified_ (false),
   ixx_prologue_file_ (),
+  ixx_prologue_file_specified_ (false),
   cxx_prologue_file_ (),
+  cxx_prologue_file_specified_ (false),
   man_prologue_file_ (),
+  man_prologue_file_specified_ (false),
   html_prologue_file_ (),
+  html_prologue_file_specified_ (false),
   hxx_epilogue_file_ (),
+  hxx_epilogue_file_specified_ (false),
   ixx_epilogue_file_ (),
+  ixx_epilogue_file_specified_ (false),
   cxx_epilogue_file_ (),
+  cxx_epilogue_file_specified_ (false),
   man_epilogue_file_ (),
+  man_epilogue_file_specified_ (false),
   html_epilogue_file_ (),
+  html_epilogue_file_specified_ (false),
   hxx_suffix_ (".hxx"),
+  hxx_suffix_specified_ (false),
   ixx_suffix_ (".ixx"),
+  ixx_suffix_specified_ (false),
   cxx_suffix_ (".cxx"),
+  cxx_suffix_specified_ (false),
   man_suffix_ (".1"),
+  man_suffix_specified_ (false),
   html_suffix_ (".html"),
+  html_suffix_specified_ (false),
   option_prefix_ ("-"),
+  option_prefix_specified_ (false),
   option_separator_ ("--"),
+  option_separator_specified_ (false),
   include_with_brackets_ (),
   include_prefix_ (),
+  include_prefix_specified_ (false),
   guard_prefix_ (),
+  guard_prefix_specified_ (false),
   reserved_name_ (),
-  options_file_ ()
+  reserved_name_specified_ (false),
+  options_file_ (),
+  options_file_specified_ (false)
 {
   ::cli::argv_scanner s (start, argc, argv, erase);
   _parse (s, opt, arg);
@@ -888,7 +1106,9 @@ options (::cli::scanner& s,
 : help_ (),
   version_ (),
   include_path_ (),
+  include_path_specified_ (false),
   output_dir_ (),
+  output_dir_specified_ (false),
   generate_modifier_ (),
   generate_specifier_ (),
   generate_parse_ (),
@@ -896,7 +1116,9 @@ options (::cli::scanner& s,
   generate_file_scanner_ (),
   suppress_inline_ (),
   cli_namespace_ ("::cli"),
+  cli_namespace_specified_ (false),
   ostream_type_ ("::std::ostream"),
+  ostream_type_specified_ (false),
   generate_cxx_ (),
   generate_man_ (),
   generate_html_ (),
@@ -905,43 +1127,79 @@ options (::cli::scanner& s,
   suppress_usage_ (),
   long_usage_ (),
   short_usage_ (),
+  page_usage_ (),
+  page_usage_specified_ (false),
   option_length_ (0),
+  option_length_specified_ (false),
   ansi_color_ (),
   exclude_base_ (),
   class__ (),
+  class__specified_ (false),
   docvar_ (),
+  docvar_specified_ (false),
   hxx_prologue_ (),
+  hxx_prologue_specified_ (false),
   ixx_prologue_ (),
+  ixx_prologue_specified_ (false),
   cxx_prologue_ (),
+  cxx_prologue_specified_ (false),
   man_prologue_ (),
+  man_prologue_specified_ (false),
   html_prologue_ (),
+  html_prologue_specified_ (false),
   hxx_epilogue_ (),
+  hxx_epilogue_specified_ (false),
   ixx_epilogue_ (),
+  ixx_epilogue_specified_ (false),
   cxx_epilogue_ (),
+  cxx_epilogue_specified_ (false),
   man_epilogue_ (),
+  man_epilogue_specified_ (false),
   html_epilogue_ (),
+  html_epilogue_specified_ (false),
   hxx_prologue_file_ (),
+  hxx_prologue_file_specified_ (false),
   ixx_prologue_file_ (),
+  ixx_prologue_file_specified_ (false),
   cxx_prologue_file_ (),
+  cxx_prologue_file_specified_ (false),
   man_prologue_file_ (),
+  man_prologue_file_specified_ (false),
   html_prologue_file_ (),
+  html_prologue_file_specified_ (false),
   hxx_epilogue_file_ (),
+  hxx_epilogue_file_specified_ (false),
   ixx_epilogue_file_ (),
+  ixx_epilogue_file_specified_ (false),
   cxx_epilogue_file_ (),
+  cxx_epilogue_file_specified_ (false),
   man_epilogue_file_ (),
+  man_epilogue_file_specified_ (false),
   html_epilogue_file_ (),
+  html_epilogue_file_specified_ (false),
   hxx_suffix_ (".hxx"),
+  hxx_suffix_specified_ (false),
   ixx_suffix_ (".ixx"),
+  ixx_suffix_specified_ (false),
   cxx_suffix_ (".cxx"),
+  cxx_suffix_specified_ (false),
   man_suffix_ (".1"),
+  man_suffix_specified_ (false),
   html_suffix_ (".html"),
+  html_suffix_specified_ (false),
   option_prefix_ ("-"),
+  option_prefix_specified_ (false),
   option_separator_ ("--"),
+  option_separator_specified_ (false),
   include_with_brackets_ (),
   include_prefix_ (),
+  include_prefix_specified_ (false),
   guard_prefix_ (),
+  guard_prefix_specified_ (false),
   reserved_name_ (),
-  options_file_ ()
+  reserved_name_specified_ (false),
+  options_file_ (),
+  options_file_specified_ (false)
 {
   _parse (s, opt, arg);
 }
@@ -1001,6 +1259,9 @@ print_usage (::std::ostream& os)
 
   os << "--short-usage                If specified together with '--long-usage'," << ::std::endl
      << "                             generate both short and long usage versions." << ::std::endl;
+
+  os << "--page-usage <name>          Generate the combined usage printing code for the" << ::std::endl
+     << "                             entire page." << ::std::endl;
 
   os << "--option-length <len>        Indent option descriptions <len> characters when" << ::std::endl
      << "                             printing usage." << ::std::endl;
@@ -1131,13 +1392,17 @@ struct _cli_options_map_init
     _cli_options_map_["--version"] = 
     &::cli::thunk< options, bool, &options::version_ >;
     _cli_options_map_["--include-path"] = 
-    &::cli::thunk< options, std::vector<std::string>, &options::include_path_ >;
+    &::cli::thunk< options, std::vector<std::string>, &options::include_path_,
+      &options::include_path_specified_ >;
     _cli_options_map_["-I"] = 
-    &::cli::thunk< options, std::vector<std::string>, &options::include_path_ >;
+    &::cli::thunk< options, std::vector<std::string>, &options::include_path_,
+      &options::include_path_specified_ >;
     _cli_options_map_["--output-dir"] = 
-    &::cli::thunk< options, std::string, &options::output_dir_ >;
+    &::cli::thunk< options, std::string, &options::output_dir_,
+      &options::output_dir_specified_ >;
     _cli_options_map_["-o"] = 
-    &::cli::thunk< options, std::string, &options::output_dir_ >;
+    &::cli::thunk< options, std::string, &options::output_dir_,
+      &options::output_dir_specified_ >;
     _cli_options_map_["--generate-modifier"] = 
     &::cli::thunk< options, bool, &options::generate_modifier_ >;
     _cli_options_map_["--generate-specifier"] = 
@@ -1151,9 +1416,11 @@ struct _cli_options_map_init
     _cli_options_map_["--suppress-inline"] = 
     &::cli::thunk< options, bool, &options::suppress_inline_ >;
     _cli_options_map_["--cli-namespace"] = 
-    &::cli::thunk< options, std::string, &options::cli_namespace_ >;
+    &::cli::thunk< options, std::string, &options::cli_namespace_,
+      &options::cli_namespace_specified_ >;
     _cli_options_map_["--ostream-type"] = 
-    &::cli::thunk< options, std::string, &options::ostream_type_ >;
+    &::cli::thunk< options, std::string, &options::ostream_type_,
+      &options::ostream_type_specified_ >;
     _cli_options_map_["--generate-cxx"] = 
     &::cli::thunk< options, bool, &options::generate_cxx_ >;
     _cli_options_map_["--generate-man"] = 
@@ -1170,82 +1437,120 @@ struct _cli_options_map_init
     &::cli::thunk< options, bool, &options::long_usage_ >;
     _cli_options_map_["--short-usage"] = 
     &::cli::thunk< options, bool, &options::short_usage_ >;
+    _cli_options_map_["--page-usage"] = 
+    &::cli::thunk< options, std::string, &options::page_usage_,
+      &options::page_usage_specified_ >;
     _cli_options_map_["--option-length"] = 
-    &::cli::thunk< options, std::size_t, &options::option_length_ >;
+    &::cli::thunk< options, std::size_t, &options::option_length_,
+      &options::option_length_specified_ >;
     _cli_options_map_["--ansi-color"] = 
     &::cli::thunk< options, bool, &options::ansi_color_ >;
     _cli_options_map_["--exclude-base"] = 
     &::cli::thunk< options, bool, &options::exclude_base_ >;
     _cli_options_map_["--class"] = 
-    &::cli::thunk< options, std::vector<std::string>, &options::class__ >;
+    &::cli::thunk< options, std::vector<std::string>, &options::class__,
+      &options::class__specified_ >;
     _cli_options_map_["--docvar"] = 
-    &::cli::thunk< options, std::map<std::string, std::string>, &options::docvar_ >;
+    &::cli::thunk< options, std::map<std::string, std::string>, &options::docvar_,
+      &options::docvar_specified_ >;
     _cli_options_map_["-v"] = 
-    &::cli::thunk< options, std::map<std::string, std::string>, &options::docvar_ >;
+    &::cli::thunk< options, std::map<std::string, std::string>, &options::docvar_,
+      &options::docvar_specified_ >;
     _cli_options_map_["--hxx-prologue"] = 
-    &::cli::thunk< options, std::vector<std::string>, &options::hxx_prologue_ >;
+    &::cli::thunk< options, std::vector<std::string>, &options::hxx_prologue_,
+      &options::hxx_prologue_specified_ >;
     _cli_options_map_["--ixx-prologue"] = 
-    &::cli::thunk< options, std::vector<std::string>, &options::ixx_prologue_ >;
+    &::cli::thunk< options, std::vector<std::string>, &options::ixx_prologue_,
+      &options::ixx_prologue_specified_ >;
     _cli_options_map_["--cxx-prologue"] = 
-    &::cli::thunk< options, std::vector<std::string>, &options::cxx_prologue_ >;
+    &::cli::thunk< options, std::vector<std::string>, &options::cxx_prologue_,
+      &options::cxx_prologue_specified_ >;
     _cli_options_map_["--man-prologue"] = 
-    &::cli::thunk< options, std::vector<std::string>, &options::man_prologue_ >;
+    &::cli::thunk< options, std::vector<std::string>, &options::man_prologue_,
+      &options::man_prologue_specified_ >;
     _cli_options_map_["--html-prologue"] = 
-    &::cli::thunk< options, std::vector<std::string>, &options::html_prologue_ >;
+    &::cli::thunk< options, std::vector<std::string>, &options::html_prologue_,
+      &options::html_prologue_specified_ >;
     _cli_options_map_["--hxx-epilogue"] = 
-    &::cli::thunk< options, std::vector<std::string>, &options::hxx_epilogue_ >;
+    &::cli::thunk< options, std::vector<std::string>, &options::hxx_epilogue_,
+      &options::hxx_epilogue_specified_ >;
     _cli_options_map_["--ixx-epilogue"] = 
-    &::cli::thunk< options, std::vector<std::string>, &options::ixx_epilogue_ >;
+    &::cli::thunk< options, std::vector<std::string>, &options::ixx_epilogue_,
+      &options::ixx_epilogue_specified_ >;
     _cli_options_map_["--cxx-epilogue"] = 
-    &::cli::thunk< options, std::vector<std::string>, &options::cxx_epilogue_ >;
+    &::cli::thunk< options, std::vector<std::string>, &options::cxx_epilogue_,
+      &options::cxx_epilogue_specified_ >;
     _cli_options_map_["--man-epilogue"] = 
-    &::cli::thunk< options, std::vector<std::string>, &options::man_epilogue_ >;
+    &::cli::thunk< options, std::vector<std::string>, &options::man_epilogue_,
+      &options::man_epilogue_specified_ >;
     _cli_options_map_["--html-epilogue"] = 
-    &::cli::thunk< options, std::vector<std::string>, &options::html_epilogue_ >;
+    &::cli::thunk< options, std::vector<std::string>, &options::html_epilogue_,
+      &options::html_epilogue_specified_ >;
     _cli_options_map_["--hxx-prologue-file"] = 
-    &::cli::thunk< options, std::string, &options::hxx_prologue_file_ >;
+    &::cli::thunk< options, std::string, &options::hxx_prologue_file_,
+      &options::hxx_prologue_file_specified_ >;
     _cli_options_map_["--ixx-prologue-file"] = 
-    &::cli::thunk< options, std::string, &options::ixx_prologue_file_ >;
+    &::cli::thunk< options, std::string, &options::ixx_prologue_file_,
+      &options::ixx_prologue_file_specified_ >;
     _cli_options_map_["--cxx-prologue-file"] = 
-    &::cli::thunk< options, std::string, &options::cxx_prologue_file_ >;
+    &::cli::thunk< options, std::string, &options::cxx_prologue_file_,
+      &options::cxx_prologue_file_specified_ >;
     _cli_options_map_["--man-prologue-file"] = 
-    &::cli::thunk< options, std::string, &options::man_prologue_file_ >;
+    &::cli::thunk< options, std::string, &options::man_prologue_file_,
+      &options::man_prologue_file_specified_ >;
     _cli_options_map_["--html-prologue-file"] = 
-    &::cli::thunk< options, std::string, &options::html_prologue_file_ >;
+    &::cli::thunk< options, std::string, &options::html_prologue_file_,
+      &options::html_prologue_file_specified_ >;
     _cli_options_map_["--hxx-epilogue-file"] = 
-    &::cli::thunk< options, std::string, &options::hxx_epilogue_file_ >;
+    &::cli::thunk< options, std::string, &options::hxx_epilogue_file_,
+      &options::hxx_epilogue_file_specified_ >;
     _cli_options_map_["--ixx-epilogue-file"] = 
-    &::cli::thunk< options, std::string, &options::ixx_epilogue_file_ >;
+    &::cli::thunk< options, std::string, &options::ixx_epilogue_file_,
+      &options::ixx_epilogue_file_specified_ >;
     _cli_options_map_["--cxx-epilogue-file"] = 
-    &::cli::thunk< options, std::string, &options::cxx_epilogue_file_ >;
+    &::cli::thunk< options, std::string, &options::cxx_epilogue_file_,
+      &options::cxx_epilogue_file_specified_ >;
     _cli_options_map_["--man-epilogue-file"] = 
-    &::cli::thunk< options, std::string, &options::man_epilogue_file_ >;
+    &::cli::thunk< options, std::string, &options::man_epilogue_file_,
+      &options::man_epilogue_file_specified_ >;
     _cli_options_map_["--html-epilogue-file"] = 
-    &::cli::thunk< options, std::string, &options::html_epilogue_file_ >;
+    &::cli::thunk< options, std::string, &options::html_epilogue_file_,
+      &options::html_epilogue_file_specified_ >;
     _cli_options_map_["--hxx-suffix"] = 
-    &::cli::thunk< options, std::string, &options::hxx_suffix_ >;
+    &::cli::thunk< options, std::string, &options::hxx_suffix_,
+      &options::hxx_suffix_specified_ >;
     _cli_options_map_["--ixx-suffix"] = 
-    &::cli::thunk< options, std::string, &options::ixx_suffix_ >;
+    &::cli::thunk< options, std::string, &options::ixx_suffix_,
+      &options::ixx_suffix_specified_ >;
     _cli_options_map_["--cxx-suffix"] = 
-    &::cli::thunk< options, std::string, &options::cxx_suffix_ >;
+    &::cli::thunk< options, std::string, &options::cxx_suffix_,
+      &options::cxx_suffix_specified_ >;
     _cli_options_map_["--man-suffix"] = 
-    &::cli::thunk< options, std::string, &options::man_suffix_ >;
+    &::cli::thunk< options, std::string, &options::man_suffix_,
+      &options::man_suffix_specified_ >;
     _cli_options_map_["--html-suffix"] = 
-    &::cli::thunk< options, std::string, &options::html_suffix_ >;
+    &::cli::thunk< options, std::string, &options::html_suffix_,
+      &options::html_suffix_specified_ >;
     _cli_options_map_["--option-prefix"] = 
-    &::cli::thunk< options, std::string, &options::option_prefix_ >;
+    &::cli::thunk< options, std::string, &options::option_prefix_,
+      &options::option_prefix_specified_ >;
     _cli_options_map_["--option-separator"] = 
-    &::cli::thunk< options, std::string, &options::option_separator_ >;
+    &::cli::thunk< options, std::string, &options::option_separator_,
+      &options::option_separator_specified_ >;
     _cli_options_map_["--include-with-brackets"] = 
     &::cli::thunk< options, bool, &options::include_with_brackets_ >;
     _cli_options_map_["--include-prefix"] = 
-    &::cli::thunk< options, std::string, &options::include_prefix_ >;
+    &::cli::thunk< options, std::string, &options::include_prefix_,
+      &options::include_prefix_specified_ >;
     _cli_options_map_["--guard-prefix"] = 
-    &::cli::thunk< options, std::string, &options::guard_prefix_ >;
+    &::cli::thunk< options, std::string, &options::guard_prefix_,
+      &options::guard_prefix_specified_ >;
     _cli_options_map_["--reserved-name"] = 
-    &::cli::thunk< options, std::map<std::string, std::string>, &options::reserved_name_ >;
+    &::cli::thunk< options, std::map<std::string, std::string>, &options::reserved_name_,
+      &options::reserved_name_specified_ >;
     _cli_options_map_["--options-file"] = 
-    &::cli::thunk< options, std::string, &options::options_file_ >;
+    &::cli::thunk< options, std::string, &options::options_file_,
+      &options::options_file_specified_ >;
   }
 };
 
