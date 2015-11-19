@@ -1267,7 +1267,20 @@ format (output_type ot, string const& s, bool para)
 
           switch (pb.kind)
           {
-          case block::h:  v += dn + pv; break;
+          case block::h:
+            {
+              v += dn;
+
+              if (options.ansi_color ())
+                v += "\033[1m"; // Bold.
+
+              v += pv;
+
+              if (options.ansi_color ())
+                v += "\033[0m";
+
+              break;
+            }
           case block::ul:
           case block::ol:
           case block::dl: v += dn + pv; break;
