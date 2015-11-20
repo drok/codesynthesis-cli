@@ -345,31 +345,54 @@ format_line (output_type ot, string& r, const char* s, size_t n)
 
       switch (c)
       {
-      case '\\':
+      case 'n':
         {
           switch (ot)
           {
-          case ot_man:
+          case ot_plain:
             {
-              r += "\\e";
+              r += '\n';
               break;
             }
-          default:
+          case ot_html:
             {
-              r += '\\';
+              if (!r.empty () && r[r.size () - 1] != '\n')
+                r += '\n';
+
+              r += "<br/>";
+              break;
+            }
+          case ot_man:
+            {
+              if (!r.empty () && r[r.size () - 1] != '\n')
+                r += '\n';
+
+              // Note that if we have several consecutive breaks, they
+              // will be collapsed into a single one. No, .sp doesn't
+              // work (or, more exactly, will only work for two breaks).
+              //
+              r += ".br";
               break;
             }
           }
-          break;
-        }
-      case '"':
-        {
-          r += '"';
-          break;
-        }
-      case '\'':
-        {
-          r += '\'';
+
+          // Skip following spaces.
+          //
+          for (; i + 1 < n && s[i + 1] == ' '; ++i) ;
+
+          switch (ot)
+          {
+          case ot_plain: break;
+          case ot_html:
+          case ot_man:
+            {
+              if (i + 1 < n) // More text in this paragraph?
+                r += "\n";
+
+              break;
+            }
+          }
+
           break;
         }
       case 'c':
@@ -577,6 +600,33 @@ format_line (output_type ot, string& r, const char* s, size_t n)
           }
 
           r += 'l';
+          break;
+        }
+      case '\\':
+        {
+          switch (ot)
+          {
+          case ot_man:
+            {
+              r += "\\e";
+              break;
+            }
+          default:
+            {
+              r += '\\';
+              break;
+            }
+          }
+          break;
+        }
+      case '"':
+        {
+          r += '"';
+          break;
+        }
+      case '\'':
+        {
+          r += '\'';
           break;
         }
       case '}':
@@ -1211,7 +1261,7 @@ format (output_type ot, string const& s, bool para)
           {
             v += ".nf\n";
 
-            // Note that if we have several consequtive blank lines, they
+            // Note that if we have several consecutive blank lines, they
             // will be collapsed into a single one. No, .sp doesn't work.
             //
             char c, p ('\n'); // Current and previous characters.
