@@ -321,6 +321,8 @@ translate (string const& s, std::set<string> const& set)
 void context::
 format_line (output_type ot, string& r, const char* s, size_t n)
 {
+  bool color (options.ansi_color ());
+
   typedef unsigned char block; // Mask.
 
   const block code = 1;
@@ -666,7 +668,7 @@ format_line (output_type ot, string& r, const char* s, size_t n)
           {
             if ((b & link) == 0)
             {
-              if (options.ansi_color ())
+              if (color)
               {
                 if (b & bold)
                   r += "\033[1m";
@@ -771,14 +773,24 @@ format_line (output_type ot, string& r, const char* s, size_t n)
                   if (link_section.empty ())
                     r += link_target;
                   else
-                    r += link_target + "(" + link_section + ")";
+                  {
+                    if (color)
+                      r += "\033[1m";
+
+                    r += link_target;
+
+                    if (color)
+                      r += "\033[0m";
+
+                    r += "(" + link_section + ")";
+                  }
 
                   if (!link_empty)
                     r += ")";
                 }
                 else
                 {
-                  if (options.ansi_color ())
+                  if (color)
                   {
                     // While there are codes to turn off bold (22) and
                     // underline (24), it is not clear how widely they
