@@ -383,6 +383,12 @@ exclude_base () const
   return this->exclude_base_;
 }
 
+inline const bool& options::
+include_base_last () const
+{
+  return this->include_base_last_;
+}
+
 inline const std::vector<std::string>& options::
 class_ () const
 {

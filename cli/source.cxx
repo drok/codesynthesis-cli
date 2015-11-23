@@ -751,22 +751,21 @@ namespace
            << "print_usage (" <<
           options.ostream_type () << "&" << (len != 0 || b ? " os)" : ")")
            << "{";
-
-        // Call our bases.
-        //
-        if (b)
         {
-          base_usage t (*this, usage == ut_both ? ut_short : usage);
-          traversal::inherits i (t);
-          inherits (c, i);
-        }
+          base_usage bu (*this, usage == ut_both ? ut_short : usage);
+          traversal::inherits i (bu);
 
-        // Print option usage.
-        //
-        {
-          option_usage t (*this, len, usage == ut_both ? ut_short : usage);
-          traversal::names n (t);
+          if (b && !options.include_base_last ())
+            inherits (c, i);
+
+          // Print option usage.
+          //
+          option_usage ou (*this, len, usage == ut_both ? ut_short : usage);
+          traversal::names n (ou);
           names (c, n);
+
+          if (b && options.include_base_last ())
+            inherits (c, i);
         }
 
         os << "}";
@@ -780,18 +779,18 @@ namespace
             options.ostream_type () << "&" << (len != 0 || b ? " os)" : ")")
              << "{";
 
-          if (b)
-          {
-            base_usage t (*this, ut_long);
-            traversal::inherits i (t);
-            inherits (c, i);
-          }
+          base_usage bu (*this, ut_long);
+          traversal::inherits i (bu);
 
-          {
-            option_usage t (*this, len, ut_long);
-            traversal::names n (t);
-            names (c, n);
-          }
+          if (b && !options.include_base_last ())
+            inherits (c, i);
+
+          option_usage ou (*this, len, ut_long);
+          traversal::names n (ou);
+          names (c, n);
+
+          if (b && options.include_base_last ())
+            inherits (c, i);
 
           os << "}";
         }

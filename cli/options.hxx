@@ -18,6 +18,14 @@
 #include <cstddef>
 #include <exception>
 
+#ifndef CLI_POTENTIALLY_UNUSED
+#  if defined(_MSC_VER) || defined(__xlC__)
+#    define CLI_POTENTIALLY_UNUSED(x) (void*)&x
+#  else
+#    define CLI_POTENTIALLY_UNUSED(x) (void)x
+#  endif
+#endif
+
 namespace cli
 {
   class unknown_mode
@@ -452,6 +460,9 @@ class options
   const bool&
   exclude_base () const;
 
+  const bool&
+  include_base_last () const;
+
   const std::vector<std::string>&
   class_ () const;
 
@@ -701,6 +712,7 @@ class options
   bool option_length_specified_;
   bool ansi_color_;
   bool exclude_base_;
+  bool include_base_last_;
   std::vector<std::string> class__;
   bool class__specified_;
   std::map<std::string, std::string> docvar_;

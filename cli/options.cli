@@ -176,6 +176,12 @@ class options
     "Exclude base class information from usage and documentation."
   };
 
+  bool --include-base-last
+  {
+    "Include base class information after derived for usage and documentation.
+     By default, base classes are included first."
+  };
+
   std::vector<std::string> --class
   {
     "<fq-name>",

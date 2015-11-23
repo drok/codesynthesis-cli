@@ -591,6 +591,7 @@ options ()
   option_length_specified_ (false),
   ansi_color_ (),
   exclude_base_ (),
+  include_base_last_ (),
   class__ (),
   class__specified_ (false),
   docvar_ (),
@@ -697,6 +698,7 @@ options (int& argc,
   option_length_specified_ (false),
   ansi_color_ (),
   exclude_base_ (),
+  include_base_last_ (),
   class__ (),
   class__specified_ (false),
   docvar_ (),
@@ -806,6 +808,7 @@ options (int start,
   option_length_specified_ (false),
   ansi_color_ (),
   exclude_base_ (),
+  include_base_last_ (),
   class__ (),
   class__specified_ (false),
   docvar_ (),
@@ -915,6 +918,7 @@ options (int& argc,
   option_length_specified_ (false),
   ansi_color_ (),
   exclude_base_ (),
+  include_base_last_ (),
   class__ (),
   class__specified_ (false),
   docvar_ (),
@@ -1026,6 +1030,7 @@ options (int start,
   option_length_specified_ (false),
   ansi_color_ (),
   exclude_base_ (),
+  include_base_last_ (),
   class__ (),
   class__specified_ (false),
   docvar_ (),
@@ -1133,6 +1138,7 @@ options (::cli::scanner& s,
   option_length_specified_ (false),
   ansi_color_ (),
   exclude_base_ (),
+  include_base_last_ (),
   class__ (),
   class__specified_ (false),
   docvar_ (),
@@ -1271,6 +1277,9 @@ print_usage (::std::ostream& os)
 
   os << "--exclude-base               Exclude base class information from usage and" << ::std::endl
      << "                             documentation." << ::std::endl;
+
+  os << "--include-base-last          Include base class information after derived for" << ::std::endl
+     << "                             usage and documentation." << ::std::endl;
 
   os << "--class <fq-name>            Generate the man page or HTML documentation only" << ::std::endl
      << "                             for the <fq-name> options class." << ::std::endl;
@@ -1447,6 +1456,8 @@ struct _cli_options_map_init
     &::cli::thunk< options, bool, &options::ansi_color_ >;
     _cli_options_map_["--exclude-base"] = 
     &::cli::thunk< options, bool, &options::exclude_base_ >;
+    _cli_options_map_["--include-base-last"] = 
+    &::cli::thunk< options, bool, &options::include_base_last_ >;
     _cli_options_map_["--class"] = 
     &::cli::thunk< options, std::vector<std::string>, &options::class__,
       &options::class__specified_ >;

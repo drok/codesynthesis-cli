@@ -231,7 +231,7 @@ namespace
     virtual void
     traverse (type& c)
     {
-      if (!options.exclude_base ())
+      if (!options.exclude_base () && !options.include_base_last ())
         inherits (c, inherits_base_);
 
       if (!c.names_empty ())
@@ -241,6 +241,9 @@ namespace
         os << "  </dl>" << endl
            << endl;
       }
+
+      if (!options.exclude_base () && options.include_base_last ())
+        inherits (c, inherits_base_);
     }
 
   private:
