@@ -192,15 +192,12 @@ namespace
         os << "// Print usage information." << endl
            << "//" << endl;
 
-        if (usage != ut_both)
+        os << "static void" << endl
+           << "print_usage (" << options.ostream_type () << "&);"
+           << endl;
+
+        if (usage == ut_both)
           os << "static void" << endl
-             << "print_usage (" << options.ostream_type () << "&);"
-             << endl;
-        else
-          os << "static void" << endl
-             << "print_short_usage (" << options.ostream_type () << "&);"
-             << endl
-             << "static void" << endl
              << "print_long_usage (" << options.ostream_type () << "&);"
              << endl;
       }
@@ -341,15 +338,12 @@ generate_header (context& ctx)
 
     string const& ost (ctx.options.ostream_type ());
 
-    if (ctx.usage != ut_both)
+    os << "void" << endl
+       << n << "usage (" << ost << "&);"
+       << endl;
+
+    if (ctx.usage == ut_both)
       os << "void" << endl
-         << n << "usage (" << ost << "&);"
-         << endl;
-    else
-      os << "void" << endl
-         << n << "short_usage (" << ost << "&);"
-         << endl
-         << "void" << endl
          << n << "long_usage (" << ost << "&);"
          << endl;
 

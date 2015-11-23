@@ -125,10 +125,10 @@ class options
   bool --short-usage
   {
     "If specified together with \cb{--long-usage}, generate both short
-     and long usage versions. In this mode, the usage printing functions
-     are called \cb{print_short_usage()} and \cb{print_long_usage()} and
-     for the long usage the long documentation string is always used,
-     even if the short version is provided."
+     and long usage versions. In this mode, the long usage printing function
+     is called \cb{print_long_usage()} and in its implementation the long
+     documentation string is always used, even if the short version is
+     provided."
   };
 
   std::string --page-usage
@@ -151,8 +151,7 @@ class options
      \
 
      If both \cb{--long-usage} and \cb{--short-usage} options are specified,
-     then two functions are generated with the \cb{*short_usage()} and
-     \cb{*long_usage()} suffixes."
+     then the long usage function has the \cb{*long_usage()} suffix."
   };
 
   std::size_t --option-length = 0

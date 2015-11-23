@@ -517,10 +517,7 @@ namespace
     virtual void
     traverse (type& c)
     {
-      const char* t (
-        usage != ut_both
-        ? ""
-        : usage_ == ut_short ? "short_" : "long_");
+      const char* t (usage != ut_both || usage_ == ut_short ? "" : "long_");
 
       os << "// " << escape (c.name ()) << " base" << endl
          << "//" << endl
@@ -751,7 +748,7 @@ namespace
         // If len is 0 then it means we have no options to print.
         //
         os << "void " << name << "::" << endl
-           << "print_" << (usage == ut_both ? "short_" : "") << "usage (" <<
+           << "print_usage (" <<
           options.ostream_type () << "&" << (len != 0 || b ? " os)" : ")")
            << "{";
 
@@ -1083,10 +1080,7 @@ namespace
       if (para_ == para_text)
         os << "os << ::std::endl;";
 
-      const char* t (
-        usage != ut_both
-        ? ""
-        : usage_ == ut_short ? "short_" : "long_");
+      const char* t (usage != ut_both || usage_ == ut_short ? "" :  "long_");
 
       os << fq_name (c) << "::print_" << t << "usage (os);"
          << endl;
@@ -1136,7 +1130,7 @@ generate_source (context& ctx)
 
     {
       os << "void" << endl
-         << n << (u == ut_both ? "short_" : "") << "usage (" << ost << "& os)"
+         << n << "usage (" << ost << "& os)"
          << "{"
          << "CLI_POTENTIALLY_UNUSED (os);"
          << endl;
