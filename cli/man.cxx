@@ -85,14 +85,14 @@ namespace
       size_t n (ds.size ());
       const string& d (n == 1 ? ds[0] : n == 2 ? ds[1] : ds[2]);
 
-      if (d.empty ())
-        return;
-
       std::set<string> arg_set;
       if (n > 1)
         translate_arg (ds[0], arg_set);
 
       string s (format (ot_man, translate (d, arg_set), true));
+
+      if (s.empty ())
+        return;
 
       wrap_lines (os, s);
       os << endl;
@@ -175,30 +175,19 @@ namespace
   //
   struct class_: traversal::class_, context
   {
-    class_ (context& c)
-        : context (c), option_ (c)
-    {
-      *this >> inherits_base_ >> *this;
-      names_option_ >> option_;
-    }
+    class_ (context& c): context (c) {}
 
     virtual void
     traverse (type& c)
     {
       if (!options.exclude_base () && !options.include_base_last ())
-        inherits (c, inherits_base_);
+        inherits (c);
 
-      names (c, names_option_);
+      names (c);
 
       if (!options.exclude_base () && options.include_base_last ())
-        inherits (c, inherits_base_);
+        inherits (c);
     }
-
-  private:
-    traversal::inherits inherits_base_;
-
-    option option_;
-    traversal::names names_option_;
   };
 }
 
@@ -210,18 +199,25 @@ generate_man (context& ctx)
   traversal::namespace_ ns;
   doc dc (ctx);
   class_ cl (ctx);
-
   unit >> unit_names;
   unit_names >> ns;
   unit_names >> dc;
   unit_names >> cl;
 
   traversal::names ns_names;
-
   ns >> ns_names;
   ns_names >> ns;
   ns_names >> dc;
   ns_names >> cl;
+
+  traversal::inherits cl_inherits;
+  cl >> cl_inherits >> cl;
+
+  option op (ctx);
+  traversal::names cl_names;
+  cl >> cl_names;
+  cl_names >> dc;
+  cl_names >> op;
 
   if (ctx.options.class_ ().empty ())
     unit.dispatch (ctx.unit);

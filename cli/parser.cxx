@@ -224,9 +224,8 @@ def_unit ()
       }
 
       cerr << *path_ << ':' << t.line () << ':' << t.column () << ": error: "
-           << "expected namespace, class, or documentation declaration or "
-           << "instead of " << t
-           << endl;
+           << "expected namespace, class, or documentation instead of "
+           << t << endl;
       throw error ();
     }
     catch (error const&)
@@ -588,8 +587,8 @@ namespace_def ()
   if (t.punctuation () != token::p_rcbrace)
   {
     cerr << *path_ << ':' << t.line () << ':' << t.column () << ": error: "
-         << "expected namespace, class, or documentation declaration or '}' "
-         << "instead of " << t << endl;
+         << "expected namespace, class, documentation, or '}' instead of "
+         << t << endl;
     throw error ();
   }
 }
@@ -684,7 +683,7 @@ class_def ()
 
   auto_restore<scope> new_scope (scope_, n);
 
-  // decl-seq
+  // class-decl-seq
   //
   t = lexer_->next ();
 
@@ -692,8 +691,16 @@ class_def ()
   {
     try
     {
-      if (!option_def (t))
-        break;
+      if (t.type () == token::t_string_lit ||
+          t.punctuation () == token::p_lcbrace)
+      {
+        scope_doc (t);
+      }
+      else
+      {
+        if (!option_def (t))
+          break;
+      }
 
       t = lexer_->next ();
     }
@@ -707,7 +714,7 @@ class_def ()
   if (t.punctuation () != token::p_rcbrace)
   {
     cerr << *path_ << ':' << t.line () << ':' << t.column () << ": error: "
-         << "expected option declaration or '}' instead of " << t << endl;
+         << "expected option, documentation, or '}' instead of " << t << endl;
     throw error ();
   }
 

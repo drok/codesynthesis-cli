@@ -189,16 +189,21 @@ namespace
       //
       if (usage != ut_none)
       {
+        string up (cli + "::usage_para");
+        string const& ost (options.ostream_type ());
+
         os << "// Print usage information." << endl
            << "//" << endl;
 
-        os << "static void" << endl
-           << "print_usage (" << options.ostream_type () << "&);"
+        os << "static " << up << endl
+           << "print_usage (" << ost << "&," << endl
+           << up << " = " << up << "::none);"
            << endl;
 
         if (usage == ut_both)
-          os << "static void" << endl
-             << "print_long_usage (" << options.ostream_type () << "&);"
+          os << "static " << up << endl
+             << "print_long_usage (" << ost << "&," << endl
+             << up << " = " << up << "::none);"
              << endl;
       }
 
@@ -336,15 +341,18 @@ generate_header (context& ctx)
     const string& qn (ctx.options.page_usage ());
     string n (ctx.escape (ctx.substitute (ctx.ns_open (qn, false))));
 
+    string up (ctx.cli + "::usage_para");
     string const& ost (ctx.options.ostream_type ());
 
-    os << "void" << endl
-       << n << "usage (" << ost << "&);"
+    os << up << endl
+       << n << "usage (" << ost << "&," << endl
+       << up << " = " << up << "::none);"
        << endl;
 
     if (ctx.usage == ut_both)
-      os << "void" << endl
-         << n << "long_usage (" << ost << "&);"
+      os << up << endl
+         << n << "long_usage (" << ost << "&," << endl
+         << up << " = " << up << "::none);"
          << endl;
 
     ctx.ns_close (qn, false);

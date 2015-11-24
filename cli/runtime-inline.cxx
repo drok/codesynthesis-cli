@@ -16,6 +16,18 @@ generate_runtime_inline (context& ctx)
 
   ctx.ns_open (ctx.cli);
 
+  // usage_para
+  //
+  if (!ctx.options.suppress_usage ())
+    os << "// usage_para" << endl
+       << "//" << endl
+
+       << inl << "usage_para::" << endl
+       << "usage_para (value v)" << endl
+       << ": v_ (v)"
+       << "{"
+       << "}";
+
   // unknown_mode
   //
   os << "// unknown_mode" << endl

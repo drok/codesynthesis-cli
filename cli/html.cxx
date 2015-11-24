@@ -114,7 +114,7 @@ namespace
 
   struct doc: traversal::doc, context
   {
-    doc (context& c) : context (c) {}
+    doc (context& c, bool& l): context (c), list_ (l) {}
 
     virtual void
     traverse (type& ds)
@@ -129,24 +129,34 @@ namespace
       size_t n (ds.size ());
       const string& d (n == 1 ? ds[0] : n == 2 ? ds[1] : ds[2]);
 
-      if (d.empty ())
-        return;
-
       std::set<string> arg_set;
       if (n > 1)
         translate_arg (ds[0], arg_set);
 
       string s (format (ot_html, escape_html (translate (d, arg_set)), true));
 
+      if (s.empty ())
+        return;
+
+      if (list_)
+      {
+        os << "  </dl>" << endl
+           << endl;
+        list_ = false;
+      }
+
       wrap_lines (os, s, 2);
       os << endl
          << endl;
     }
+
+  private:
+    bool& list_; // True if we are currently in <dl>.
   };
 
   struct option: traversal::option, context
   {
-    option (context& c) : context (c) {}
+    option (context& c, bool& l): context (c), list_ (l) {}
 
     virtual void
     traverse (type& o)
@@ -157,6 +167,14 @@ namespace
 
       if (options.suppress_undocumented () && doc.empty ())
         return;
+
+      if (!list_)
+      {
+        os << "  <dl class=\"options\">" << endl;
+        list_ = true;
+      }
+      else
+        os << endl; // Separate from the previous <dl>.
 
       names& n (o.named ());
 
@@ -212,68 +230,62 @@ namespace
       d = format (ot_html, escape_html (translate (d, arg_set)), false);
 
       wrap_lines (os, "<dd>" + d + "</dd>", 4);
-      os << endl
-         << endl;
+      os << endl;
     }
+
+  private:
+    bool& list_; // True if we are currently in <dl>.
   };
 
   //
   //
   struct class_: traversal::class_, context
   {
-    class_ (context& c)
-        : context (c), option_ (c)
-    {
-      *this >> inherits_base_ >> *this;
-      names_option_ >> option_;
-    }
+    class_ (context& c): context (c) {}
 
     virtual void
     traverse (type& c)
     {
       if (!options.exclude_base () && !options.include_base_last ())
-        inherits (c, inherits_base_);
+        inherits (c);
 
-      if (!c.names_empty ())
-      {
-        os << "  <dl class=\"options\">" << endl;
-        names (c, names_option_);
-        os << "  </dl>" << endl
-           << endl;
-      }
+      names (c);
 
       if (!options.exclude_base () && options.include_base_last ())
-        inherits (c, inherits_base_);
+        inherits (c);
     }
-
-  private:
-    traversal::inherits inherits_base_;
-
-    option option_;
-    traversal::names names_option_;
   };
 }
 
 void
 generate_html (context& ctx)
 {
+  bool list (false);
+
   traversal::cli_unit unit;
   traversal::names unit_names;
   traversal::namespace_ ns;
-  doc dc (ctx);
+  doc dc (ctx, list);
   class_ cl (ctx);
-
   unit >> unit_names;
   unit_names >> dc;
   unit_names >> ns;
   unit_names >> cl;
 
   traversal::names ns_names;
-
   ns >> ns_names;
   ns_names >> dc;
   ns_names >> ns;
   ns_names >> cl;
+
+  traversal::inherits cl_inherits;
+  cl >> cl_inherits >> cl;
+
+  option op (ctx, list);
+  traversal::names cl_names;
+  cl >> cl_names;
+  cl_names >> dc;
+  cl_names >> op;
 
   if (ctx.options.class_ ().empty ())
     unit.dispatch (ctx.unit);
@@ -298,4 +310,8 @@ generate_html (context& ctx)
       }
     }
   }
+
+  if (list)
+    ctx.os << "  </dl>" << endl
+           << endl;
 }

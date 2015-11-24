@@ -47,7 +47,7 @@ namespace-body:
 	decl-seq(opt)
 
 class-def:
-	"class" identifier inheritance-spec(opt) abstract-spec(opt) "{" option-def-seq(opt) "};"
+	"class" identifier inheritance-spec(opt) abstract-spec(opt) "{" class-decl-seq(opt) "};"
 
 inheritance-spec:
 	":" base-seq
@@ -59,9 +59,13 @@ base-seq:
 abstract-spec:
         "=" "0"
 
-option-def-seq:
+class-decl-seq:
+	class-decl
+        class-decl-seq class-decl
+
+class-decl
+        scope-doc
 	option-def
-	option-def-seq option-def
 
 option-def:
 	type-spec option-name-seq initializer(opt) option-doc(opt) ";"

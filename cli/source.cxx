@@ -11,8 +11,6 @@ using namespace std;
 
 namespace
 {
-  //
-  //
   struct option_init: traversal::option, context
   {
     option_init (context& c) : context (c), comma_ (false) {}
@@ -292,6 +290,73 @@ namespace
     }
   }
 
+  enum paragraph {para_unknown, para_text, para_option};
+
+  struct doc: traversal::doc, context
+  {
+    doc (context& c, usage_type u, paragraph& p)
+        : context (c), usage_ (u), para_ (p) {}
+
+    virtual void
+    traverse (type& ds)
+    {
+      if (ds.name ().compare (0, 3, "doc") != 0) // Ignore doc variables.
+        return;
+
+      // Figure out which documentation string we should use.
+      //
+      // n = 1 - common doc string
+      // n = 2 - arg string, common doc string
+      // n > 2 - arg string, short string, long string
+      //
+      size_t n (ds.size ());
+      string d;
+
+      if (usage == ut_both && usage_ == ut_long)
+      {
+        d = n > 2                     // Have both short and long?
+          ? ds[2]                     // Then use long.
+          : (n == 1 ? ds[0] : ds[1]); // Else, use common.
+      }
+      else // Short or long.
+      {
+        d = n > 2                     // Have both short and long?
+          ? ds[1]                     // Then use short,
+          : (n == 1 ? ds[0] : ds[1]); // Else, use common (no first sentence).
+      }
+
+      std::set<string> arg_set;
+      if (n > 1 && options.ansi_color ())
+        translate_arg (ds[0], arg_set);
+
+      d = format (ot_plain, translate (d, arg_set), true);
+
+      if (d.empty ())
+        return;
+
+      string up (cli + "::usage_para");
+
+      if (para_ == para_unknown)
+        os << "if (p != " << up << "::none)" << endl
+           << "os << ::std::endl;"
+           << endl
+           << "os << \"";
+      else
+        os << "os << std::endl" << endl
+           << "   << \"";
+
+      wrap_lines (os, d);
+      os << ";"
+         << endl;
+
+      para_ = para_text;
+    }
+
+  private:
+    usage_type usage_;
+    paragraph& para_;
+  };
+
   struct option_length: traversal::option, context
   {
     option_length (context& c, size_t& l)
@@ -355,8 +420,8 @@ namespace
   //
   struct option_usage: traversal::option, context
   {
-    option_usage (context& c, size_t l, usage_type u)
-        : context (c), length_ (l), usage_ (u) {}
+    option_usage (context& c, size_t l, usage_type u, paragraph& p)
+        : context (c), length_ (l), usage_ (u), para_ (p) {}
 
     virtual void
     traverse (type& o)
@@ -373,7 +438,18 @@ namespace
       size_t l (0);
       names& n (o.named ());
 
-      os << "os << \"";
+      string up (cli + "::usage_para");
+
+      if (para_ == para_unknown)
+        os << "if (p == " << up << "::text)" << endl
+           << "os << ::std::endl;"
+           << endl
+           << "os << \"";
+      else if (para_ == para_text)
+        os << "os << std::endl" << endl
+           << "   << \"";
+      else
+        os << "os << \"";
 
       for (names::name_iterator i (n.name_begin ()); i != n.name_end (); ++i)
       {
@@ -452,6 +528,8 @@ namespace
 
       os << ";"
          << endl;
+
+      para_ = para_option;
     }
 
   private:
@@ -475,6 +553,7 @@ namespace
   private:
     size_t length_;
     usage_type usage_;
+    paragraph& para_;
   };
 
   //
@@ -521,7 +600,7 @@ namespace
 
       os << "// " << escape (c.name ()) << " base" << endl
          << "//" << endl
-         << fq_name (c) << "::print_" << t << "usage (os);"
+         << "p = " << fq_name (c) << "::print_" << t << "usage (os, p);"
          << endl;
     }
 
@@ -745,39 +824,53 @@ namespace
           }
         }
 
-        // If len is 0 then it means we have no options to print.
-        //
-        os << "void " << name << "::" << endl
-           << "print_usage (" <<
-          options.ostream_type () << "&" << (len != 0 || b ? " os)" : ")")
-           << "{";
+        string up (cli + "::usage_para");
+        string const& ost (options.ostream_type ());
+
+        os << up << " " << name << "::" << endl
+           << "print_usage (" << ost << "& os, " << up << " p)"
+           << "{"
+           << "CLI_POTENTIALLY_UNUSED (os);"
+           << endl;
         {
-          base_usage bu (*this, usage == ut_both ? ut_short : usage);
+          usage_type u (usage == ut_both ? ut_short : usage);
+
+          base_usage bu (*this, u);
           traversal::inherits i (bu);
 
           if (b && !options.include_base_last ())
             inherits (c, i);
 
-          // Print option usage.
-          //
-          option_usage ou (*this, len, usage == ut_both ? ut_short : usage);
-          traversal::names n (ou);
+          paragraph p (para_unknown);
+
+          doc dc (*this, u, p);
+          option_usage ou (*this, len, u, p);
+          traversal::names n;
+          n >> dc;
+          n >> ou;
+
           names (c, n);
+
+          if (p != para_unknown)
+            os << "p = " << up << (p == para_text ? "::text;" : "::option;")
+               << endl;
 
           if (b && options.include_base_last ())
             inherits (c, i);
         }
 
-        os << "}";
+        os << "return p;"
+           << "}";
 
         // Long version.
         //
         if (usage == ut_both)
         {
-          os << "void " << name << "::" << endl
-             << "print_long_usage (" <<
-            options.ostream_type () << "&" << (len != 0 || b ? " os)" : ")")
-             << "{";
+          os << up << " " << name << "::" << endl
+             << "print_long_usage (" << ost << "& os, " << up << " p)"
+             << "{"
+             << "CLI_POTENTIALLY_UNUSED (os);"
+             << endl;
 
           base_usage bu (*this, ut_long);
           traversal::inherits i (bu);
@@ -785,14 +878,25 @@ namespace
           if (b && !options.include_base_last ())
             inherits (c, i);
 
-          option_usage ou (*this, len, ut_long);
-          traversal::names n (ou);
+          paragraph p (para_unknown);
+
+          doc dc (*this, ut_long, p);
+          option_usage ou (*this, len, ut_long, p);
+          traversal::names n;
+          n >> dc;
+          n >> ou;
+
           names (c, n);
+
+          if (p != para_unknown)
+            os << "p = " << up << (p == para_text ? "::text;" : "::option;")
+               << endl;
 
           if (b && options.include_base_last ())
             inherits (c, i);
 
-          os << "}";
+          os << "return p;"
+             << "}";
         }
       }
 
@@ -986,68 +1090,6 @@ namespace
 
   // Page usage.
   //
-  enum paragraph {para_none, para_text, para_option};
-
-  struct doc: traversal::doc, context
-  {
-    doc (context& c, usage_type u, paragraph& p)
-        : context (c), usage_ (u), para_ (p) {}
-
-    virtual void
-    traverse (type& ds)
-    {
-      if (ds.name ().compare (0, 3, "doc") != 0) // Ignore doc variables.
-        return;
-
-      // Figure out which documentation string we should use.
-      //
-      // n = 1 - common doc string
-      // n = 2 - arg string, common doc string
-      // n > 2 - arg string, short string, long string
-      //
-      size_t n (ds.size ());
-      string d;
-
-      if (usage == ut_both && usage_ == ut_long)
-      {
-        d = n > 2                     // Have both short and long?
-          ? ds[2]                     // Then use long.
-          : (n == 1 ? ds[0] : ds[1]); // Else, use common.
-      }
-      else // Short or long.
-      {
-        d = n > 2                     // Have both short and long?
-          ? ds[1]                     // Then use short,
-          : (n == 1 ? ds[0] : ds[1]); // Else, use common (no first sentence).
-      }
-
-      std::set<string> arg_set;
-      if (n > 1 && options.ansi_color ())
-        translate_arg (ds[0], arg_set);
-
-      d = format (ot_plain, translate (d, arg_set), true);
-
-      if (d.empty ())
-        return;
-
-      if (para_ == para_none) // First.
-        os << "os << \"";
-      else
-        os << "os << ::std::endl" << endl
-           << "   << \"";
-
-      wrap_lines (os, d);
-      os << ";"
-         << endl;
-
-      para_ = para_text;
-    }
-
-  private:
-    usage_type usage_;
-    paragraph& para_;
-  };
-
   struct class_usage: traversal::class_, context
   {
     class_usage (context& c, usage_type u, paragraph& p)
@@ -1056,35 +1098,17 @@ namespace
     virtual void
     traverse (type& c)
     {
-      // Figure out if this class has any documentation by calculating
-      // the option length. If it is 0, then we don't have any.
-      //
-      size_t len (0);
-      {
-        option_length olt (*this, len);
-        traversal::class_ ct;
-        traversal::inherits i;
-        traversal::names n;
-
-        if (!options.exclude_base ()) // Go into bases unless --exclude-base.
-          ct >> i >> ct;
-
-        ct >> n >> olt;
-        ct.traverse (c);
-      }
-
-      if (len == 0)
-        return;
-
-      if (para_ == para_text)
-        os << "os << ::std::endl;";
+      string p (
+        para_ == para_unknown
+        ? "p"
+        : cli + "::usage_para::" + (para_ == para_text ? "text" : "option"));
 
       const char* t (usage != ut_both || usage_ == ut_short ? "" :  "long_");
-
-      os << fq_name (c) << "::print_" << t << "usage (os);"
+      os << "p = " << fq_name (c) << "::print_" << t << "usage (os, " <<
+        p << ");"
          << endl;
 
-      para_ = para_option;
+      para_ = para_unknown;
     }
 
   private:
@@ -1125,22 +1149,23 @@ generate_source (context& ctx)
     string n (ctx.escape (ctx.substitute (ctx.ns_open (qn, false))));
 
     usage u (ctx.usage);
+    string up (ctx.cli + "::usage_para");
     string const& ost (ctx.options.ostream_type ());
 
     {
-      os << "void" << endl
-         << n << "usage (" << ost << "& os)"
+      os << up << endl
+         << n << "usage (" << ost << "& os, " << up << " p)"
          << "{"
          << "CLI_POTENTIALLY_UNUSED (os);"
          << endl;
 
-      paragraph para (para_none);
+      paragraph p (para_unknown);
 
       traversal::cli_unit unit;
       traversal::names unit_names;
       traversal::namespace_ ns;
-      doc dc (ctx, u == ut_both ? ut_short : u, para);
-      class_usage cl (ctx, u == ut_both ? ut_short : u, para);
+      doc dc (ctx, u == ut_both ? ut_short : u, p);
+      class_usage cl (ctx, u == ut_both ? ut_short : u, p);
 
       unit >> unit_names;
       unit_names >> dc;
@@ -1156,26 +1181,31 @@ generate_source (context& ctx)
 
       unit.dispatch (ctx.unit);
 
-      os << "}";
+      if (p != para_unknown)
+        os << "p = " << up << (p == para_text ? "::text;" : "::option;")
+           << endl;
+
+      os << "return p;"
+         << "}";
     }
 
     // Long version.
     //
     if (u == ut_both)
     {
-      os << "void" << endl
-         << n << "long_usage (" << ost << "& os)"
+      os << up << endl
+         << n << "long_usage (" << ost << "& os, " << up << " p)"
          << "{"
          << "CLI_POTENTIALLY_UNUSED (os);"
          << endl;
 
-      paragraph para (para_none);
+      paragraph p (para_unknown);
 
       traversal::cli_unit unit;
       traversal::names unit_names;
       traversal::namespace_ ns;
-      doc dc (ctx, ut_long, para);
-      class_usage cl (ctx, ut_long, para);
+      doc dc (ctx, ut_long, p);
+      class_usage cl (ctx, ut_long, p);
 
       unit >> unit_names;
       unit_names >> dc;
@@ -1191,7 +1221,12 @@ generate_source (context& ctx)
 
       unit.dispatch (ctx.unit);
 
-      os << "}";
+      if (p != para_unknown)
+        os << "p = " << up << (p == para_text ? "::text;" : "::option;")
+           << endl;
+
+      os << "return p;"
+         << "}";
     }
 
     ctx.ns_close (qn, false);

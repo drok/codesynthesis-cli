@@ -153,11 +153,10 @@
 
     <dt><code><b>--short-usage</b></code></dt>
     <dd>If specified together with <code><b>--long-usage</b></code>, generate
-    both short and long usage versions. In this mode, the usage printing
-    functions are called <code><b>print_short_usage()</b></code> and
-    <code><b>print_long_usage()</b></code> and for the long usage the long
-    documentation string is always used, even if the short version is
-    provided.</dd>
+    both short and long usage versions. In this mode, the long usage printing
+    function is called <code><b>print_long_usage()</b></code> and in its
+    implementation the long documentation string is always used, even if the
+    short version is provided.</dd>
 
     <dt><code><b>--page-usage</b></code> <i>name</i></dt>
     <dd>Generate the combined usage printing code for the entire page.
@@ -175,9 +174,8 @@
 --page-usage print_$name$_  # print_foo_usage() if name is foo</pre>
 
     <p>If both <code><b>--long-usage</b></code> and
-    <code><b>--short-usage</b></code> options are specified, then two
-    functions are generated with the <code><b>*short_usage()</b></code> and
-    <code><b>*long_usage()</b></code> suffixes.</p></dd>
+    <code><b>--short-usage</b></code> options are specified, then the long
+    usage function has the <code><b>*long_usage()</b></code> suffix.</p></dd>
 
     <dt><code><b>--option-length</b></code> <i>len</i></dt>
     <dd>Indent option descriptions <i>len</i> characters when printing usage.
@@ -194,6 +192,10 @@
 
     <dt><code><b>--exclude-base</b></code></dt>
     <dd>Exclude base class information from usage and documentation.</dd>
+
+    <dt><code><b>--include-base-last</b></code></dt>
+    <dd>Include base class information after derived for usage and
+    documentation. By default, base classes are included first.</dd>
 
     <dt><code><b>--class</b></code> <i>fq-name</i></dt>
     <dd>Generate the man page or HTML documentation only for the
@@ -356,7 +358,6 @@
     where the <code><b>--options-file</b></code> option is specified except
     that the shell escaping and quoting is not required. Repeat this option to
     specify more than one options file.</p></dd>
-
   </dl>
 
   <h1>DIAGNOSTICS</h1>

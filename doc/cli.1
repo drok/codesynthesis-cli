@@ -112,10 +112,9 @@ documentation string in usage\. By default, in this situation only the first
 sentence from the long string is used\.
 .IP "\fB--short-usage\fR"
 If specified together with \fB--long-usage\fR, generate both short and long
-usage versions\. In this mode, the usage printing functions are called
-\fBprint_short_usage()\fR and \fBprint_long_usage()\fR and for the long usage
-the long documentation string is always used, even if the short version is
-provided\.
+usage versions\. In this mode, the long usage printing function is called
+\fBprint_long_usage()\fR and in its implementation the long documentation
+string is always used, even if the short version is provided\.
 .IP "\fB--page-usage\fR \fIname\fR"
 Generate the combined usage printing code for the entire page\. Specifically,
 this will include all the namespace-level documentation as well as usage for
@@ -134,8 +133,7 @@ documentation variable expansion, for example:
 .fi
 
 If both \fB--long-usage\fR and \fB--short-usage\fR options are specified, then
-two functions are generated with the \fB*short_usage()\fR and
-\fB*long_usage()\fR suffixes\.
+the long usage function has the \fB*long_usage()\fR suffix\.
 .IP "\fB--option-length\fR \fIlen\fR"
 Indent option descriptions \fIlen\fR characters when printing usage\. This is
 useful when you have multiple options classes, potentially in separate files,
@@ -148,6 +146,9 @@ However, if you pipe such output through \fBless\fR(1)\fR, it will display
 them correctly\.
 .IP "\fB--exclude-base\fR"
 Exclude base class information from usage and documentation\.
+.IP "\fB--include-base-last\fR"
+Include base class information after derived for usage and documentation\. By
+default, base classes are included first\.
 .IP "\fB--class\fR \fIfq-name\fR"
 Generate the man page or HTML documentation only for the \fIfq-name\fR options
 class\. The \fIfq-name\fR name should be a fully-qualified options class name,

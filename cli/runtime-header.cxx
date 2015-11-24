@@ -40,6 +40,25 @@ generate_runtime_header (context& ctx)
 
   ctx.ns_open (ctx.cli);
 
+  // usage_para
+  //
+  if (!ctx.options.suppress_usage ())
+    os << "class usage_para"
+       << "{"
+       << "public:" << endl
+       << "enum value"
+       << "{"
+       << "none," << endl
+       << "text," << endl
+       << "option" << endl
+       << "};"
+       << "usage_para (value);"
+       << endl
+       << "operator value () const {return v_;}" // Can't generate outside.
+       << "private:" << endl
+       << "value v_;"
+       << "};";
+
   // unknown_mode
   //
   os << "class unknown_mode"
@@ -51,7 +70,7 @@ generate_runtime_header (context& ctx)
      << "stop," << endl
      << "fail" << endl
      << "};"
-     << "unknown_mode (value v);"
+     << "unknown_mode (value);"
      << endl
      << "operator value () const {return v_;}" // Can't generate outside.
      << "private:" << endl

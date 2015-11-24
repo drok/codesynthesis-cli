@@ -11,6 +11,14 @@
 
 namespace cli
 {
+  // usage_para
+  //
+  inline usage_para::
+  usage_para (value v)
+  : v_ (v)
+  {
+  }
+
   // unknown_mode
   //
   inline unknown_mode::

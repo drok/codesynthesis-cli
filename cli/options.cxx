@@ -1210,9 +1210,14 @@ options (::cli::scanner& s,
   _parse (s, opt, arg);
 }
 
-void options::
-print_usage (::std::ostream& os)
+::cli::usage_para options::
+print_usage (::std::ostream& os, ::cli::usage_para p)
 {
+  CLI_POTENTIALLY_UNUSED (os);
+
+  if (p == ::cli::usage_para::text)
+    os << ::std::endl;
+
   os << "--help                       Print usage information and exit." << ::std::endl;
 
   os << "--version                    Print version and exit." << ::std::endl;
@@ -1384,6 +1389,10 @@ print_usage (::std::ostream& os)
   os << "--options-file <file>        Read additional options from <file> with each" << ::std::endl
      << "                             option appearing on a separate line optionally" << ::std::endl
      << "                             followed by space and an option value." << ::std::endl;
+
+  p = ::cli::usage_para::option;
+
+  return p;
 }
 
 typedef

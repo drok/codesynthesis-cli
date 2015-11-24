@@ -28,6 +28,27 @@
 
 namespace cli
 {
+  class usage_para
+  {
+    public:
+    enum value
+    {
+      none,
+      text,
+      option
+    };
+
+    usage_para (value);
+
+    operator value () const 
+    {
+      return v_;
+    }
+
+    private:
+    value v_;
+  };
+
   class unknown_mode
   {
     public:
@@ -38,7 +59,7 @@ namespace cli
       fail
     };
 
-    unknown_mode (value v);
+    unknown_mode (value);
 
     operator value () const 
     {
@@ -666,8 +687,9 @@ class options
 
   // Print usage information.
   //
-  static void
-  print_usage (::std::ostream&);
+  static ::cli::usage_para
+  print_usage (::std::ostream&,
+               ::cli::usage_para = ::cli::usage_para::none);
 
   // Implementation details.
   //
