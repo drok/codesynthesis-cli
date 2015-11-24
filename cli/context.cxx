@@ -347,6 +347,32 @@ format_line (output_type ot, string& r, const char* s, size_t n)
 
       switch (c)
       {
+      case '-':
+        {
+          // N-dash. If someone wants m-dash, can use \-- with \-{}- as
+          // a way to "escape" an n-dash followed by hyphen.
+          //
+          switch (ot)
+          {
+          case ot_plain:
+            {
+              r += "--";
+              break;
+            }
+          case ot_html:
+            {
+              r += "&#8211;";
+              break;
+            }
+          case ot_man:
+            {
+              r += "\\(en";
+              break;
+            }
+          }
+
+          break;
+        }
       case 'n':
         {
           switch (ot)
