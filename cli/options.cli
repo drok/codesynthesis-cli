@@ -182,11 +182,25 @@ class options
      By default, base classes are included first."
   };
 
+  std::map<std::string, std::string> --class-doc
+  {
+    "<name>=<kind>",
+    "Specify the documentation <kind> that should be used for the options
+     class <name>. The <name> value should be a fully-qualified class name,
+     for example, \cb{app::options}. The <kind> value can be \cb{short},
+     \cb{long}, or \cb{exclude}. If the value is \cb{exclude}, then the
+     class documentation is excluded from usage and man/HTML output. For
+     usage, the \cb{short} and \cb{long} values determine which usage
+     function will be called when the class is used as base or as part of
+     the page usage (see \cb{--page-usage}). For man/HTML, these values
+     determine which documentation strings are used in the output."
+  };
+
   std::vector<std::string> --class
   {
-    "<fq-name>",
-    "Generate the man page or HTML documentation only for the <fq-name> options
-     class. The <fq-name> name should be a fully-qualified options class name,
+    "<name>",
+    "Generate the man page or HTML documentation only for the options class
+     <name>. The <name> value should be a fully-qualified options class name,
      for example, \cb{app::options}. To generate documentation for multiple
      classes, repeat this option and the documentation will be produced in
      the order specified. This functionality is useful if you need to assemble

@@ -592,6 +592,8 @@ options ()
   ansi_color_ (),
   exclude_base_ (),
   include_base_last_ (),
+  class_doc_ (),
+  class_doc_specified_ (false),
   class__ (),
   class__specified_ (false),
   docvar_ (),
@@ -699,6 +701,8 @@ options (int& argc,
   ansi_color_ (),
   exclude_base_ (),
   include_base_last_ (),
+  class_doc_ (),
+  class_doc_specified_ (false),
   class__ (),
   class__specified_ (false),
   docvar_ (),
@@ -809,6 +813,8 @@ options (int start,
   ansi_color_ (),
   exclude_base_ (),
   include_base_last_ (),
+  class_doc_ (),
+  class_doc_specified_ (false),
   class__ (),
   class__specified_ (false),
   docvar_ (),
@@ -919,6 +925,8 @@ options (int& argc,
   ansi_color_ (),
   exclude_base_ (),
   include_base_last_ (),
+  class_doc_ (),
+  class_doc_specified_ (false),
   class__ (),
   class__specified_ (false),
   docvar_ (),
@@ -1031,6 +1039,8 @@ options (int start,
   ansi_color_ (),
   exclude_base_ (),
   include_base_last_ (),
+  class_doc_ (),
+  class_doc_specified_ (false),
   class__ (),
   class__specified_ (false),
   docvar_ (),
@@ -1139,6 +1149,8 @@ options (::cli::scanner& s,
   ansi_color_ (),
   exclude_base_ (),
   include_base_last_ (),
+  class_doc_ (),
+  class_doc_specified_ (false),
   class__ (),
   class__specified_ (false),
   docvar_ (),
@@ -1286,8 +1298,11 @@ print_usage (::std::ostream& os, ::cli::usage_para p)
   os << "--include-base-last          Include base class information after derived for" << ::std::endl
      << "                             usage and documentation." << ::std::endl;
 
-  os << "--class <fq-name>            Generate the man page or HTML documentation only" << ::std::endl
-     << "                             for the <fq-name> options class." << ::std::endl;
+  os << "--class-doc <name>=<kind>    Specify the documentation <kind> that should be" << ::std::endl
+     << "                             used for the options class <name>." << ::std::endl;
+
+  os << "--class <name>               Generate the man page or HTML documentation only" << ::std::endl
+     << "                             for the options class <name>." << ::std::endl;
 
   os << "--docvar|-v <name>=<val>     Set documentation variable <name> to the value" << ::std::endl
      << "                             <val>." << ::std::endl;
@@ -1467,6 +1482,9 @@ struct _cli_options_map_init
     &::cli::thunk< options, bool, &options::exclude_base_ >;
     _cli_options_map_["--include-base-last"] = 
     &::cli::thunk< options, bool, &options::include_base_last_ >;
+    _cli_options_map_["--class-doc"] = 
+    &::cli::thunk< options, std::map<std::string, std::string>, &options::class_doc_,
+      &options::class_doc_specified_ >;
     _cli_options_map_["--class"] = 
     &::cli::thunk< options, std::vector<std::string>, &options::class__,
       &options::class__specified_ >;

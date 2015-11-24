@@ -533,24 +533,6 @@ namespace
     }
 
   private:
-    string
-    first_sentence (string const& s)
-    {
-      size_t p (s.find ('.'));
-
-      // Add some heuristics here: check that there is a space
-      // (or end of text) after the period.
-      //
-      while (p != string::npos &&
-             p + 1 <= s.size () &&
-             s[p + 1] != ' ' &&
-             s[p + 1] != '\n')
-        p = s.find ('.', p + 1);
-
-      return p == string::npos ? s : string (s, 0, p + 1);
-    }
-
-  private:
     size_t length_;
     usage_type usage_;
     paragraph& para_;
@@ -596,7 +578,15 @@ namespace
     virtual void
     traverse (type& c)
     {
-      const char* t (usage != ut_both || usage_ == ut_short ? "" : "long_");
+      class_doc_type cd (class_doc (c));
+
+      if (cd == cd_exclude)
+        return;
+
+      const char* t (
+        (cd == cd_default
+         ? usage != ut_both || usage_ == ut_short
+         : cd == cd_short) ? "" : "long_");
 
       os << "// " << escape (c.name ()) << " base" << endl
          << "//" << endl
@@ -1098,12 +1088,21 @@ namespace
     virtual void
     traverse (type& c)
     {
+      class_doc_type cd (class_doc (c));
+
+      if (cd == cd_exclude)
+        return;
+
+      const char* t (
+        (cd == cd_default
+         ? usage != ut_both || usage_ == ut_short
+         : cd == cd_short) ? "" : "long_");
+
       string p (
         para_ == para_unknown
         ? "p"
         : cli + "::usage_para::" + (para_ == para_text ? "text" : "option"));
 
-      const char* t (usage != ut_both || usage_ == ut_short ? "" :  "long_");
       os << "p = " << fq_name (c) << "::print_" << t << "usage (os, " <<
         p << ");"
          << endl;

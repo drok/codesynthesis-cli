@@ -149,10 +149,20 @@ Exclude base class information from usage and documentation\.
 .IP "\fB--include-base-last\fR"
 Include base class information after derived for usage and documentation\. By
 default, base classes are included first\.
-.IP "\fB--class\fR \fIfq-name\fR"
-Generate the man page or HTML documentation only for the \fIfq-name\fR options
-class\. The \fIfq-name\fR name should be a fully-qualified options class name,
-for example, \fBapp::options\fR\. To generate documentation for multiple
+.IP "\fB--class-doc\fR \fIname\fR=\fIkind\fR"
+Specify the documentation \fIkind\fR that should be used for the options class
+\fIname\fR\. The \fIname\fR value should be a fully-qualified class name, for
+example, \fBapp::options\fR\. The \fIkind\fR value can be \fBshort\fR,
+\fBlong\fR, or \fBexclude\fR\. If the value is \fBexclude\fR, then the class
+documentation is excluded from usage and man/HTML output\. For usage, the
+\fBshort\fR and \fBlong\fR values determine which usage function will be
+called when the class is used as base or as part of the page usage (see
+\fB--page-usage\fR)\. For man/HTML, these values determine which documentation
+strings are used in the output\.
+.IP "\fB--class\fR \fIname\fR"
+Generate the man page or HTML documentation only for the options class
+\fIname\fR\. The \fIname\fR value should be a fully-qualified options class
+name, for example, \fBapp::options\fR\. To generate documentation for multiple
 classes, repeat this option and the documentation will be produced in the
 order specified\. This functionality is useful if you need to assemble
 documentation from multiple classes in a specific order or to insert custom

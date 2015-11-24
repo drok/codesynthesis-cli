@@ -1594,6 +1594,57 @@ ns_close (const string& qn, bool last)
   } while (true);
 }
 
+class_doc context::
+class_doc (semantics::class_& c)
+{
+  typedef map<string, string> map;
+  const map& m (options.class_doc ());
+
+  string n (c.fq_name ());
+
+  map::const_iterator i (m.find (n));
+
+  if (i == m.end ())
+  {
+    n = string (n, 2, string::npos); // Try without leading '::'.
+    i = m.find (n);
+  }
+
+  if (i == m.end ())
+    return cd_default;
+
+  const string& k (i->second);
+
+  if (k == "exclude")
+    return cd_exclude;
+  else if (k == "short")
+    return cd_short;
+  else if (k == "long")
+    return cd_long;
+  else
+  {
+    cerr << "error: unknown --class-doc kind value '" << k << "'" << endl;
+    throw generation_failed ();
+  }
+}
+
+string context::
+first_sentence (string const& s)
+{
+  size_t p (s.find ('.'));
+
+  // Add some heuristics here: check that there is a space
+  // (or end of text) after the period.
+  //
+  while (p != string::npos &&
+         p + 1 <= s.size () &&
+         s[p + 1] != ' ' &&
+         s[p + 1] != '\n')
+    p = s.find ('.', p + 1);
+
+  return p == string::npos ? s : string (s, 0, p + 1);
+}
+
 // namespace
 //
 

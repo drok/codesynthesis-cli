@@ -484,6 +484,12 @@ class options
   const bool&
   include_base_last () const;
 
+  const std::map<std::string, std::string>&
+  class_doc () const;
+
+  bool
+  class_doc_specified () const;
+
   const std::vector<std::string>&
   class_ () const;
 
@@ -735,6 +741,8 @@ class options
   bool ansi_color_;
   bool exclude_base_;
   bool include_base_last_;
+  std::map<std::string, std::string> class_doc_;
+  bool class_doc_specified_;
   std::vector<std::string> class__;
   bool class__specified_;
   std::map<std::string, std::string> docvar_;

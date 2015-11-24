@@ -30,6 +30,14 @@ enum usage
   ut_both
 };
 
+enum class_doc
+{
+  cd_default,
+  cd_exclude,
+  cd_short,
+  cd_long
+};
+
 class context
 {
 public:
@@ -38,6 +46,7 @@ public:
 
   typedef ::options options_type;
   typedef ::usage usage_type;
+  typedef ::class_doc class_doc_type;
 
 private:
   struct data;
@@ -151,6 +160,14 @@ public:
 
   void
   ns_close (const string& name, bool last = true);
+
+public:
+  class_doc_type
+  class_doc (semantics::class_&);
+
+public:
+  string
+  first_sentence (string const&);
 
 public:
   context (std::ostream&, semantics::cli_unit&, options_type const&);

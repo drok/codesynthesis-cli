@@ -114,7 +114,8 @@ namespace
 
   struct doc: traversal::doc, context
   {
-    doc (context& c, bool& l): context (c), list_ (l) {}
+    doc (context& c, class_doc_type cd, bool& l)
+        : context (c), cd_ (cd), list_ (l) {}
 
     virtual void
     traverse (type& ds)
@@ -124,10 +125,15 @@ namespace
 
       // n = 1 - common doc string
       // n = 2 - arg string, common doc string
-      // n > 2 - arg string, usage string, man string
+      // n > 2 - arg string, short string, long string
       //
       size_t n (ds.size ());
-      const string& d (n == 1 ? ds[0] : n == 2 ? ds[1] : ds[2]);
+      const string& d (
+        n == 1
+        ? (cd_ == cd_short ? first_sentence (ds[0]) : ds[0])
+        : (n == 2
+           ? (cd_ == cd_short ? first_sentence (ds[1]) : ds[1])
+           : ds[cd_ == cd_short ? 1 : 2]));
 
       std::set<string> arg_set;
       if (n > 1)
@@ -151,12 +157,14 @@ namespace
     }
 
   private:
+    class_doc_type cd_;
     bool& list_; // True if we are currently in <dl>.
   };
 
   struct option: traversal::option, context
   {
-    option (context& c, bool& l): context (c), list_ (l) {}
+    option (context& c, class_doc_type cd, bool& l)
+        : context (c), cd_ (cd), list_ (l) {}
 
     virtual void
     traverse (type& o)
@@ -206,23 +214,19 @@ namespace
       os << "</dt>" << endl;
 
       string d;
-
-      // If we have both the long and the short descriptions, use
-      // the long one.
-      //
       if (type == "bool" && doc.size () < 3)
       {
         if (doc.size () > 1)
-          d = doc[1];
+          d = doc[cd_ == cd_short ? 0 : 1];
         else if (doc.size () > 0)
-          d = doc[0];
+          d = (cd_ == cd_short ? first_sentence (doc[0]) : doc[0]);
       }
       else
       {
         if (doc.size () > 2)
-          d = doc[2];
+          d = doc[cd_ == cd_short ? 1 : 2];
         else if (doc.size () > 1)
-          d = doc[1];
+          d = (cd_ == cd_short ? first_sentence (doc[1]) : doc[1]);
       }
 
       // Format the documentation string.
@@ -234,6 +238,7 @@ namespace
     }
 
   private:
+    class_doc_type cd_;
     bool& list_; // True if we are currently in <dl>.
   };
 
@@ -241,19 +246,36 @@ namespace
   //
   struct class_: traversal::class_, context
   {
-    class_ (context& c): context (c) {}
+    class_ (context& c, bool& l): context (c), list_ (l)
+    {
+      *this >> inherits_ >> *this;
+    }
 
     virtual void
     traverse (type& c)
     {
+      class_doc_type cd (class_doc (c));
+
+      if (cd == cd_exclude)
+        return;
+
       if (!options.exclude_base () && !options.include_base_last ())
         inherits (c);
 
-      names (c);
+      doc dc (*this, cd, list_);
+      option op (*this, cd, list_);
+      traversal::names n;
+      n >> dc;
+      n >> op;
+      names (c, n);
 
       if (!options.exclude_base () && options.include_base_last ())
         inherits (c);
     }
+
+  private:
+    bool& list_;
+    traversal::inherits inherits_;
   };
 }
 
@@ -265,8 +287,8 @@ generate_html (context& ctx)
   traversal::cli_unit unit;
   traversal::names unit_names;
   traversal::namespace_ ns;
-  doc dc (ctx, list);
-  class_ cl (ctx);
+  doc dc (ctx, cd_default, list);
+  class_ cl (ctx, list);
   unit >> unit_names;
   unit_names >> dc;
   unit_names >> ns;
@@ -277,15 +299,6 @@ generate_html (context& ctx)
   ns_names >> dc;
   ns_names >> ns;
   ns_names >> cl;
-
-  traversal::inherits cl_inherits;
-  cl >> cl_inherits >> cl;
-
-  option op (ctx, list);
-  traversal::names cl_names;
-  cl >> cl_names;
-  cl_names >> dc;
-  cl_names >> op;
 
   if (ctx.options.class_ ().empty ())
     unit.dispatch (ctx.unit);

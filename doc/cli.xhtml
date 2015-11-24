@@ -197,15 +197,28 @@
     <dd>Include base class information after derived for usage and
     documentation. By default, base classes are included first.</dd>
 
-    <dt><code><b>--class</b></code> <i>fq-name</i></dt>
-    <dd>Generate the man page or HTML documentation only for the
-    <i>fq-name</i> options class. The <i>fq-name</i> name should be a
-    fully-qualified options class name, for example,
-    <code><b>app::options</b></code>. To generate documentation for multiple
-    classes, repeat this option and the documentation will be produced in the
-    order specified. This functionality is useful if you need to assemble
-    documentation from multiple classes in a specific order or to insert
-    custom documentation between options belonging to different classes.</dd>
+    <dt><code><b>--class-doc</b></code> <i>name</i>=<i>kind</i></dt>
+    <dd>Specify the documentation <i>kind</i> that should be used for the
+    options class <i>name</i>. The <i>name</i> value should be a
+    fully-qualified class name, for example, <code><b>app::options</b></code>.
+    The <i>kind</i> value can be <code><b>short</b></code>,
+    <code><b>long</b></code>, or <code><b>exclude</b></code>. If the value is
+    <code><b>exclude</b></code>, then the class documentation is excluded from
+    usage and man/HTML output. For usage, the <code><b>short</b></code> and
+    <code><b>long</b></code> values determine which usage function will be
+    called when the class is used as base or as part of the page usage (see
+    <code><b>--page-usage</b></code>). For man/HTML, these values determine
+    which documentation strings are used in the output.</dd>
+
+    <dt><code><b>--class</b></code> <i>name</i></dt>
+    <dd>Generate the man page or HTML documentation only for the options class
+    <i>name</i>. The <i>name</i> value should be a fully-qualified options
+    class name, for example, <code><b>app::options</b></code>. To generate
+    documentation for multiple classes, repeat this option and the
+    documentation will be produced in the order specified. This functionality
+    is useful if you need to assemble documentation from multiple classes in a
+    specific order or to insert custom documentation between options belonging
+    to different classes.</dd>
 
     <dt><code><b>--docvar</b></code>|<code><b>-v</b></code> <i>name</i>=<i>val</i></dt>
     <dd>Set documentation variable <i>name</i> to the value <i>val</i>.

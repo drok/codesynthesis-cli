@@ -70,7 +70,7 @@ namespace
 
   struct doc: traversal::doc, context
   {
-    doc (context& c): context (c) {}
+    doc (context& c, class_doc_type cd): context (c), cd_ (cd) {}
 
     virtual void
     traverse (type& ds)
@@ -80,10 +80,15 @@ namespace
 
       // n = 1 - common doc string
       // n = 2 - arg string, common doc string
-      // n > 2 - arg string, usage string, man string
+      // n > 2 - arg string, short string, long string
       //
       size_t n (ds.size ());
-      const string& d (n == 1 ? ds[0] : n == 2 ? ds[1] : ds[2]);
+      const string& d (
+        n == 1
+        ? (cd_ == cd_short ? first_sentence (ds[0]) : ds[0])
+        : (n == 2
+           ? (cd_ == cd_short ? first_sentence (ds[1]) : ds[1])
+           : ds[cd_ == cd_short ? 1 : 2]));
 
       std::set<string> arg_set;
       if (n > 1)
@@ -97,11 +102,14 @@ namespace
       wrap_lines (os, s);
       os << endl;
     }
+
+  private:
+    class_doc_type cd_;
   };
 
   struct option: traversal::option, context
   {
-    option (context& c) : context (c) {}
+    option (context& c, class_doc_type cd) : context (c), cd_ (cd) {}
 
     virtual void
     traverse (type& o)
@@ -143,23 +151,19 @@ namespace
       os << "\"" << endl;
 
       string d;
-
-      // If we have both the long and the short descriptions, use
-      // the long one.
-      //
       if (type == "bool" && doc.size () < 3)
       {
         if (doc.size () > 1)
-          d = doc[1];
+          d = doc[cd_ == cd_short ? 0 : 1];
         else if (doc.size () > 0)
-          d = doc[0];
+          d = (cd_ == cd_short ? first_sentence (doc[0]) : doc[0]);
       }
       else
       {
         if (doc.size () > 2)
-          d = doc[2];
+          d = doc[cd_ == cd_short ? 1 : 2];
         else if (doc.size () > 1)
-          d = doc[1];
+          d = (cd_ == cd_short ? first_sentence (doc[1]) : doc[1]);
       }
 
       // Format the documentation string.
@@ -169,25 +173,41 @@ namespace
       wrap_lines (os, d);
       os << endl;
     }
+
+  private:
+    class_doc_type cd_;
   };
 
   //
   //
   struct class_: traversal::class_, context
   {
-    class_ (context& c): context (c) {}
+    class_ (context& c): context (c) {*this >> inherits_ >> *this;}
 
     virtual void
     traverse (type& c)
     {
+      class_doc_type cd (class_doc (c));
+
+      if (cd == cd_exclude)
+        return;
+
       if (!options.exclude_base () && !options.include_base_last ())
         inherits (c);
 
-      names (c);
+      doc dc (*this, cd);
+      option op (*this, cd);
+      traversal::names n;
+      n >> dc;
+      n >> op;
+      names (c, n);
 
       if (!options.exclude_base () && options.include_base_last ())
         inherits (c);
     }
+
+  private:
+    traversal::inherits inherits_;
   };
 }
 
@@ -197,7 +217,7 @@ generate_man (context& ctx)
   traversal::cli_unit unit;
   traversal::names unit_names;
   traversal::namespace_ ns;
-  doc dc (ctx);
+  doc dc (ctx, cd_default);
   class_ cl (ctx);
   unit >> unit_names;
   unit_names >> ns;
@@ -209,15 +229,6 @@ generate_man (context& ctx)
   ns_names >> ns;
   ns_names >> dc;
   ns_names >> cl;
-
-  traversal::inherits cl_inherits;
-  cl >> cl_inherits >> cl;
-
-  option op (ctx);
-  traversal::names cl_names;
-  cl >> cl_names;
-  cl_names >> dc;
-  cl_names >> op;
 
   if (ctx.options.class_ ().empty ())
     unit.dispatch (ctx.unit);

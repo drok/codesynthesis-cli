@@ -397,6 +397,18 @@ include_base_last () const
   return this->include_base_last_;
 }
 
+inline const std::map<std::string, std::string>& options::
+class_doc () const
+{
+  return this->class_doc_;
+}
+
+inline bool options::
+class_doc_specified () const
+{
+  return this->class_doc_specified_;
+}
+
 inline const std::vector<std::string>& options::
 class_ () const
 {
