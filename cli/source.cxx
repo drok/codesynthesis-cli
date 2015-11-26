@@ -246,27 +246,39 @@ namespace
   {
     assert (!d.empty ());
 
-    string ind (indent, ' ');
     os << string (indent - first, ' ');
+
+    // Count the number of leading spaces at the beginning of each line.
+    // Then use it as an extra indentation if we are breaking this line.
+    // This makes multi-line definition lists look decent. Note that this
+    // doesn't work for ordered/unordered lists because they start on the
+    // same line as number/bullet. However, there is hack to make it work:
+    // break the first line at the 80 characters boundary explicitly with
+    // \n.
+    //
+    size_t wc (0), wi (0); // Count and count-based indentation.
+    bool cws (true);       // Count flag.
 
     size_t b (0), e (0), i (0);
     for (size_t n (d.size ()); i < n; ++i)
     {
-      if (d[i] == ' ' || d[i] == '\n')
+      char c (d[i]);
+
+      if (c == ' ' || c == '\n')
         e = i;
 
-      if (d[i] == '\n' || text_size (d, b, i - b) == 79 - indent)
+      if (c == '\n' || text_size (d, b, i - b) == 79 - indent - wi)
       {
         if (b != 0) // Not a first line.
           os << endl
-             << "   << \"" << ind;
+             << "   << \"" << string (indent + wi, ' ');
 
         string s (d, b, (e != b ? e : i) - b);
         os << escape_str (s) << "\" << ::std::endl";
 
         // Handle consecutive newlines (e.g., pre, paragraph separator).
         //
-        if (d[i] == '\n')
+        if (c == '\n')
         {
           for (; i + 1 < n && d[i + 1] == '\n'; e = ++i)
             os << endl
@@ -274,6 +286,22 @@ namespace
         }
 
         b = e = (e != b ? e : i) + 1;
+        wi = wc; // Start indent beginning with the next break.
+      }
+
+      if (c == '\n')
+      {
+        // Reset and start counting.
+        //
+        wc = wi = 0;
+        cws = true;
+      }
+      else if (cws)
+      {
+        if (c == ' ')
+          ++wc;
+        else
+          cws = false;
       }
     }
 
@@ -283,7 +311,7 @@ namespace
     {
       if (b != 0)
         os << endl
-           << "   << \"" << ind;
+           << "   << \"" << string (indent + wi, ' ');
 
       string s (d, b, i - b);
       os << escape_str (s) << "\" << ::std::endl";

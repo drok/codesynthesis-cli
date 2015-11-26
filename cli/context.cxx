@@ -1375,14 +1375,29 @@ format (output_type ot, string const& s, bool para)
           case block::li:
             {
               v += sn;
+              size_t ind (0);
 
               switch (b.kind)
               {
-              case block::ul: v += "* " + pv; break;
-              case block::ol: v += ph + ". " + pv; break;
-              case block::dl: v += ph + "\n        " + pv; break;
+              case block::ul: v += "* "; ind = 2; break;
+              case block::ol: v += ph + ". "; ind = ph.size () + 2; break;
+              case block::dl: v += ph + "\n        "; ind = 8; break;
               default: break;
               }
+
+              // Add value with indentation for subsequent paragraphs.
+              //
+              char c, p ('\0'); // Current and previous characters.
+              for (size_t i (0); i != pv.size (); p = c, ++i)
+              {
+                c = pv[i];
+
+                if (p == '\n' && c != '\n') // Don't indent blanks.
+                  v += string (ind, ' ');
+
+                v += c;
+              }
+
               break;
             }
           case block::text:
