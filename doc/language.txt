@@ -68,7 +68,7 @@ class-decl
 	option-def
 
 option-def:
-	type-spec option-name-seq initializer(opt) option-doc(opt) ";"
+	type-spec option-name-seq initializer(opt) option-def-trailer
 
 type-spec:
 	fundamental-type-spec
@@ -94,6 +94,10 @@ initializer-expr:
 	string-literal
 	qualified-name
         call-expr
+
+option-def-trailer:
+        ";"
+        option-doc
 
 option-doc:
 	"{" doc-string-seq "}"

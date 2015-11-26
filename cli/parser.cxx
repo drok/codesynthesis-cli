@@ -143,14 +143,16 @@ private:
 void parser::
 recover (token& t)
 {
-  // Recover by skipping past next ';'.
+  // Recover by skipping past next ';' or '}'.
   //
   for (;; t = lexer_->next ())
   {
     if (t.type () == token::t_eos)
       break;
 
-    if (t.punctuation () == token::p_semi)
+    token::punctuation_type p (t.punctuation ());
+
+    if (p == token::p_semi || p == token::p_rcbrace)
     {
       t = lexer_->next ();
       break;
@@ -695,14 +697,13 @@ class_def ()
           t.punctuation () == token::p_lcbrace)
       {
         scope_doc (t);
+        t = lexer_->next ();
       }
       else
       {
         if (!option_def (t))
           break;
       }
-
-      t = lexer_->next ();
     }
     catch (error const&)
     {
@@ -907,6 +908,8 @@ option_def (token& t)
     root_->new_edge<initialized> (*o, e);
   }
 
+  // option-def-trailer
+  //
   if (t.punctuation () == token::p_lcbrace)
   {
     // doc-string-seq
@@ -938,13 +941,22 @@ option_def (token& t)
     }
 
     t = lexer_->next ();
-  }
 
-  if (t.punctuation () != token::p_semi)
+    // Allow semicolon after option-doc for backwards compatibility.
+    //
+    if (t.punctuation () == token::p_semi)
+      t = lexer_->next ();
+  }
+  else
   {
-    cerr << *path_ << ':' << t.line () << ':' << t.column () << ": error: "
-         << "expected ';' instead of " << t << endl;
-    throw error ();
+    if (t.punctuation () != token::p_semi)
+    {
+      cerr << *path_ << ':' << t.line () << ':' << t.column () << ": error: "
+           << "expected ';' instead of " << t << endl;
+      throw error ();
+    }
+
+    t = lexer_->next ();
   }
 
   return true;
