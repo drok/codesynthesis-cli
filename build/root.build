@@ -1,6 +1,6 @@
 using cxx
 
-hxx.ext = hxx
-ixx.ext = ixx
-txx.ext = txx
-cxx.ext = cxx
+hxx{*}: extension = hxx
+ixx{*}: extension = ixx
+txx{*}: extension = txx
+cxx{*}: extension = cxx
