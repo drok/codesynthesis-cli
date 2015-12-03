@@ -1007,7 +1007,7 @@ namespace
 
         os << "void " << name << "::" << endl
            << "_parse (" << cli << "::scanner& s," << endl
-           << um << " opt_mode," << endl
+           << um << (pfx ? " opt_mode" : "") << "," << endl
            << um << " arg_mode)"
            << "{";
 
