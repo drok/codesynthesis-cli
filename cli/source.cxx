@@ -953,7 +953,7 @@ namespace
            << "{";
 
         if (options.std () >= cxx_version::cxx11)
-          os << "static ::" << desc << "_type " << desc << "_;";
+          os << "static " << desc << "_type " << desc << "_;";
 
         os << "return " << desc << "_;"
            << "};";
