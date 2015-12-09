@@ -8,6 +8,7 @@ include $(dir $(lastword $(MAKEFILE_LIST)))../build/bootstrap.make
 cxx_tun := cli.cxx lexer.cxx parser.cxx
 
 cxx_tun +=               \
+option-types.cxx         \
 options.cxx              \
 context.cxx              \
 header.cxx               \

@@ -924,23 +924,20 @@ namespace
       {
         string desc ("_cli_" + name + "_desc");
 
-        os << "static " << cli << "::options " << desc << "_;"
-           << endl;
-
-        os << "struct " << desc << "_init"
+        os << "struct " << desc << "_type: " << cli << "::options"
            << "{"
-           << desc << "_init (" << cli << "::options& os)"
+           << desc << "_type ()"
            << "{"
-           << name << "::fill (os);"
+           << fq_name (c) << "::fill (*this);"
            << "}"
            << "};";
 
-        os << "static " << desc << "_init " << desc << "_init_ (" <<
-          desc << "_);"
-           << endl;
+        if (options.std () < cxx_version::cxx11)
+          os << "static " << desc << "_type " << desc << "_;"
+             << endl;
 
         os << "void " << name << "::" << endl
-           << "fill (" << cli << "::options& " << (ho || hb ? " os)" : ")")
+           << "fill (" << cli << "::options&" << (ho || hb ? " os)" : ")")
            << "{";
 
         // Add the entries from our bases first so that our entires
@@ -953,8 +950,12 @@ namespace
 
         os << "const " << cli << "::options& " << name << "::" << endl
            << "description ()"
-           << "{"
-           << "return " << desc << "_;"
+           << "{";
+
+        if (options.std () >= cxx_version::cxx11)
+          os << "static ::" << desc << "_type " << desc << "_;";
+
+        os << "return " << desc << "_;"
            << "};";
       }
 

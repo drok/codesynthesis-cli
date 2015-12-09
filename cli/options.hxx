@@ -352,6 +352,8 @@ namespace cli
 
 #include <cstddef>
 
+#include "option-types.hxx"
+
 class options
 {
   public:
@@ -408,6 +410,12 @@ class options
 
   bool
   output_dir_specified () const;
+
+  const cxx_version&
+  std () const;
+
+  bool
+  std_specified () const;
 
   const bool&
   generate_modifier () const;
@@ -716,6 +724,8 @@ class options
   bool include_path_specified_;
   std::string output_dir_;
   bool output_dir_specified_;
+  cxx_version std_;
+  bool std_specified_;
   bool generate_modifier_;
   bool generate_specifier_;
   bool generate_parse_;

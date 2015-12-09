@@ -12,6 +12,8 @@ include <string>;
 include <vector>;
 include <cstddef>;
 
+include "option-types.hxx";
+
 class options
 {
   bool --help {"Print usage information and exit."};
@@ -27,6 +29,13 @@ class options
   {
     "<dir>",
     "Write the generated files to <dir> instead of the current directory."
+  };
+
+  cxx_version --std = cxx_version::cxx98
+  {
+    "<version>",
+    "Specify the C++ standard that should be used during compilation.
+     Valid values are \cb{c++98} (default), \cb{c++11}, and \cb{c++14}."
   };
 
   bool --generate-modifier

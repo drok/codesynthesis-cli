@@ -567,6 +567,8 @@ options ()
   include_path_specified_ (false),
   output_dir_ (),
   output_dir_specified_ (false),
+  std_ (cxx_version::cxx98),
+  std_specified_ (false),
   generate_modifier_ (),
   generate_specifier_ (),
   generate_parse_ (),
@@ -676,6 +678,8 @@ options (int& argc,
   include_path_specified_ (false),
   output_dir_ (),
   output_dir_specified_ (false),
+  std_ (cxx_version::cxx98),
+  std_specified_ (false),
   generate_modifier_ (),
   generate_specifier_ (),
   generate_parse_ (),
@@ -788,6 +792,8 @@ options (int start,
   include_path_specified_ (false),
   output_dir_ (),
   output_dir_specified_ (false),
+  std_ (cxx_version::cxx98),
+  std_specified_ (false),
   generate_modifier_ (),
   generate_specifier_ (),
   generate_parse_ (),
@@ -900,6 +906,8 @@ options (int& argc,
   include_path_specified_ (false),
   output_dir_ (),
   output_dir_specified_ (false),
+  std_ (cxx_version::cxx98),
+  std_specified_ (false),
   generate_modifier_ (),
   generate_specifier_ (),
   generate_parse_ (),
@@ -1014,6 +1022,8 @@ options (int start,
   include_path_specified_ (false),
   output_dir_ (),
   output_dir_specified_ (false),
+  std_ (cxx_version::cxx98),
+  std_specified_ (false),
   generate_modifier_ (),
   generate_specifier_ (),
   generate_parse_ (),
@@ -1124,6 +1134,8 @@ options (::cli::scanner& s,
   include_path_specified_ (false),
   output_dir_ (),
   output_dir_specified_ (false),
+  std_ (cxx_version::cxx98),
+  std_specified_ (false),
   generate_modifier_ (),
   generate_specifier_ (),
   generate_parse_ (),
@@ -1239,6 +1251,9 @@ print_usage (::std::ostream& os, ::cli::usage_para p)
 
   os << "--output-dir|-o <dir>        Write the generated files to <dir> instead of the" << ::std::endl
      << "                             current directory." << ::std::endl;
+
+  os << "--std <version>              Specify the C++ standard that should be used" << ::std::endl
+     << "                             during compilation." << ::std::endl;
 
   os << "--generate-modifier          Generate option value modifiers in addition to" << ::std::endl
      << "                             accessors." << ::std::endl;
@@ -1436,6 +1451,9 @@ struct _cli_options_map_init
     _cli_options_map_["-o"] = 
     &::cli::thunk< options, std::string, &options::output_dir_,
       &options::output_dir_specified_ >;
+    _cli_options_map_["--std"] = 
+    &::cli::thunk< options, cxx_version, &options::std_,
+      &options::std_specified_ >;
     _cli_options_map_["--generate-modifier"] = 
     &::cli::thunk< options, bool, &options::generate_modifier_ >;
     _cli_options_map_["--generate-specifier"] = 

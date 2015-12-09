@@ -5,6 +5,6 @@ trav = traversal/{class elements namespace option unit}
 
 exe{cli}: cxx{cli generator html lexer name-processor parser runtime-inline \
 source context header inline man options runtime-header runtime-source \
-$sema $trav} $libs
+option-types $sema $trav} $libs
 
 cxx.poptions += -I$out_base -I$src_base

@@ -247,6 +247,18 @@ output_dir_specified () const
   return this->output_dir_specified_;
 }
 
+inline const cxx_version& options::
+std () const
+{
+  return this->std_;
+}
+
+inline bool options::
+std_specified () const
+{
+  return this->std_specified_;
+}
+
 inline const bool& options::
 generate_modifier () const
 {

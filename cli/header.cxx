@@ -231,7 +231,7 @@ namespace
       // fill ()
       //
       if (options.generate_description ())
-        os << "friend struct _cli_" + name + "_desc_init;"
+        os << "friend struct _cli_" + name + "_desc_type;"
            << endl
            << "static void" << endl
            << "fill (" << cli << "::options&);"
