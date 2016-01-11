@@ -288,7 +288,10 @@ namespace
     traverse (semantics::cli_includes& i)
     {
       generate (i.kind (),
-                i.file ().base ().string () + options.hxx_suffix ());
+                (options.output_prefix () +
+                 i.file ().base ().string () +
+                 options.output_suffix () +
+                 options.hxx_suffix ()));
     }
 
     void

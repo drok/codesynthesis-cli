@@ -116,6 +116,9 @@ generate (options const& ops, semantics::cli_unit& unit, path const& p)
     path file (p.leaf ());
     string base (file.base ().string ());
 
+    const string& pfx (ops.output_prefix ());
+    const string& sfx (ops.output_suffix ());
+
     bool gen_cxx (ops.generate_cxx ());
     bool gen_man (ops.generate_man ());
     bool gen_html (ops.generate_html ());
@@ -147,9 +150,9 @@ generate (options const& ops, semantics::cli_unit& unit, path const& p)
     {
       bool inl (!ops.suppress_inline ());
 
-      string hxx_name (base + ops.hxx_suffix ());
-      string ixx_name (base + ops.ixx_suffix ());
-      string cxx_name (base + ops.cxx_suffix ());
+      string hxx_name (pfx + base + sfx + ops.hxx_suffix ());
+      string ixx_name (pfx + base + sfx + ops.ixx_suffix ());
+      string cxx_name (pfx + base + sfx + ops.cxx_suffix ());
 
       path hxx_path (hxx_name);
       path ixx_path (ixx_name);
@@ -391,7 +394,7 @@ generate (options const& ops, semantics::cli_unit& unit, path const& p)
 
       if (!ops.stdout_ ())
       {
-        path man_path (base + ops.man_suffix ());
+        path man_path (pfx + base + sfx + ops.man_suffix ());
 
         if (!ops.output_dir ().empty ())
           man_path = path (ops.output_dir ()) / man_path;
@@ -428,9 +431,10 @@ generate (options const& ops, semantics::cli_unit& unit, path const& p)
 
       if (!ops.stdout_ ())
       {
-        // Remember to update link derivation if changing this.
+        // May have to update link derivation in format_line() if changing
+        // this.
         //
-        path html_path (base + ops.html_suffix ());
+        path html_path (pfx + base + sfx + ops.html_suffix ());
 
         if (!ops.output_dir ().empty ())
           html_path = path (ops.output_dir ()) / html_path;

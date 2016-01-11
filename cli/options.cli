@@ -364,6 +364,20 @@ class options
     "Insert the content of <file> at the end of the generated HTML file."
   };
 
+  std::string --output-prefix
+  {
+    "<prefix>",
+    "Add <prefix> at the beginning of the generated output file name(s)."
+  };
+
+  std::string --output-suffix
+  {
+    "<suffix>",
+    "Add <suffix> at the end of the generated output file name(s). Note that
+     it is added before any file type-specific suffixes; see \cb{--*-suffix}
+     below."
+  };
+
   std::string --hxx-suffix = ".hxx"
   {
     "<suffix>",

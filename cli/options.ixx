@@ -686,6 +686,30 @@ html_epilogue_file_specified () const
 }
 
 inline const std::string& options::
+output_prefix () const
+{
+  return this->output_prefix_;
+}
+
+inline bool options::
+output_prefix_specified () const
+{
+  return this->output_prefix_specified_;
+}
+
+inline const std::string& options::
+output_suffix () const
+{
+  return this->output_suffix_;
+}
+
+inline bool options::
+output_suffix_specified () const
+{
+  return this->output_suffix_specified_;
+}
+
+inline const std::string& options::
 hxx_suffix () const
 {
   return this->hxx_suffix_;

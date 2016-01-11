@@ -640,6 +640,10 @@ options ()
   man_epilogue_file_specified_ (false),
   html_epilogue_file_ (),
   html_epilogue_file_specified_ (false),
+  output_prefix_ (),
+  output_prefix_specified_ (false),
+  output_suffix_ (),
+  output_suffix_specified_ (false),
   hxx_suffix_ (".hxx"),
   hxx_suffix_specified_ (false),
   ixx_suffix_ (".ixx"),
@@ -751,6 +755,10 @@ options (int& argc,
   man_epilogue_file_specified_ (false),
   html_epilogue_file_ (),
   html_epilogue_file_specified_ (false),
+  output_prefix_ (),
+  output_prefix_specified_ (false),
+  output_suffix_ (),
+  output_suffix_specified_ (false),
   hxx_suffix_ (".hxx"),
   hxx_suffix_specified_ (false),
   ixx_suffix_ (".ixx"),
@@ -865,6 +873,10 @@ options (int start,
   man_epilogue_file_specified_ (false),
   html_epilogue_file_ (),
   html_epilogue_file_specified_ (false),
+  output_prefix_ (),
+  output_prefix_specified_ (false),
+  output_suffix_ (),
+  output_suffix_specified_ (false),
   hxx_suffix_ (".hxx"),
   hxx_suffix_specified_ (false),
   ixx_suffix_ (".ixx"),
@@ -979,6 +991,10 @@ options (int& argc,
   man_epilogue_file_specified_ (false),
   html_epilogue_file_ (),
   html_epilogue_file_specified_ (false),
+  output_prefix_ (),
+  output_prefix_specified_ (false),
+  output_suffix_ (),
+  output_suffix_specified_ (false),
   hxx_suffix_ (".hxx"),
   hxx_suffix_specified_ (false),
   ixx_suffix_ (".ixx"),
@@ -1095,6 +1111,10 @@ options (int start,
   man_epilogue_file_specified_ (false),
   html_epilogue_file_ (),
   html_epilogue_file_specified_ (false),
+  output_prefix_ (),
+  output_prefix_specified_ (false),
+  output_suffix_ (),
+  output_suffix_specified_ (false),
   hxx_suffix_ (".hxx"),
   hxx_suffix_specified_ (false),
   ixx_suffix_ (".ixx"),
@@ -1207,6 +1227,10 @@ options (::cli::scanner& s,
   man_epilogue_file_specified_ (false),
   html_epilogue_file_ (),
   html_epilogue_file_specified_ (false),
+  output_prefix_ (),
+  output_prefix_specified_ (false),
+  output_suffix_ (),
+  output_suffix_specified_ (false),
   hxx_suffix_ (".hxx"),
   hxx_suffix_specified_ (false),
   ixx_suffix_ (".ixx"),
@@ -1381,6 +1405,12 @@ print_usage (::std::ostream& os, ::cli::usage_para p)
 
   os << "--html-epilogue-file <file>  Insert the content of <file> at the end of the" << ::std::endl
      << "                             generated HTML file." << ::std::endl;
+
+  os << "--output-prefix <prefix>     Add <prefix> at the beginning of the generated" << ::std::endl
+     << "                             output file name(s)." << ::std::endl;
+
+  os << "--output-suffix <suffix>     Add <suffix> at the end of the generated output" << ::std::endl
+     << "                             file name(s)." << ::std::endl;
 
   os << "--hxx-suffix <suffix>        Use <suffix> instead of the default '.hxx' to" << ::std::endl
      << "                             construct the name of the generated header file." << ::std::endl;
@@ -1572,6 +1602,12 @@ struct _cli_options_map_init
     _cli_options_map_["--html-epilogue-file"] = 
     &::cli::thunk< options, std::string, &options::html_epilogue_file_,
       &options::html_epilogue_file_specified_ >;
+    _cli_options_map_["--output-prefix"] = 
+    &::cli::thunk< options, std::string, &options::output_prefix_,
+      &options::output_prefix_specified_ >;
+    _cli_options_map_["--output-suffix"] = 
+    &::cli::thunk< options, std::string, &options::output_suffix_,
+      &options::output_suffix_specified_ >;
     _cli_options_map_["--hxx-suffix"] = 
     &::cli::thunk< options, std::string, &options::hxx_suffix_,
       &options::hxx_suffix_specified_ >;

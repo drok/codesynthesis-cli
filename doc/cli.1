@@ -221,6 +221,12 @@ Insert the content of \fIfile\fR at the end of the generated C++ source file\.
 Insert the content of \fIfile\fR at the end of the generated man page file\.
 .IP "\fB--html-epilogue-file\fR \fIfile\fR"
 Insert the content of \fIfile\fR at the end of the generated HTML file\.
+.IP "\fB--output-prefix\fR \fIprefix\fR"
+Add \fIprefix\fR at the beginning of the generated output file name(s)\.
+.IP "\fB--output-suffix\fR \fIsuffix\fR"
+Add \fIsuffix\fR at the end of the generated output file name(s)\. Note that
+it is added before any file type-specific suffixes; see \fB--*-suffix\fR
+below\.
 .IP "\fB--hxx-suffix\fR \fIsuffix\fR"
 Use \fIsuffix\fR instead of the default \fB\.hxx\fR to construct the name of
 the generated header file\.

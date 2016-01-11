@@ -631,6 +631,18 @@ class options
   html_epilogue_file_specified () const;
 
   const std::string&
+  output_prefix () const;
+
+  bool
+  output_prefix_specified () const;
+
+  const std::string&
+  output_suffix () const;
+
+  bool
+  output_suffix_specified () const;
+
+  const std::string&
   hxx_suffix () const;
 
   bool
@@ -797,6 +809,10 @@ class options
   bool man_epilogue_file_specified_;
   std::string html_epilogue_file_;
   bool html_epilogue_file_specified_;
+  std::string output_prefix_;
+  bool output_prefix_specified_;
+  std::string output_suffix_;
+  bool output_suffix_specified_;
   std::string hxx_suffix_;
   bool hxx_suffix_specified_;
   std::string ixx_suffix_;
