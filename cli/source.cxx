@@ -468,12 +468,20 @@ namespace
 
       string up (cli + "::usage_para");
 
+      // For long usage we want options separated by blank lines.
+      //
       if (para_ == para_unknown)
-        os << "if (p == " << up << "::text)" << endl
-           << "os << ::std::endl;"
+      {
+        if (usage_ == ut_long)
+          os << "if (p != " << up << "::none)" << endl;
+        else
+          os << "if (p == " << up << "::text)" << endl;
+
+        os << "os << ::std::endl;"
            << endl
            << "os << \"";
-      else if (para_ == para_text)
+      }
+      else if (para_ == para_text || usage_ == ut_long)
         os << "os << std::endl" << endl
            << "   << \"";
       else
