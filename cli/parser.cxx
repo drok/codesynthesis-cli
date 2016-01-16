@@ -1016,36 +1016,39 @@ doc_string (const char* l, size_t n)
         more = false;
       }
 
-      // In the pre mode we only remove up to m leading whitespaces.
-      //
+      if (b != e) // Unless this is just a single newline.
       {
-        size_t i (0);
-        while (b < e &&
-               (t1[b] == 0x20 || t1[b] == 0x0D || t1[b] == 0x09) &&
-               (!pre || i != m))
+        // In the pre mode we only remove up to m leading whitespaces.
+        //
         {
-          ++b;
-          ++i;
+          size_t i (0);
+          while (b < e &&
+                 (t1[b] == 0x20 || t1[b] == 0x0D || t1[b] == 0x09) &&
+                 (!pre || i != m))
+          {
+            ++b;
+            ++i;
+          }
+
+          if (!pre)
+            m = i;
         }
 
-        if (!pre)
-          m = i;
-      }
-
-      --e;
-      while (e > b && (t1[e] == 0x20 || t1[e] == 0x0D || t1[e] == 0x09))
         --e;
+        while (e > b && (t1[e] == 0x20 || t1[e] == 0x0D || t1[e] == 0x09))
+          --e;
 
-      if (b == e && t1[b] == '\\')
-      {
-        // Use Start of Text (0x02) and End of Text (0x03) special
-        // characters as pre-formatted fragment markers.
-        //
-        pre = !pre;
-        t2 += (pre ? 0x02 : 0x03);
+        if (b == e && t1[b] == '\\')
+        {
+          // Use Start of Text (0x02) and End of Text (0x03) special
+          // characters as pre-formatted fragment markers.
+          //
+          pre = !pre;
+          t2 += (pre ? 0x02 : 0x03);
+        }
+        else if (b <= e)
+          t2.append (t1, b, e - b + 1);
       }
-      else if (b <= e)
-        t2.append (t1, b, e - b + 1);
 
       if (more)
       {
