@@ -1336,7 +1336,7 @@ print_usage (::std::ostream& os, ::cli::usage_para p)
 
   os << "--version                    Print version and exit." << ::std::endl;
 
-  os << "--include-path|-I <dir>      Search <dir> for bracket-included ('<>') options" << ::std::endl
+  os << "--include-path|-I <dir>      Search <dir> for bracket-included (<>) options" << ::std::endl
      << "                             files." << ::std::endl;
 
   os << "--output-dir|-o <dir>        Write the generated files to <dir> instead of the" << ::std::endl
@@ -1351,21 +1351,21 @@ print_usage (::std::ostream& os, ::cli::usage_para p)
   os << "--generate-specifier         Generate functions for determining whether the" << ::std::endl
      << "                             option was specified on the command line." << ::std::endl;
 
-  os << "--generate-parse             Generate 'parse()' functions instead of parsing" << ::std::endl
+  os << "--generate-parse             Generate parse() functions instead of parsing" << ::std::endl
      << "                             constructors." << ::std::endl;
 
   os << "--generate-description       Generate the option description list that can be" << ::std::endl
      << "                             examined at runtime." << ::std::endl;
 
-  os << "--generate-file-scanner      Generate the 'argv_file_scanner' implementation." << ::std::endl;
+  os << "--generate-file-scanner      Generate the argv_file_scanner implementation." << ::std::endl;
 
   os << "--suppress-inline            Generate all functions non-inline." << ::std::endl;
 
   os << "--cli-namespace <ns>         Generate the CLI support types in the <ns>" << ::std::endl
-     << "                             namespace ('cli' by default)." << ::std::endl;
+     << "                             namespace (cli by default)." << ::std::endl;
 
   os << "--ostream-type <type>        Output stream type instead of the default" << ::std::endl
-     << "                             'std::ostream' that should be used to print usage" << ::std::endl
+     << "                             std::ostream that should be used to print usage" << ::std::endl
      << "                             and exception information." << ::std::endl;
 
   os << "--generate-cxx               Generate C++ code." << ::std::endl;
@@ -1388,8 +1388,8 @@ print_usage (::std::ostream& os, ::cli::usage_para p)
   os << "--long-usage                 If no short documentation string is provided, use" << ::std::endl
      << "                             the complete long documentation string in usage." << ::std::endl;
 
-  os << "--short-usage                If specified together with '--long-usage'," << ::std::endl
-     << "                             generate both short and long usage versions." << ::std::endl;
+  os << "--short-usage                If specified together with --long-usage, generate" << ::std::endl
+     << "                             both short and long usage versions." << ::std::endl;
 
   os << "--page-usage <name>          Generate the combined usage printing code for the" << ::std::endl
      << "                             entire page." << ::std::endl;
@@ -1493,22 +1493,22 @@ print_usage (::std::ostream& os, ::cli::usage_para p)
   os << "--output-suffix <suffix>     Add <suffix> at the end of the generated output" << ::std::endl
      << "                             file name(s)." << ::std::endl;
 
-  os << "--hxx-suffix <suffix>        Use <suffix> instead of the default '.hxx' to" << ::std::endl
+  os << "--hxx-suffix <suffix>        Use <suffix> instead of the default .hxx to" << ::std::endl
      << "                             construct the name of the generated header file." << ::std::endl;
 
-  os << "--ixx-suffix <suffix>        Use <suffix> instead of the default '.ixx' to" << ::std::endl
+  os << "--ixx-suffix <suffix>        Use <suffix> instead of the default .ixx to" << ::std::endl
      << "                             construct the name of the generated inline file." << ::std::endl;
 
-  os << "--cxx-suffix <suffix>        Use <suffix> instead of the default '.cxx' to" << ::std::endl
+  os << "--cxx-suffix <suffix>        Use <suffix> instead of the default .cxx to" << ::std::endl
      << "                             construct the name of the generated source file." << ::std::endl;
 
-  os << "--man-suffix <suffix>        Use <suffix> instead of the default '.1' to" << ::std::endl
+  os << "--man-suffix <suffix>        Use <suffix> instead of the default .1 to" << ::std::endl
      << "                             construct the name of the generated man page file." << ::std::endl;
 
-  os << "--html-suffix <suffix>       Use <suffix> instead of the default '.html' to" << ::std::endl
+  os << "--html-suffix <suffix>       Use <suffix> instead of the default .html to" << ::std::endl
      << "                             construct the name of the generated HTML file." << ::std::endl;
 
-  os << "--txt-suffix <suffix>        Use <suffix> instead of the default '.txt' to" << ::std::endl
+  os << "--txt-suffix <suffix>        Use <suffix> instead of the default .txt to" << ::std::endl
      << "                             construct the name of the generated text file." << ::std::endl;
 
   os << "--option-prefix <prefix>     Use <prefix> instead of the default '-' as an" << ::std::endl
@@ -1518,9 +1518,9 @@ print_usage (::std::ostream& os, ::cli::usage_para p)
      << "                             optional separator between options and arguments." << ::std::endl;
 
   os << "--include-with-brackets      Use angle brackets (<>) instead of quotes (\"\") in" << ::std::endl
-     << "                             the generated '#include' directives." << ::std::endl;
+     << "                             the generated #include directives." << ::std::endl;
 
-  os << "--include-prefix <prefix>    Add <prefix> to the generated '#include' directive" << ::std::endl
+  os << "--include-prefix <prefix>    Add <prefix> to the generated #include directive" << ::std::endl
      << "                             paths." << ::std::endl;
 
   os << "--guard-prefix <prefix>      Add <prefix> to the generated header inclusion" << ::std::endl

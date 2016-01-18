@@ -702,11 +702,6 @@ format_line (output_type ot, string& r, const char* s, size_t n)
                 if (b & itlc)
                   r += "\033[4m";
               }
-              else
-              {
-                if (b & code)
-                  r += "'";
-              }
             }
 
             break;
@@ -829,11 +824,6 @@ format_line (output_type ot, string& r, const char* s, size_t n)
 
                     if (eb & itlc)
                       r += "\033[4m";
-                  }
-                  else
-                  {
-                    if (b & code)
-                      r += "'";
                   }
                 }
 

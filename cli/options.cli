@@ -181,7 +181,7 @@ class options
     "Use ANSI color escape sequences when printing usage. By \"color\" we
      really only mean the bold and underline modifiers. Note that Windows
      console does not recognize ANSI escape sequences and will display
-     them as garbage. However, if you pipe such output through \c{\b{less}(1)},
+     them as garbage. However, if you pipe such output through \cb{less(1)},
      it will display them correctly."
   };
 
@@ -456,7 +456,7 @@ class options
   std::string --option-prefix = "-"
   {
     "<prefix>",
-    "Use <prefix> instead of the default \cb{-} as an option prefix. Unknown
+    "Use <prefix> instead of the default '\cb{-}' as an option prefix. Unknown
      command line arguments that start with this prefix are treated as unknown
      options. If you set the option prefix to the empty value, then all the
      unknown command line arguments will be treated as program arguments."
@@ -465,16 +465,16 @@ class options
   std::string --option-separator = "--"
   {
     "<sep>",
-    "Use <sep> instead of the default \cb{--} as an optional separator between
-     options and arguments. All the command line arguments that are parsed
-     after this separator are treated as program arguments. Set the option
-     separator to the empty value if you don't want this functionality."
+    "Use <sep> instead of the default '\cb{--}' as an optional separator
+     between options and arguments. All the command line arguments that are
+     parsed after this separator are treated as program arguments. Set the
+     option separator to the empty value if you don't want this functionality."
   };
 
   bool --include-with-brackets
   {
-    "Use angle brackets (<>) instead of quotes (\"\") in the generated
-     \cb{#include} directives."
+    "Use angle brackets (\cb{<>}) instead of quotes (\cb{\"\"}) in the
+     generated \cb{#include} directives."
   };
 
   std::string --include-prefix
