@@ -6,6 +6,7 @@
 #include <iostream>
 
 #include "source.hxx"
+#include "txt.hxx"    // txt_size(), txt_wrap_lines()
 
 using namespace std;
 
@@ -169,36 +170,6 @@ namespace
     }
   };
 
-
-  // Return the number of "text characters", ignoring any escape sequences
-  // (e.g., ANSI color).
-  //
-  static size_t
-  text_size (const string& s, size_t p = 0, size_t n = string::npos)
-  {
-    size_t r (0);
-
-    n = n == string::npos ? s.size () : n + p;
-
-    // The start position (p) might be pointing half-way into the
-    // escape sequence. So we always have to scan from the start.
-    //
-    for (size_t i (0), m (s.size ()); i < n; ++i)
-    {
-      if (s[i] == '\033') // ANSI escape: "\033[Nm"
-      {
-        i += 3;
-        assert (i < m && s[i] == 'm');
-        continue;
-      }
-
-      if (i >= p)
-        ++r;
-    }
-
-    return r;
-  }
-
   static string
   escape_str (string const& s)
   {
@@ -234,88 +205,20 @@ namespace
     return r;
   }
 
-  // This function assumes that the string opening part has already been
-  // written. The 'first' argument is the number of characters already
-  // written in the first line (e.g., an option name).
-  //
-  static void
+  inline void
   wrap_lines (ostream& os,
               const string& d,
               size_t indent = 0,
               size_t first = 0)
   {
-    assert (!d.empty ());
-
-    os << string (indent - first, ' ');
-
-    // Count the number of leading spaces at the beginning of each line.
-    // Then use it as an extra indentation if we are breaking this line.
-    // This makes multi-line definition lists look decent. Note that this
-    // doesn't work for ordered/unordered lists because they start on the
-    // same line as number/bullet. However, there is hack to make it work:
-    // break the first line at the 80 characters boundary explicitly with
-    // \n.
-    //
-    size_t wc (0), wi (0); // Count and count-based indentation.
-    bool cws (true);       // Count flag.
-
-    size_t b (0), e (0), i (0);
-    for (size_t n (d.size ()); i < n; ++i)
-    {
-      char c (d[i]);
-
-      if (c == ' ' || c == '\n')
-        e = i;
-
-      if (c == '\n' || text_size (d, b, i - b) == 79 - indent - wi)
-      {
-        if (b != 0) // Not a first line.
-          os << endl
-             << "   << \"" << string (indent + wi, ' ');
-
-        string s (d, b, (e != b ? e : i) - b);
-        os << escape_str (s) << "\" << ::std::endl";
-
-        // Handle consecutive newlines (e.g., pre, paragraph separator).
-        //
-        if (c == '\n')
-        {
-          for (; i + 1 < n && d[i + 1] == '\n'; e = ++i)
-            os << endl
-               << "   << ::std::endl";
-        }
-
-        b = e = (e != b ? e : i) + 1;
-        wi = wc; // Start indent beginning with the next break.
-      }
-
-      if (c == '\n')
-      {
-        // Reset and start counting.
-        //
-        wc = wi = 0;
-        cws = true;
-      }
-      else if (cws)
-      {
-        if (c == ' ')
-          ++wc;
-        else
-          cws = false;
-      }
-    }
-
-    // Flush the last line.
-    //
-    if (b != i)
-    {
-      if (b != 0)
-        os << endl
-           << "   << \"" << string (indent + wi, ' ');
-
-      string s (d, b, i - b);
-      os << escape_str (s) << "\" << ::std::endl";
-    }
+    txt_wrap_lines (os,
+                    d,
+                    indent,
+                    first,
+                    "   << \"",          // line_start
+                    "\" << ::std::endl", // line_end
+                    "   << ::std::endl", // line_blank
+                    &escape_str);
   }
 
   enum paragraph {para_unknown, para_text, para_option};
@@ -428,7 +331,7 @@ namespace
           s = translate_arg (s, arg_set);
         }
 
-        l += text_size (format (ot_plain, s, false));
+        l += txt_size (format (ot_plain, s, false));
       }
 
       if (l > length_)
@@ -522,7 +425,7 @@ namespace
         s = format (ot_plain, s, false);
 
         os << escape_str (s);
-        l += text_size (s);
+        l += txt_size (s);
       }
 
       // Figure out which documentation string we should use.

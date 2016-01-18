@@ -338,6 +338,12 @@ generate_html () const
 }
 
 inline const bool& options::
+generate_txt () const
+{
+  return this->generate_txt_;
+}
+
+inline const bool& options::
 stdout_ () const
 {
   return this->stdout__;
@@ -506,6 +512,18 @@ html_prologue_specified () const
 }
 
 inline const std::vector<std::string>& options::
+txt_prologue () const
+{
+  return this->txt_prologue_;
+}
+
+inline bool options::
+txt_prologue_specified () const
+{
+  return this->txt_prologue_specified_;
+}
+
+inline const std::vector<std::string>& options::
 hxx_epilogue () const
 {
   return this->hxx_epilogue_;
@@ -563,6 +581,18 @@ inline bool options::
 html_epilogue_specified () const
 {
   return this->html_epilogue_specified_;
+}
+
+inline const std::vector<std::string>& options::
+txt_epilogue () const
+{
+  return this->txt_epilogue_;
+}
+
+inline bool options::
+txt_epilogue_specified () const
+{
+  return this->txt_epilogue_specified_;
 }
 
 inline const std::string& options::
@@ -626,6 +656,18 @@ html_prologue_file_specified () const
 }
 
 inline const std::string& options::
+txt_prologue_file () const
+{
+  return this->txt_prologue_file_;
+}
+
+inline bool options::
+txt_prologue_file_specified () const
+{
+  return this->txt_prologue_file_specified_;
+}
+
+inline const std::string& options::
 hxx_epilogue_file () const
 {
   return this->hxx_epilogue_file_;
@@ -683,6 +725,18 @@ inline bool options::
 html_epilogue_file_specified () const
 {
   return this->html_epilogue_file_specified_;
+}
+
+inline const std::string& options::
+txt_epilogue_file () const
+{
+  return this->txt_epilogue_file_;
+}
+
+inline bool options::
+txt_epilogue_file_specified () const
+{
+  return this->txt_epilogue_file_specified_;
 }
 
 inline const std::string& options::
@@ -767,6 +821,18 @@ inline bool options::
 html_suffix_specified () const
 {
   return this->html_suffix_specified_;
+}
+
+inline const std::string& options::
+txt_suffix () const
+{
+  return this->txt_suffix_;
+}
+
+inline bool options::
+txt_suffix_specified () const
+{
+  return this->txt_suffix_specified_;
 }
 
 inline const std::string& options::

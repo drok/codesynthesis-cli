@@ -92,8 +92,8 @@ class options
 
   bool --generate-cxx
   {
-    "Generate C++ code. If neither \cb{--generate-man} nor \cb{--generate-html}
-     is specified, this mode is assumed by default."
+    "Generate C++ code. If neither \cb{--generate-man}, \cb{--generate-html},
+     nor \cb{--generate-txt} is specified, this mode is assumed by default."
   };
 
   bool --generate-man
@@ -104,6 +104,11 @@ class options
   bool --generate-html
   {
     "Generate documentation in the HTML format."
+  };
+
+  bool --generate-txt
+  {
+    "Generate documentation in the plain text format, similar to usage."
   };
 
   bool --stdout
@@ -198,23 +203,24 @@ class options
      class <name>. The <name> value should be a fully-qualified class name,
      for example, \cb{app::options}. The <kind> value can be \cb{short},
      \cb{long}, or \cb{exclude}. If the value is \cb{exclude}, then the
-     class documentation is excluded from usage and man/HTML output. For
+     class documentation is excluded from usage and man/HTML/text output. For
      usage, the \cb{short} and \cb{long} values determine which usage
      function will be called when the class is used as base or as part of
-     the page usage (see \cb{--page-usage}). For man/HTML, these values
+     the page usage (see \cb{--page-usage}). For man/HTML/text, these values
      determine which documentation strings are used in the output."
   };
 
   std::vector<std::string> --class
   {
     "<name>",
-    "Generate the man page or HTML documentation only for the options class
-     <name>. The <name> value should be a fully-qualified options class name,
-     for example, \cb{app::options}. To generate documentation for multiple
-     classes, repeat this option and the documentation will be produced in
-     the order specified. This functionality is useful if you need to assemble
-     documentation from multiple classes in a specific order or to insert
-     custom documentation between options belonging to different classes."
+    "Generate the man page, HTML, or text documentation only for the options
+     class <name>. The <name> value should be a fully-qualified options class
+     name, for example, \cb{app::options}. To generate documentation for
+     multiple classes, repeat this option and the documentation will be
+     produced in the order specified. This functionality is useful if you need
+     to assemble documentation from multiple classes in a specific order or to
+     insert custom documentation between options belonging to different
+     classes."
   };
 
   std::map<std::string, std::string> --docvar|-v
@@ -260,6 +266,12 @@ class options
     "Insert <text> at the beginning of the generated HTML file."
   };
 
+  std::vector<std::string> --txt-prologue
+  {
+    "<text>",
+    "Insert <text> at the beginning of the generated text file."
+  };
+
   // Epilogues.
   //
   std::vector<std::string> --hxx-epilogue
@@ -283,13 +295,19 @@ class options
   std::vector<std::string> --man-epilogue
   {
     "<text>",
-    "Insert <text> at the end of the generated man page text."
+    "Insert <text> at the end of the generated man page file."
   };
 
   std::vector<std::string> --html-epilogue
   {
     "<text>",
-    "Insert <text> at the end of the generated HTML text."
+    "Insert <text> at the end of the generated HTML file."
+  };
+
+  std::vector<std::string> --txt-epilogue
+  {
+    "<text>",
+    "Insert <text> at the end of the generated text file."
   };
 
   // Prologue files.
@@ -329,6 +347,13 @@ class options
      file."
   };
 
+  std::string --txt-prologue-file
+  {
+    "<file>",
+    "Insert the content of <file> at the beginning of the generated text
+     file."
+  };
+
   // Epilogue files.
   //
   std::string --hxx-epilogue-file
@@ -364,6 +389,14 @@ class options
     "Insert the content of <file> at the end of the generated HTML file."
   };
 
+  std::string --txt-epilogue-file
+  {
+    "<file>",
+    "Insert the content of <file> at the end of the generated text file."
+  };
+
+  // Output.
+  //
   std::string --output-prefix
   {
     "<prefix>",
@@ -411,6 +444,13 @@ class options
     "<suffix>",
     "Use <suffix> instead of the default \cb{.html} to construct the name
      of the generated HTML file."
+  };
+
+  std::string --txt-suffix = ".txt"
+  {
+    "<suffix>",
+    "Use <suffix> instead of the default \cb{.txt} to construct the name of
+     the generated text file."
   };
 
   std::string --option-prefix = "-"

@@ -582,6 +582,7 @@ options ()
   generate_cxx_ (),
   generate_man_ (),
   generate_html_ (),
+  generate_txt_ (),
   stdout__ (),
   suppress_undocumented_ (),
   suppress_usage_ (),
@@ -610,6 +611,8 @@ options ()
   man_prologue_specified_ (false),
   html_prologue_ (),
   html_prologue_specified_ (false),
+  txt_prologue_ (),
+  txt_prologue_specified_ (false),
   hxx_epilogue_ (),
   hxx_epilogue_specified_ (false),
   ixx_epilogue_ (),
@@ -620,6 +623,8 @@ options ()
   man_epilogue_specified_ (false),
   html_epilogue_ (),
   html_epilogue_specified_ (false),
+  txt_epilogue_ (),
+  txt_epilogue_specified_ (false),
   hxx_prologue_file_ (),
   hxx_prologue_file_specified_ (false),
   ixx_prologue_file_ (),
@@ -630,6 +635,8 @@ options ()
   man_prologue_file_specified_ (false),
   html_prologue_file_ (),
   html_prologue_file_specified_ (false),
+  txt_prologue_file_ (),
+  txt_prologue_file_specified_ (false),
   hxx_epilogue_file_ (),
   hxx_epilogue_file_specified_ (false),
   ixx_epilogue_file_ (),
@@ -640,6 +647,8 @@ options ()
   man_epilogue_file_specified_ (false),
   html_epilogue_file_ (),
   html_epilogue_file_specified_ (false),
+  txt_epilogue_file_ (),
+  txt_epilogue_file_specified_ (false),
   output_prefix_ (),
   output_prefix_specified_ (false),
   output_suffix_ (),
@@ -654,6 +663,8 @@ options ()
   man_suffix_specified_ (false),
   html_suffix_ (".html"),
   html_suffix_specified_ (false),
+  txt_suffix_ (".txt"),
+  txt_suffix_specified_ (false),
   option_prefix_ ("-"),
   option_prefix_specified_ (false),
   option_separator_ ("--"),
@@ -697,6 +708,7 @@ options (int& argc,
   generate_cxx_ (),
   generate_man_ (),
   generate_html_ (),
+  generate_txt_ (),
   stdout__ (),
   suppress_undocumented_ (),
   suppress_usage_ (),
@@ -725,6 +737,8 @@ options (int& argc,
   man_prologue_specified_ (false),
   html_prologue_ (),
   html_prologue_specified_ (false),
+  txt_prologue_ (),
+  txt_prologue_specified_ (false),
   hxx_epilogue_ (),
   hxx_epilogue_specified_ (false),
   ixx_epilogue_ (),
@@ -735,6 +749,8 @@ options (int& argc,
   man_epilogue_specified_ (false),
   html_epilogue_ (),
   html_epilogue_specified_ (false),
+  txt_epilogue_ (),
+  txt_epilogue_specified_ (false),
   hxx_prologue_file_ (),
   hxx_prologue_file_specified_ (false),
   ixx_prologue_file_ (),
@@ -745,6 +761,8 @@ options (int& argc,
   man_prologue_file_specified_ (false),
   html_prologue_file_ (),
   html_prologue_file_specified_ (false),
+  txt_prologue_file_ (),
+  txt_prologue_file_specified_ (false),
   hxx_epilogue_file_ (),
   hxx_epilogue_file_specified_ (false),
   ixx_epilogue_file_ (),
@@ -755,6 +773,8 @@ options (int& argc,
   man_epilogue_file_specified_ (false),
   html_epilogue_file_ (),
   html_epilogue_file_specified_ (false),
+  txt_epilogue_file_ (),
+  txt_epilogue_file_specified_ (false),
   output_prefix_ (),
   output_prefix_specified_ (false),
   output_suffix_ (),
@@ -769,6 +789,8 @@ options (int& argc,
   man_suffix_specified_ (false),
   html_suffix_ (".html"),
   html_suffix_specified_ (false),
+  txt_suffix_ (".txt"),
+  txt_suffix_specified_ (false),
   option_prefix_ ("-"),
   option_prefix_specified_ (false),
   option_separator_ ("--"),
@@ -815,6 +837,7 @@ options (int start,
   generate_cxx_ (),
   generate_man_ (),
   generate_html_ (),
+  generate_txt_ (),
   stdout__ (),
   suppress_undocumented_ (),
   suppress_usage_ (),
@@ -843,6 +866,8 @@ options (int start,
   man_prologue_specified_ (false),
   html_prologue_ (),
   html_prologue_specified_ (false),
+  txt_prologue_ (),
+  txt_prologue_specified_ (false),
   hxx_epilogue_ (),
   hxx_epilogue_specified_ (false),
   ixx_epilogue_ (),
@@ -853,6 +878,8 @@ options (int start,
   man_epilogue_specified_ (false),
   html_epilogue_ (),
   html_epilogue_specified_ (false),
+  txt_epilogue_ (),
+  txt_epilogue_specified_ (false),
   hxx_prologue_file_ (),
   hxx_prologue_file_specified_ (false),
   ixx_prologue_file_ (),
@@ -863,6 +890,8 @@ options (int start,
   man_prologue_file_specified_ (false),
   html_prologue_file_ (),
   html_prologue_file_specified_ (false),
+  txt_prologue_file_ (),
+  txt_prologue_file_specified_ (false),
   hxx_epilogue_file_ (),
   hxx_epilogue_file_specified_ (false),
   ixx_epilogue_file_ (),
@@ -873,6 +902,8 @@ options (int start,
   man_epilogue_file_specified_ (false),
   html_epilogue_file_ (),
   html_epilogue_file_specified_ (false),
+  txt_epilogue_file_ (),
+  txt_epilogue_file_specified_ (false),
   output_prefix_ (),
   output_prefix_specified_ (false),
   output_suffix_ (),
@@ -887,6 +918,8 @@ options (int start,
   man_suffix_specified_ (false),
   html_suffix_ (".html"),
   html_suffix_specified_ (false),
+  txt_suffix_ (".txt"),
+  txt_suffix_specified_ (false),
   option_prefix_ ("-"),
   option_prefix_specified_ (false),
   option_separator_ ("--"),
@@ -933,6 +966,7 @@ options (int& argc,
   generate_cxx_ (),
   generate_man_ (),
   generate_html_ (),
+  generate_txt_ (),
   stdout__ (),
   suppress_undocumented_ (),
   suppress_usage_ (),
@@ -961,6 +995,8 @@ options (int& argc,
   man_prologue_specified_ (false),
   html_prologue_ (),
   html_prologue_specified_ (false),
+  txt_prologue_ (),
+  txt_prologue_specified_ (false),
   hxx_epilogue_ (),
   hxx_epilogue_specified_ (false),
   ixx_epilogue_ (),
@@ -971,6 +1007,8 @@ options (int& argc,
   man_epilogue_specified_ (false),
   html_epilogue_ (),
   html_epilogue_specified_ (false),
+  txt_epilogue_ (),
+  txt_epilogue_specified_ (false),
   hxx_prologue_file_ (),
   hxx_prologue_file_specified_ (false),
   ixx_prologue_file_ (),
@@ -981,6 +1019,8 @@ options (int& argc,
   man_prologue_file_specified_ (false),
   html_prologue_file_ (),
   html_prologue_file_specified_ (false),
+  txt_prologue_file_ (),
+  txt_prologue_file_specified_ (false),
   hxx_epilogue_file_ (),
   hxx_epilogue_file_specified_ (false),
   ixx_epilogue_file_ (),
@@ -991,6 +1031,8 @@ options (int& argc,
   man_epilogue_file_specified_ (false),
   html_epilogue_file_ (),
   html_epilogue_file_specified_ (false),
+  txt_epilogue_file_ (),
+  txt_epilogue_file_specified_ (false),
   output_prefix_ (),
   output_prefix_specified_ (false),
   output_suffix_ (),
@@ -1005,6 +1047,8 @@ options (int& argc,
   man_suffix_specified_ (false),
   html_suffix_ (".html"),
   html_suffix_specified_ (false),
+  txt_suffix_ (".txt"),
+  txt_suffix_specified_ (false),
   option_prefix_ ("-"),
   option_prefix_specified_ (false),
   option_separator_ ("--"),
@@ -1053,6 +1097,7 @@ options (int start,
   generate_cxx_ (),
   generate_man_ (),
   generate_html_ (),
+  generate_txt_ (),
   stdout__ (),
   suppress_undocumented_ (),
   suppress_usage_ (),
@@ -1081,6 +1126,8 @@ options (int start,
   man_prologue_specified_ (false),
   html_prologue_ (),
   html_prologue_specified_ (false),
+  txt_prologue_ (),
+  txt_prologue_specified_ (false),
   hxx_epilogue_ (),
   hxx_epilogue_specified_ (false),
   ixx_epilogue_ (),
@@ -1091,6 +1138,8 @@ options (int start,
   man_epilogue_specified_ (false),
   html_epilogue_ (),
   html_epilogue_specified_ (false),
+  txt_epilogue_ (),
+  txt_epilogue_specified_ (false),
   hxx_prologue_file_ (),
   hxx_prologue_file_specified_ (false),
   ixx_prologue_file_ (),
@@ -1101,6 +1150,8 @@ options (int start,
   man_prologue_file_specified_ (false),
   html_prologue_file_ (),
   html_prologue_file_specified_ (false),
+  txt_prologue_file_ (),
+  txt_prologue_file_specified_ (false),
   hxx_epilogue_file_ (),
   hxx_epilogue_file_specified_ (false),
   ixx_epilogue_file_ (),
@@ -1111,6 +1162,8 @@ options (int start,
   man_epilogue_file_specified_ (false),
   html_epilogue_file_ (),
   html_epilogue_file_specified_ (false),
+  txt_epilogue_file_ (),
+  txt_epilogue_file_specified_ (false),
   output_prefix_ (),
   output_prefix_specified_ (false),
   output_suffix_ (),
@@ -1125,6 +1178,8 @@ options (int start,
   man_suffix_specified_ (false),
   html_suffix_ (".html"),
   html_suffix_specified_ (false),
+  txt_suffix_ (".txt"),
+  txt_suffix_specified_ (false),
   option_prefix_ ("-"),
   option_prefix_specified_ (false),
   option_separator_ ("--"),
@@ -1169,6 +1224,7 @@ options (::cli::scanner& s,
   generate_cxx_ (),
   generate_man_ (),
   generate_html_ (),
+  generate_txt_ (),
   stdout__ (),
   suppress_undocumented_ (),
   suppress_usage_ (),
@@ -1197,6 +1253,8 @@ options (::cli::scanner& s,
   man_prologue_specified_ (false),
   html_prologue_ (),
   html_prologue_specified_ (false),
+  txt_prologue_ (),
+  txt_prologue_specified_ (false),
   hxx_epilogue_ (),
   hxx_epilogue_specified_ (false),
   ixx_epilogue_ (),
@@ -1207,6 +1265,8 @@ options (::cli::scanner& s,
   man_epilogue_specified_ (false),
   html_epilogue_ (),
   html_epilogue_specified_ (false),
+  txt_epilogue_ (),
+  txt_epilogue_specified_ (false),
   hxx_prologue_file_ (),
   hxx_prologue_file_specified_ (false),
   ixx_prologue_file_ (),
@@ -1217,6 +1277,8 @@ options (::cli::scanner& s,
   man_prologue_file_specified_ (false),
   html_prologue_file_ (),
   html_prologue_file_specified_ (false),
+  txt_prologue_file_ (),
+  txt_prologue_file_specified_ (false),
   hxx_epilogue_file_ (),
   hxx_epilogue_file_specified_ (false),
   ixx_epilogue_file_ (),
@@ -1227,6 +1289,8 @@ options (::cli::scanner& s,
   man_epilogue_file_specified_ (false),
   html_epilogue_file_ (),
   html_epilogue_file_specified_ (false),
+  txt_epilogue_file_ (),
+  txt_epilogue_file_specified_ (false),
   output_prefix_ (),
   output_prefix_specified_ (false),
   output_suffix_ (),
@@ -1241,6 +1305,8 @@ options (::cli::scanner& s,
   man_suffix_specified_ (false),
   html_suffix_ (".html"),
   html_suffix_specified_ (false),
+  txt_suffix_ (".txt"),
+  txt_suffix_specified_ (false),
   option_prefix_ ("-"),
   option_prefix_specified_ (false),
   option_separator_ ("--"),
@@ -1308,6 +1374,9 @@ print_usage (::std::ostream& os, ::cli::usage_para p)
 
   os << "--generate-html              Generate documentation in the HTML format." << ::std::endl;
 
+  os << "--generate-txt               Generate documentation in the plain text format," << ::std::endl
+     << "                             similar to usage." << ::std::endl;
+
   os << "--stdout                     Write output to STDOUT instead of a file." << ::std::endl;
 
   os << "--suppress-undocumented      Suppress the generation of documentation entries" << ::std::endl
@@ -1340,8 +1409,8 @@ print_usage (::std::ostream& os, ::cli::usage_para p)
   os << "--class-doc <name>=<kind>    Specify the documentation <kind> that should be" << ::std::endl
      << "                             used for the options class <name>." << ::std::endl;
 
-  os << "--class <name>               Generate the man page or HTML documentation only" << ::std::endl
-     << "                             for the options class <name>." << ::std::endl;
+  os << "--class <name>               Generate the man page, HTML, or text documentation" << ::std::endl
+     << "                             only for the options class <name>." << ::std::endl;
 
   os << "--docvar|-v <name>=<val>     Set documentation variable <name> to the value" << ::std::endl
      << "                             <val>." << ::std::endl;
@@ -1361,6 +1430,9 @@ print_usage (::std::ostream& os, ::cli::usage_para p)
   os << "--html-prologue <text>       Insert <text> at the beginning of the generated" << ::std::endl
      << "                             HTML file." << ::std::endl;
 
+  os << "--txt-prologue <text>        Insert <text> at the beginning of the generated" << ::std::endl
+     << "                             text file." << ::std::endl;
+
   os << "--hxx-epilogue <text>        Insert <text> at the end of the generated C++" << ::std::endl
      << "                             header file." << ::std::endl;
 
@@ -1371,10 +1443,13 @@ print_usage (::std::ostream& os, ::cli::usage_para p)
      << "                             source file." << ::std::endl;
 
   os << "--man-epilogue <text>        Insert <text> at the end of the generated man page" << ::std::endl
-     << "                             text." << ::std::endl;
+     << "                             file." << ::std::endl;
 
   os << "--html-epilogue <text>       Insert <text> at the end of the generated HTML" << ::std::endl
-     << "                             text." << ::std::endl;
+     << "                             file." << ::std::endl;
+
+  os << "--txt-epilogue <text>        Insert <text> at the end of the generated text" << ::std::endl
+     << "                             file." << ::std::endl;
 
   os << "--hxx-prologue-file <file>   Insert the content of <file> at the beginning of" << ::std::endl
      << "                             the generated C++ header file." << ::std::endl;
@@ -1391,6 +1466,9 @@ print_usage (::std::ostream& os, ::cli::usage_para p)
   os << "--html-prologue-file <file>  Insert the content of <file> at the beginning of" << ::std::endl
      << "                             the generated HTML file." << ::std::endl;
 
+  os << "--txt-prologue-file <file>   Insert the content of <file> at the beginning of" << ::std::endl
+     << "                             the generated text file." << ::std::endl;
+
   os << "--hxx-epilogue-file <file>   Insert the content of <file> at the end of the" << ::std::endl
      << "                             generated C++ header file." << ::std::endl;
 
@@ -1405,6 +1483,9 @@ print_usage (::std::ostream& os, ::cli::usage_para p)
 
   os << "--html-epilogue-file <file>  Insert the content of <file> at the end of the" << ::std::endl
      << "                             generated HTML file." << ::std::endl;
+
+  os << "--txt-epilogue-file <file>   Insert the content of <file> at the end of the" << ::std::endl
+     << "                             generated text file." << ::std::endl;
 
   os << "--output-prefix <prefix>     Add <prefix> at the beginning of the generated" << ::std::endl
      << "                             output file name(s)." << ::std::endl;
@@ -1426,6 +1507,9 @@ print_usage (::std::ostream& os, ::cli::usage_para p)
 
   os << "--html-suffix <suffix>       Use <suffix> instead of the default '.html' to" << ::std::endl
      << "                             construct the name of the generated HTML file." << ::std::endl;
+
+  os << "--txt-suffix <suffix>        Use <suffix> instead of the default '.txt' to" << ::std::endl
+     << "                             construct the name of the generated text file." << ::std::endl;
 
   os << "--option-prefix <prefix>     Use <prefix> instead of the default '-' as an" << ::std::endl
      << "                             option prefix." << ::std::endl;
@@ -1508,6 +1592,8 @@ struct _cli_options_map_init
     &::cli::thunk< options, bool, &options::generate_man_ >;
     _cli_options_map_["--generate-html"] = 
     &::cli::thunk< options, bool, &options::generate_html_ >;
+    _cli_options_map_["--generate-txt"] = 
+    &::cli::thunk< options, bool, &options::generate_txt_ >;
     _cli_options_map_["--stdout"] = 
     &::cli::thunk< options, bool, &options::stdout__ >;
     _cli_options_map_["--suppress-undocumented"] = 
@@ -1557,6 +1643,9 @@ struct _cli_options_map_init
     _cli_options_map_["--html-prologue"] = 
     &::cli::thunk< options, std::vector<std::string>, &options::html_prologue_,
       &options::html_prologue_specified_ >;
+    _cli_options_map_["--txt-prologue"] = 
+    &::cli::thunk< options, std::vector<std::string>, &options::txt_prologue_,
+      &options::txt_prologue_specified_ >;
     _cli_options_map_["--hxx-epilogue"] = 
     &::cli::thunk< options, std::vector<std::string>, &options::hxx_epilogue_,
       &options::hxx_epilogue_specified_ >;
@@ -1572,6 +1661,9 @@ struct _cli_options_map_init
     _cli_options_map_["--html-epilogue"] = 
     &::cli::thunk< options, std::vector<std::string>, &options::html_epilogue_,
       &options::html_epilogue_specified_ >;
+    _cli_options_map_["--txt-epilogue"] = 
+    &::cli::thunk< options, std::vector<std::string>, &options::txt_epilogue_,
+      &options::txt_epilogue_specified_ >;
     _cli_options_map_["--hxx-prologue-file"] = 
     &::cli::thunk< options, std::string, &options::hxx_prologue_file_,
       &options::hxx_prologue_file_specified_ >;
@@ -1587,6 +1679,9 @@ struct _cli_options_map_init
     _cli_options_map_["--html-prologue-file"] = 
     &::cli::thunk< options, std::string, &options::html_prologue_file_,
       &options::html_prologue_file_specified_ >;
+    _cli_options_map_["--txt-prologue-file"] = 
+    &::cli::thunk< options, std::string, &options::txt_prologue_file_,
+      &options::txt_prologue_file_specified_ >;
     _cli_options_map_["--hxx-epilogue-file"] = 
     &::cli::thunk< options, std::string, &options::hxx_epilogue_file_,
       &options::hxx_epilogue_file_specified_ >;
@@ -1602,6 +1697,9 @@ struct _cli_options_map_init
     _cli_options_map_["--html-epilogue-file"] = 
     &::cli::thunk< options, std::string, &options::html_epilogue_file_,
       &options::html_epilogue_file_specified_ >;
+    _cli_options_map_["--txt-epilogue-file"] = 
+    &::cli::thunk< options, std::string, &options::txt_epilogue_file_,
+      &options::txt_epilogue_file_specified_ >;
     _cli_options_map_["--output-prefix"] = 
     &::cli::thunk< options, std::string, &options::output_prefix_,
       &options::output_prefix_specified_ >;
@@ -1623,6 +1721,9 @@ struct _cli_options_map_init
     _cli_options_map_["--html-suffix"] = 
     &::cli::thunk< options, std::string, &options::html_suffix_,
       &options::html_suffix_specified_ >;
+    _cli_options_map_["--txt-suffix"] = 
+    &::cli::thunk< options, std::string, &options::txt_suffix_,
+      &options::txt_suffix_specified_ >;
     _cli_options_map_["--option-prefix"] = 
     &::cli::thunk< options, std::string, &options::option_prefix_,
       &options::option_prefix_specified_ >;

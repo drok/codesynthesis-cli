@@ -23,6 +23,7 @@
 
 #include "man.hxx"
 #include "html.hxx"
+#include "txt.hxx"
 
 #include "context.hxx"
 #include "generator.hxx"
@@ -122,8 +123,9 @@ generate (options const& ops, semantics::cli_unit& unit, path const& p)
     bool gen_cxx (ops.generate_cxx ());
     bool gen_man (ops.generate_man ());
     bool gen_html (ops.generate_html ());
+    bool gen_txt (ops.generate_txt ());
 
-    if (!gen_cxx && !gen_man && !gen_html)
+    if (!gen_cxx && !gen_man && !gen_html && !gen_txt)
       gen_cxx = true;
 
     if (ops.stdout_ ())
@@ -134,9 +136,11 @@ generate (options const& ops, semantics::cli_unit& unit, path const& p)
         throw failed ();
       }
 
-      if (gen_man && gen_html)
+      if ((gen_man  && gen_html) ||
+          (gen_man  && gen_txt)  ||
+          (gen_html && gen_txt))
       {
-        cerr << "error: --stdout cannot be used with man and html output"
+        cerr << "error: --stdout cannot only be used with one output format"
              << endl;
         throw failed ();
       }
@@ -461,6 +465,43 @@ generate (options const& ops, semantics::cli_unit& unit, path const& p)
       generate_html (ctx);
 
       append (os, ops.html_epilogue (), ops.html_epilogue_file (), unit);
+    }
+
+    // txt output
+    //
+    if (gen_txt)
+    {
+      ofstream txt;
+
+      if (!ops.stdout_ ())
+      {
+        path txt_path (pfx + base + sfx + ops.txt_suffix ());
+
+        if (!ops.output_dir ().empty ())
+          txt_path = path (ops.output_dir ()) / txt_path;
+
+        txt.open (txt_path.string ().c_str ());
+
+        if (!txt.is_open ())
+        {
+          cerr << "error: unable to open '" << txt_path << "' in write mode"
+               << endl;
+          throw failed ();
+        }
+
+        auto_rm.add (txt_path);
+      }
+
+      // The explicit cast helps VC++ 8.0 overcome its issues.
+      //
+      ostream& os (ops.stdout_ () ? cout : static_cast<ostream&> (txt));
+
+      append (os, ops.txt_prologue (), ops.txt_prologue_file (), unit);
+
+      context ctx (os, unit, ops);
+      generate_txt (ctx);
+
+      append (os, ops.txt_epilogue (), ops.txt_epilogue_file (), unit);
     }
 
     auto_rm.cancel ();
