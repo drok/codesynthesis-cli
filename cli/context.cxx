@@ -962,6 +962,54 @@ operator<< (ostream& os, block::kind_type k)
   return os << block_kind_str[k];
 }
 
+// Given the contents of a block element, convert any leading/trailing <br/>
+// elements to top/bottom margins. While conceptually it would seem better to
+// translate them to padding, margins actually give better practical results
+// since they overlap with container's margins.
+//
+static string
+html_margin (string& v)
+{
+  size_t top (0), bot (0);
+
+  const char* b (v.c_str ());
+  const char* e (v.c_str () + v.size ());
+
+  for (; e - b >= 5 && strncmp (b, "<br/>", 5) == 0; ++top)
+  {
+    b += 5;
+
+    if (b != e && *b == '\n') // Remove following newline, if any.
+      ++b;
+  }
+
+  for (; e - b >= 5 && strncmp (e - 5, "<br/>", 5) == 0; ++bot)
+  {
+    e -= 5;
+
+    if (e != b && *(e - 1) == '\n') // Remove preceding newline, if any.
+      --e;
+  }
+
+  if (top == 0 && bot == 0)
+    return "";
+
+  string t;
+  t.swap (v);
+  v.assign (b, e - b);
+
+  ostringstream os;
+
+  if (top != 0)
+    os << "margin-top:" << top << "em";
+
+  if (bot != 0)
+    os << (top != 0 ? ";" : "") << "margin-bottom:" << bot << "em";
+
+  return os.str ();
+}
+
+
 string context::
 format (output_type ot, string const& s, bool para)
 {
@@ -1244,7 +1292,31 @@ format (output_type ot, string const& s, bool para)
           if (k == block::pre)
             v.append (l, n);
           else
+          {
+            /*
+            // Strip a single "\n" at the beginning of the paragraph since we
+            // already wrote one newline as part of starting the paragraph. An
+            // example where this might be useful:
+            //
+            // li|
+            //
+            //   \
+            //   ...
+            //   \
+            //
+            //   \n|
+            //
+            if (n >= 2 && l[0] == '\\' && l[1] == 'n')
+            {
+              l += 2;
+              n -= 2;
+            }
+
+            if (n != 0)
+            */
+
             format_line (ot, v, l, n);
+          }
 
           break;
         }
@@ -1263,9 +1335,18 @@ format (output_type ot, string const& s, bool para)
           }
           else
           {
-            if (!first || b.para) v += "<p>";
-            format_line (ot, v, l, n);
-            if (!first || b.para) v += "</p>";
+            if (!first || b.para)
+            {
+              string t;
+              format_line (ot, t, l, n);
+              string s (html_margin (t));
+
+              v += (s.empty () ? "<p>" : "<p style=\"" + s + "\">");
+              v += t;
+              v += "</p>";
+            }
+            else
+              format_line (ot, v, l, n);
           }
 
           break;
@@ -1365,20 +1446,30 @@ format (output_type ot, string const& s, bool para)
           case block::li:
             {
               v += sn;
-              size_t ind (0);
+              size_t ind (0), vn (pv.size ());
 
               switch (b.kind)
               {
-              case block::ul: v += "* "; ind = 2; break;
-              case block::ol: v += ph + ". "; ind = ph.size () + 2; break;
-              case block::dl: v += ph + "\n        "; ind = 8; break;
-              default: break;
+              case block::ul:
+                v += "* ";
+                ind = 2;
+                break;
+              case block::ol:
+                v += ph + ". ";
+                ind = ph.size () + 2;
+                break;
+              case block::dl:
+                v += ph + "\n" + (vn != 0 && pv[0] != '\n' ? "    " : "");
+                ind = 4;
+                break;
+              default:
+                break;
               }
 
               // Add value with indentation for subsequent paragraphs.
               //
               char c, p ('\0'); // Current and previous characters.
-              for (size_t i (0); i != pv.size (); p = c, ++i)
+              for (size_t i (0); i != vn; p = c, ++i)
               {
                 c = pv[i];
 
@@ -1409,13 +1500,21 @@ format (output_type ot, string const& s, bool para)
           case block::dl: v += "<dl>\n" + pv + "\n</dl>"; break;
           case block::li:
             {
+              string pvs (html_margin (pv));
+
               if (b.kind == block::dl)
               {
-                v += "<dt>" + ph + "</dt>\n";
-                v += "<dd>" + pv + "</dd>";
+                string phs (html_margin (ph));
+
+                v += (phs.empty () ? "<dt>" : "<dt style=\"" + phs + "\">")
+                  + ph + "</dt>\n";
+
+                v += (pvs.empty () ? "<dd>" : "<dd style=\"" + pvs + "\">")
+                  + pv + "</dd>";
               }
               else
-                v += "<li>" + pv + "</li>";
+                v += (pvs.empty () ? "<li>" : "<li style=\"" + pvs + "\">")
+                  + pv + "</li>";
 
               break;
             }
