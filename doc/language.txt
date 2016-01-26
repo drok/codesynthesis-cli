@@ -17,8 +17,12 @@ def-unit:
 	include-decl-seq(opt) decl-seq(opt)
 
 include-decl-seq:
+        source-decl
 	include-decl
 	include-decl-seq include-decl
+
+source-decl:
+	"source" cli-path-literal ";"
 
 include-decl:
 	"include" include-path ";"
@@ -32,6 +36,7 @@ decl-seq:
 	decl-seq decl
 
 decl:
+        source-decl
         scope-doc
 	namespace-def
 	class-def

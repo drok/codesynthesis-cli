@@ -22,6 +22,7 @@ lexer (istream& is, string const& id)
       buf_ (0, 0, 0),
       unget_ (false)
 {
+  keyword_map_["source"]    = token::k_source;
   keyword_map_["include"]   = token::k_include;
   keyword_map_["namespace"] = token::k_namespace;
   keyword_map_["class"]     = token::k_class;
@@ -340,7 +341,7 @@ identifier (xchar c)
 
   if (i != keyword_map_.end ())
   {
-    if (i->second == token::k_include)
+    if (i->second == token::k_include || i->second == token::k_source)
       include_ = true;
 
     return token (i->second, ln, cl);

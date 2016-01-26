@@ -131,7 +131,7 @@ private:
   keyword_map keyword_map_;
 
   bool eos_;
-  bool include_;
+  bool include_; // Literal in include or source.
   bool valid_;
 
   xchar buf_;

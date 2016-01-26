@@ -43,6 +43,7 @@ public:
 public:
   enum keyword_type
   {
+    k_source,
     k_include,
     k_namespace,
     k_class,

@@ -13,6 +13,7 @@ using namespace std;
 
 const char* keywords[] =
 {
+  "source",
   "include",
   "namespace",
   "class",

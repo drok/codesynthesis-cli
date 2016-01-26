@@ -197,11 +197,17 @@ def_unit ()
 
   // include-decl-seq
   //
-  while (t.keyword () == token::k_include)
+  for (token::keyword_type k (t.keyword ());
+       k == token::k_include || k == token::k_source;
+       k = t.keyword ())
   {
     try
     {
-      include_decl ();
+      if (k == token::k_include)
+        include_decl ();
+      else
+        source_decl ();
+
       t = lexer_->next ();
     }
     catch (error const&)
@@ -219,6 +225,22 @@ def_unit ()
   {
     try
     {
+      if (t.keyword () == token::k_source)
+      {
+        try
+        {
+          source_decl ();
+          t = lexer_->next ();
+        }
+        catch (error const&)
+        {
+          valid_ = false;
+          recover (t);
+        }
+
+        continue;
+      }
+
       if (decl (t))
       {
         t = lexer_->next ();
@@ -235,6 +257,116 @@ def_unit ()
       valid_ = false;
       break; // Non-recoverable error.
     }
+  }
+}
+
+void parser::
+source_decl ()
+{
+  token t (lexer_->next ());
+
+  if (t.type () != token::t_cli_path_lit)
+  {
+    cerr << *path_ << ':' << t.line () << ':' << t.column () << ": error: "
+         << "expected cli path literal instead of " << t << endl;
+    throw error ();
+  }
+
+  string const& l (t.literal ());
+  bool q (l[0] == '"'); // Quote or braket include?
+
+  path f;
+  try
+  {
+    f = path (string (l, 1, l.size () - 2));
+  }
+  catch (const invalid_path& e)
+  {
+    cerr << *path_ << ':' << t.line () << ':' << t.column () << ": error: "
+         << "'" << e.path () << "' is not a valid filesystem path" << endl;
+    valid_ = false;
+  }
+
+  if (valid_)
+  {
+    path p;
+
+    // If this is a quote include, then include relative to the current
+    // file.
+    //
+    if (q)
+    {
+      p = path_->directory () / f;
+      p.normalize ();
+    }
+    // Otherwise search the include directories (-I).
+    //
+    else
+    {
+      struct stat s;
+      for (paths::const_iterator i (include_paths_.begin ());
+           i != include_paths_.end (); ++i)
+      {
+        p = *i / f;
+        p.normalize ();
+
+        // Check that the file exist without checking for permissions, etc.
+        //
+        if (stat (p.string ().c_str (), &s) == 0 && S_ISREG (s.st_mode))
+          break;
+
+        p.clear ();
+      }
+
+      if (p.empty ())
+      {
+        cerr << *path_ << ':' << t.line () << ':' << t.column () << ": "
+             << "error: file '" << f << "' not found in any of the "
+             << "include search directories (-I)" << endl;
+        valid_ = false;
+      }
+    }
+
+    if (valid_)
+    {
+      auto_restore<path const> new_path (path_, &p);
+
+      ifstream ifs (p.string ().c_str ());
+      if (ifs.is_open ())
+      {
+        ifs.exceptions (ifstream::failbit | ifstream::badbit);
+
+        try
+        {
+          lexer l (ifs, p.string ());
+          auto_restore<lexer> new_lexer (lexer_, &l);
+
+          def_unit ();
+
+          if (!l.valid ())
+            valid_ = false;
+        }
+        catch (std::ios_base::failure const&)
+        {
+          cerr << p << ": error: read failure" << endl;
+          valid_ = false;
+        }
+      }
+      else
+      {
+        cerr << p << ": error: unable to open in read mode" << endl;
+        valid_ = false;
+      }
+    }
+  }
+
+  t = lexer_->next ();
+
+  if (t.punctuation () != token::p_semi)
+  {
+    cerr << *path_ << ':' << t.line () << ':' << t.column () << ": error: "
+         << "expected ';' instead of " << t << endl;
+    throw error ();
   }
 }
 

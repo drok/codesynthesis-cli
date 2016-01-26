@@ -38,6 +38,9 @@ private:
   def_unit ();
 
   void
+  source_decl ();
+
+  void
   include_decl ();
 
   bool
