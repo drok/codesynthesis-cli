@@ -94,12 +94,14 @@ namespace
       ifstream ifs;
       open (ifs, file);
 
+      path d (path (file).directory ());
+
       // getline() will set the failbit if it failed to extract anything,
       // not even the delimiter and eofbit if it reached eof before seeing
       // the delimiter.
       //
       for (string s; getline (ifs, s); )
-        os << context::substitute (s, u) << endl;
+        os << context::substitute (s, u, &d) << endl;
     }
   }
 }

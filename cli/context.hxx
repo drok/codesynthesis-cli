@@ -13,6 +13,7 @@
 #include <cstddef> // std::size_t
 
 #include <cutl/shared-ptr.hxx>
+#include <cutl/fs/path.hxx>
 
 #include "options.hxx"
 #include "semantics.hxx"
@@ -43,6 +44,9 @@ class context
 public:
   typedef std::size_t size_t;
   typedef std::string string;
+
+  typedef cutl::fs::path path;
+  typedef cutl::fs::invalid_path invalid_path;
 
   typedef ::options options_type;
   typedef ::usage usage_type;
@@ -111,13 +115,19 @@ public:
   void
   format_line (output_type, string&, const char*, size_t);
 
-  // Substitute doc variable expansions ($var$).
+  // Substitute doc variable expansions ($var$). Var must be a C identifier.
+  // If the path is not NULL, then also recognize names that start with either
+  // ./ or ../ and treat them as files relative to path. Such file expansions
+  // are substituted with the files' contents.
   //
   static string
-  substitute (const string&, semantics::cli_unit&);
+  substitute (const string&, semantics::cli_unit&, const path* = 0);
 
   string
-  substitute (const string& s) {return substitute (s, unit);}
+  substitute (const string& s, const path* p = 0)
+  {
+    return substitute (s, unit, p);
+  }
 
 public:
   static string const&

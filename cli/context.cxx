@@ -6,6 +6,7 @@
 #include <stack>
 #include <vector>
 #include <cstring>  // strncmp()
+#include <fstream>
 #include <sstream>
 #include <iostream>
 
@@ -1595,11 +1596,11 @@ format (output_type ot, string const& s, bool para)
 }
 
 string context::
-substitute (const string& s, semantics::cli_unit& u)
+substitute (const string& s, semantics::cli_unit& u, const path* d)
 {
   string r;
 
-  // Scan the string looking for variables ($var$).
+  // Scan the string looking for variables ($var$) or paths.
   //
   size_t b (0), e (b);
   for (size_t n (s.size ()); e != n; ++e)
@@ -1613,38 +1614,78 @@ substitute (const string& s, semantics::cli_unit& u)
         continue;
       }
 
-      // Scan for as long as it is a C identifier.
+      bool file (false);
+
+      // Scan for as long as it is a C identifier or a file.
       //
       size_t p (e + 1); // Position of the second '$'.
       for (; p != n; ++p)
       {
         char c (s[p]);
+        bool f (p == e + 1); // First.
 
-        if (!(c == '_' ||
-              ('a' <= c && c <= 'z') ||
-              ('A' <= c && c <= 'Z') ||
-              (p != e + 1 && '0' <= c && c <= '9')))
-          break;
+        if (d != 0 && f && c == '.' && p + 1 != n &&
+            (s[p + 1] == '/' ||                                   // "./"
+             (s[p + 1] == '.' && p + 2 != n && s[p + 2] == '/'))) // "../"
+          file = true;
+
+        if (file)
+        {
+          if (c == '$')
+            break;
+        }
+        else
+        {
+          if (!(c == '_' ||
+                ('a' <= c && c <= 'z') ||
+                ('A' <= c && c <= 'Z') ||
+                (!f && '0' <= c && c <= '9')))
+            break;
+        }
       }
 
       // Note: check that the second '$' is not escaped.
       //
       if (p != n && s[p] == '$' && (p + 1 == n || s[p + 1] != '$'))
       {
-        r.append (s, b, e - b);
+        r.append (s, b, e - b); // Save what came before the expansion.
 
-        // Lookup and substiute the variable.
+        // Var/file name.
         //
         ++e;
         string v (s, e, p - e);
 
-        if (semantics::doc* d = u.lookup<semantics::doc> ("", "var: " + v))
-          r += d->front ();
+        if (file)
+        {
+          path p (*d / path (v));
+          p.normalize (); // Apply '.' and '..'.
+
+          ifstream ifs (p.string ().c_str (), ifstream::in | ifstream::binary);
+          if (!ifs.is_open ())
+          {
+            cerr << p << ": error: unable to open in read mode" << endl;
+            throw generation_failed ();
+          }
+
+          // We don't expect our file to contain '\0' so use that as the
+          // delimiter to read the entire file with getline().
+          //
+          string s;
+          getline (ifs, s, '\0');
+          r += s;
+        }
         else
         {
-          cerr << "error: undefined variable '" << v << "' in '" << s << "'"
-               << endl;
-          throw generation_failed ();
+          // Lookup and substiute the variable.
+          //
+          if (semantics::doc* d = u.lookup<semantics::doc> ("", "var: " + v))
+            r += d->front ();
+          else
+          {
+            cerr << "error: undefined variable '" << v << "' in '" << s << "'"
+                 << endl;
+            throw generation_failed ();
+          }
         }
 
         e = p;
