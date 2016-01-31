@@ -799,12 +799,10 @@ format_line (output_type ot, string& r, const char* s, size_t n)
                     if (color)
                       r += "\033[1m";
 
-                    r += link_target;
+                    r += link_target + "(" + link_section + ")";
 
                     if (color)
                       r += "\033[0m";
-
-                    r += "(" + link_section + ")";
                   }
 
                   if (!link_empty)
@@ -840,10 +838,9 @@ format_line (output_type ot, string& r, const char* s, size_t n)
                       r += link_target;
                     else
                     {
-                      r += "<code>";
-                      r += "<b>" + link_target + "</b>";
-                      r += "(" + link_section + ")";
-                      r += "</code>";
+                      r += "<code><b>";
+                      r += link_target + "(" + link_section + ")";
+                      r += "</b></code>";
                     }
                   }
 
@@ -873,10 +870,7 @@ format_line (output_type ot, string& r, const char* s, size_t n)
                   if (link_section.empty ())
                     r += link_target;
                   else
-                  {
-                    r += "\\fB" + link_target + "\\fP";
-                    r += "(" + link_section + ")";
-                  }
+                    r += "\\fB" + link_target + "(" + link_section + ")\\fP";
 
                   if (!link_empty)
                     r += ")";
