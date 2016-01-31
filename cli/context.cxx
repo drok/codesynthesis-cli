@@ -237,7 +237,7 @@ translate_arg (string const& s, std::set<string>& set)
     if (p == string::npos && s[i] == '<')
     {
       p = i;
-      r += "\\i{";
+      r += "\\ci{";
       continue;
     }
 
@@ -285,7 +285,7 @@ translate (string const& s, std::set<string> const& set)
 
         if (set.find (a) != set.end ())
         {
-          r += "\\i{";
+          r += "\\ci{";
 
           for (size_t j (0), n (a.size ()); j < n; ++j)
           {
