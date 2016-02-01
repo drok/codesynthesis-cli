@@ -514,6 +514,15 @@ class options
   docvar_specified () const;
 
   const std::vector<std::string>&
+  link_regex () const;
+
+  bool
+  link_regex_specified () const;
+
+  const bool&
+  link_regex_trace () const;
+
+  const std::vector<std::string>&
   hxx_prologue () const;
 
   bool
@@ -803,6 +812,9 @@ class options
   bool class__specified_;
   std::map<std::string, std::string> docvar_;
   bool docvar_specified_;
+  std::vector<std::string> link_regex_;
+  bool link_regex_specified_;
+  bool link_regex_trace_;
   std::vector<std::string> hxx_prologue_;
   bool hxx_prologue_specified_;
   std::vector<std::string> ixx_prologue_;

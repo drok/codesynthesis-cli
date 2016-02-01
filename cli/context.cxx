@@ -111,7 +111,8 @@ context (ostream& os_,
       opt_sep (options.option_separator ()),
       cli (data_->cli_),
       reserved_name_map (options.reserved_name ()),
-      keyword_set (data_->keyword_set_)
+      keyword_set (data_->keyword_set_),
+      link_regex (data_->link_regex_)
 {
   if (options.suppress_usage ())
     usage = ut_none;
@@ -133,6 +134,22 @@ context (ostream& os_,
 
   for (size_t i (0); i < sizeof (keywords) / sizeof (char*); ++i)
     data_->keyword_set_.insert (keywords[i]);
+
+  // Link regex.
+  //
+  for (vector<string>::const_iterator i (ops.link_regex ().begin ());
+       i != ops.link_regex ().end (); ++i)
+  {
+    try
+    {
+      data_->link_regex_.push_back (regexsub (*i));
+    }
+    catch (const regex_format& e)
+    {
+      cerr << "error: invalid regex '" << *i << "': " << e.what () << endl;
+      throw generation_failed ();
+    }
+  }
 }
 
 context::
@@ -149,7 +166,8 @@ context (context& c)
       opt_sep (c.opt_sep),
       cli (c.cli),
       reserved_name_map (c.reserved_name_map),
-      keyword_set (c.keyword_set)
+      keyword_set (c.keyword_set),
+      link_regex (c.link_regex)
 {
 }
 
@@ -222,6 +240,43 @@ escape (string const& name) const
 
   return r;
 }
+
+string context::
+process_link_target (const string& tg)
+{
+  bool t (options.link_regex_trace ());
+
+  if (t)
+    cerr << "link: '" << tg << "'" << endl;
+
+  string r;
+  bool found (false);
+
+  for (regex_mapping::const_iterator i (link_regex.begin ());
+       i != link_regex.end (); ++i)
+  {
+    if (t)
+      cerr << "try: '" << i->regex () << "' : ";
+
+    if (i->match (tg))
+    {
+      r = i->replace (tg);
+      found = true;
+
+      if (t)
+        cerr << "'" << r << "' : ";
+    }
+
+    if (t)
+      cerr << (found ? '+' : '-') << endl;
+
+    if (found)
+      break;
+  }
+
+  return found ? r : tg;
+}
+
 
 string context::
 translate_arg (string const& s, std::set<string>& set)
@@ -713,11 +768,22 @@ format_line (output_type ot, string& r, const char* s, size_t n)
             {
               r += "<a href=\"";
 
-              if (link_section.empty ())
-                r += link_target;
-              else
-                r += link_target + options.html_suffix ();
+              // It might be useful to include the man section into the regex
+              // somehow.
+              //
+              string t (link_section.empty ()
+                        ? link_target
+                        : link_target + options.html_suffix ());
 
+              string pt (process_link_target (t));
+
+              if (pt.empty ())
+              {
+                cerr << "error: link '" << t << "' became empty" << endl;
+                throw generation_failed ();
+              }
+
+              r += pt;
               r += "\">";
             }
             else
@@ -789,24 +855,42 @@ format_line (output_type ot, string& r, const char* s, size_t n)
               {
                 if (b & link)
                 {
-                  if (!link_empty)
-                    r += " (";
+                  string t (link_section.empty ()
+                            ? link_target
+                            : link_target + "(" + link_section + ")");
 
-                  if (link_section.empty ())
-                    r += link_target;
+                  string pt (process_link_target (t));
+
+                  if (pt.empty ())
+                  {
+                    if (link_empty)
+                    {
+                      cerr << "error: link target '" << t << "' became empty "
+                           << "and link text is also empty" << endl;
+                      throw generation_failed ();
+                    }
+                  }
                   else
                   {
-                    if (color)
-                      r += "\033[1m";
+                    if (!link_empty)
+                      r += " (";
 
-                    r += link_target + "(" + link_section + ")";
+                    if (link_section.empty ())
+                      r += pt;
+                    else
+                    {
+                      if (color)
+                        r += "\033[1m";
 
-                    if (color)
-                      r += "\033[0m";
+                      r += pt;
+
+                      if (color)
+                        r += "\033[0m";
+                    }
+
+                    if (!link_empty)
+                      r += ")";
                   }
-
-                  if (!link_empty)
-                    r += ")";
                 }
                 else
                 {
@@ -864,16 +948,34 @@ format_line (output_type ot, string& r, const char* s, size_t n)
               {
                 if (b & link)
                 {
-                  if (!link_empty)
-                    r += " (";
+                  string t (link_section.empty ()
+                            ? link_target
+                            : link_target + "(" + link_section + ")");
 
-                  if (link_section.empty ())
-                    r += link_target;
+                  string pt (process_link_target (t));
+
+                  if (pt.empty ())
+                  {
+                    if (link_empty)
+                    {
+                      cerr << "error: link target '" << t << "' became empty "
+                           << "and link text is also empty" << endl;
+                      throw generation_failed ();
+                    }
+                  }
                   else
-                    r += "\\fB" + link_target + "(" + link_section + ")\\fP";
+                  {
+                    if (!link_empty)
+                      r += " (";
 
-                  if (!link_empty)
-                    r += ")";
+                    if (link_section.empty ())
+                      r += pt;
+                    else
+                      r += "\\fB" + pt + "\\fP";
+
+                    if (!link_empty)
+                      r += ")";
+                  }
                 }
                 else
                 {

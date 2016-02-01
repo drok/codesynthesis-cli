@@ -452,6 +452,24 @@ docvar_specified () const
 }
 
 inline const std::vector<std::string>& options::
+link_regex () const
+{
+  return this->link_regex_;
+}
+
+inline bool options::
+link_regex_specified () const
+{
+  return this->link_regex_specified_;
+}
+
+inline const bool& options::
+link_regex_trace () const
+{
+  return this->link_regex_trace_;
+}
+
+inline const std::vector<std::string>& options::
 hxx_prologue () const
 {
   return this->hxx_prologue_;

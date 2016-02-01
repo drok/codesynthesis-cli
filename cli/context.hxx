@@ -9,9 +9,11 @@
 #include <set>
 #include <map>
 #include <string>
+#include <vector>
 #include <ostream>
 #include <cstddef> // std::size_t
 
+#include <cutl/re.hxx>
 #include <cutl/shared-ptr.hxx>
 #include <cutl/fs/path.hxx>
 
@@ -52,6 +54,14 @@ public:
   typedef ::usage usage_type;
   typedef ::class_doc class_doc_type;
 
+  // Regex.
+  //
+  typedef cutl::re::regex regex;
+  typedef cutl::re::regexsub regexsub;
+  typedef cutl::re::format regex_format;
+
+  typedef std::vector<regexsub> regex_mapping;
+
 private:
   struct data;
   cutl::shared_ptr<data> data_;
@@ -76,12 +86,16 @@ public:
   typedef std::set<string> keyword_set_type;
   keyword_set_type const& keyword_set;
 
+  regex_mapping const& link_regex;
+
 private:
   struct data
   {
     string inl_;
     string cli_;
     keyword_set_type keyword_set_;
+
+    regex_mapping link_regex_;
   };
 
 public:
@@ -89,6 +103,9 @@ public:
   //
   string
   escape (string const&) const;
+
+  string
+  process_link_target (const string&);
 
   // Translate and format the documentation string. Translate converts
   // the <arg>-style constructs to \i{arg}. Format converts the string

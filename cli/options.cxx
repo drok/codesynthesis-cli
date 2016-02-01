@@ -601,6 +601,9 @@ options ()
   class__specified_ (false),
   docvar_ (),
   docvar_specified_ (false),
+  link_regex_ (),
+  link_regex_specified_ (false),
+  link_regex_trace_ (),
   hxx_prologue_ (),
   hxx_prologue_specified_ (false),
   ixx_prologue_ (),
@@ -727,6 +730,9 @@ options (int& argc,
   class__specified_ (false),
   docvar_ (),
   docvar_specified_ (false),
+  link_regex_ (),
+  link_regex_specified_ (false),
+  link_regex_trace_ (),
   hxx_prologue_ (),
   hxx_prologue_specified_ (false),
   ixx_prologue_ (),
@@ -856,6 +862,9 @@ options (int start,
   class__specified_ (false),
   docvar_ (),
   docvar_specified_ (false),
+  link_regex_ (),
+  link_regex_specified_ (false),
+  link_regex_trace_ (),
   hxx_prologue_ (),
   hxx_prologue_specified_ (false),
   ixx_prologue_ (),
@@ -985,6 +994,9 @@ options (int& argc,
   class__specified_ (false),
   docvar_ (),
   docvar_specified_ (false),
+  link_regex_ (),
+  link_regex_specified_ (false),
+  link_regex_trace_ (),
   hxx_prologue_ (),
   hxx_prologue_specified_ (false),
   ixx_prologue_ (),
@@ -1116,6 +1128,9 @@ options (int start,
   class__specified_ (false),
   docvar_ (),
   docvar_specified_ (false),
+  link_regex_ (),
+  link_regex_specified_ (false),
+  link_regex_trace_ (),
   hxx_prologue_ (),
   hxx_prologue_specified_ (false),
   ixx_prologue_ (),
@@ -1243,6 +1258,9 @@ options (::cli::scanner& s,
   class__specified_ (false),
   docvar_ (),
   docvar_specified_ (false),
+  link_regex_ (),
+  link_regex_specified_ (false),
+  link_regex_trace_ (),
   hxx_prologue_ (),
   hxx_prologue_specified_ (false),
   ixx_prologue_ (),
@@ -1414,6 +1432,13 @@ print_usage (::std::ostream& os, ::cli::usage_para p)
 
   os << "--docvar|-v <name>=<val>     Set documentation variable <name> to the value" << ::std::endl
      << "                             <val>." << ::std::endl;
+
+  os << "--link-regex <regex>         Add <regex> to the list of regular expressions" << ::std::endl
+     << "                             used to transform link targets in the generated" << ::std::endl
+     << "                             documentation." << ::std::endl;
+
+  os << "--link-regex-trace           Trace the process of applying regular expressions" << ::std::endl
+     << "                             specified with the --link-regex option." << ::std::endl;
 
   os << "--hxx-prologue <text>        Insert <text> at the beginning of the generated" << ::std::endl
      << "                             C++ header file." << ::std::endl;
@@ -1628,6 +1653,11 @@ struct _cli_options_map_init
     _cli_options_map_["-v"] = 
     &::cli::thunk< options, std::map<std::string, std::string>, &options::docvar_,
       &options::docvar_specified_ >;
+    _cli_options_map_["--link-regex"] = 
+    &::cli::thunk< options, std::vector<std::string>, &options::link_regex_,
+      &options::link_regex_specified_ >;
+    _cli_options_map_["--link-regex-trace"] = 
+    &::cli::thunk< options, bool, &options::link_regex_trace_ >;
     _cli_options_map_["--hxx-prologue"] = 
     &::cli::thunk< options, std::vector<std::string>, &options::hxx_prologue_,
       &options::hxx_prologue_specified_ >;

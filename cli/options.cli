@@ -234,6 +234,28 @@ class options
      \c{\"\\<name>=<val>\"} syntax."
   };
 
+  std::vector<std::string> --link-regex
+  {
+    "<regex>",
+    "Add <regex> to the list of regular expressions used to transform link
+     targets in the generated documentation. The argument to this option
+     is a Perl-like regular expression in the form
+     \c{\b{/}\i{pattern}\b{/}\i{replacement}\b{/}}. Any character can be
+     used as a delimiter instead of '\cb{/}' and the delimiter can be escaped
+     inside \ci{pattern} and \ci{replacement} with a backslash (\cb{\\}).
+     You can specify multiple regular expressions by repeating this option.
+     All the regular expressions are tried in the order specified and the
+     first expression that matches is used. Use the \cb{--link-regex-trace}
+     option to debug link transformation."
+  };
+
+  bool --link-regex-trace
+  {
+    "Trace the process of applying regular expressions specified with the
+     \cb{--link-regex} option. Use this option to find out why your regular
+     expressions don't do what you expected them to do."
+  };
+
   // Prologues.
   //
   std::vector<std::string> --hxx-prologue
