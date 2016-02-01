@@ -390,7 +390,7 @@ format_line (output_type ot, string& r, const char* s, size_t n)
 
   string link_target;
   string link_section; // If not empty, man section; target is man name.
-  bool link_empty; // Link has no text.
+  bool link_empty;     // Link has no text.
 
   bool escape (false);
   for (size_t i (0); i < n; ++i)
@@ -1037,6 +1037,19 @@ format_line (output_type ot, string& r, const char* s, size_t n)
 
 struct block
 {
+  // The semantic meaning of \hN and their mapping to HTML is as follows:
+  //
+  // \h0 - preface       <h1 class="preface">
+  // \H  - part          <h1 class="part">
+  // \h1 - chapter       <h1>
+  // \h  - section       <h1> or <h2>
+  // \h2 - sub-section   <h3>
+  //
+  // In HTML, if \h0 or \h1 was seen, then \h is automatically mappend to
+  // <h2>. Otherwise it is <h1>.
+  //
+  // The specifier (0, H, 1, h, 2) is stored in header.
+  //
   enum kind_type {h, ul, ol, dl, li, text, pre};
 
   kind_type kind;
@@ -1118,6 +1131,11 @@ format (output_type ot, string const& s, bool para)
   //
   size_t ol_count;
 
+  // Mapping of \h to HTML tag. By default it is <h1> until we encounter
+  // \h0 or \h1 at which point we change it to <h2>.
+  //
+  string html_h ("h1");
+
   bool last (false);
   for (size_t b (0), e; !last; b = e + 1)
   {
@@ -1154,6 +1172,9 @@ format (output_type ot, string const& s, bool para)
     // First determine what kind of paragraph block this is.
     //
     block::kind_type k;
+    string header;
+    string trailer;
+
     size_t pop (0); // Pop count.
 
     if (pre)
@@ -1162,11 +1183,27 @@ format (output_type ot, string const& s, bool para)
     }
     else
     {
-      if (n >= 3 && strncmp (l, "\\h|", 3) == 0)
+      if (n >= 3 &&
+          l[0] == '\\' && (l[1] == 'h' || l[1] == 'H') && l[2] == '|')
       {
         k = block::h;
+        header = l[1];
         l += 3;
         n -= 3;
+      }
+      else if (n >= 4 && l[0] == '\\' && l[1] == 'h' && l[3] == '|')
+      {
+        if (l[2] != '0' && l[2] != '1' && l[2] != '2')
+        {
+          cerr << "error: '0', '1', or '2' expected in \\hN| in '"
+               << string (ol, 0, on) << "'" << endl;
+          throw generation_failed ();
+        }
+
+        k = block::h;
+        header = l[2];
+        l += 4;
+        n -= 4;
       }
       else if (n >= 4 &&
                (strncmp (l, "\\ul|", 4) == 0 ||
@@ -1335,26 +1372,24 @@ format (output_type ot, string const& s, bool para)
     //
     switch (k)
     {
-    case block::h: blocks.push (block (k, false)); break;
+    case block::h: blocks.push (block (k, false, header)); break;
     case block::ul:
     case block::ol: ol_count = 0; // Fall through.
     case block::dl: blocks.push (block (k, true)); break;
     case block::li:
       {
-        string h;
-
         switch (blocks.top ().kind)
         {
         case block::ol:
           {
             ostringstream os;
             os << ++ol_count;
-            h = os.str ();
+            header = os.str ();
             break;
           }
         case block::dl:
           {
-            format_line (ot, h, l, n);
+            format_line (ot, header, l, n);
             n = 0;
             break;
           }
@@ -1362,7 +1397,7 @@ format (output_type ot, string const& s, bool para)
           break;
         }
 
-        blocks.push (block (k, false, h));
+        blocks.push (block (k, false, header));
         break;
       }
     case block::text: break; // No push.
@@ -1591,7 +1626,24 @@ format (output_type ot, string const& s, bool para)
 
           switch (pb.kind)
           {
-          case block::h:  v += "<h1>" + pv + "</h1>"; break;
+          case block::h:
+            {
+              switch (ph[0])
+              {
+              case '0': v += "<h1 class=\"preface\">" + pv + "</h1>"; break;
+              case 'H': v += "<h1 class=\"part\">" + pv + "</h1>"; break;
+              case '1': v += "<h1>" + pv + "</h1>"; break;
+              case '2': v += "<h3>" + pv + "</h3>"; break;
+              case 'h': v += '<' + html_h + '>' + pv + "</" + html_h + '>';
+              }
+
+              // @@ This only works for a single string fragment.
+              //
+              if (ph[0] == '0' || ph[0] == '1')
+                html_h = "h2";
+
+              break;
+            }
           case block::ul: v += "<ul>\n" + pv + "\n</ul>"; break;
           case block::ol: v += "<ol>\n" + pv + "\n</ol>"; break;
           case block::dl: v += "<dl>\n" + pv + "\n</dl>"; break;
