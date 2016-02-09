@@ -645,16 +645,10 @@ format_line (output_type ot, string& r, const char* s, size_t n)
 
             // See if link_target is a man page name/section.
             //
-            if (t.find (':') == string::npos) // No protocol.
+            size_t o (t.find ('('));
+
+            if (o != string::npos)
             {
-              size_t o (t.find ('('));
-
-              if (o == string::npos)
-              {
-                cerr << "error: missing man section in '" << t << "'" << endl;
-                throw generation_failed ();
-              }
-
               link_section.assign (t, o + 1, t.size () - o - 2);
 
               if (t[t.size () - 1] != ')' || link_section.empty ())
