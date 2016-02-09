@@ -260,7 +260,7 @@ namespace
       if (n > 1 && options.ansi_color ())
         translate_arg (ds[0], arg_set);
 
-      d = format (ot_plain, translate (d, arg_set), true);
+      d = format (ds.scope (), ot_plain, translate (d, arg_set), true);
 
       if (d.empty ())
         return;
@@ -331,7 +331,7 @@ namespace
           s = translate_arg (s, arg_set);
         }
 
-        l += txt_size (format (ot_plain, s, false));
+        l += txt_size (format (o.scope (), ot_plain, s, false));
       }
 
       if (l > length_)
@@ -422,7 +422,7 @@ namespace
         if (color)
           s = translate_arg (s, arg_set);
 
-        s = format (ot_plain, s, false);
+        s = format (o.scope (), ot_plain, s, false);
 
         os << escape_str (s);
         l += txt_size (s);
@@ -458,7 +458,7 @@ namespace
       if (color)
         d = translate (d, arg_set);
 
-      d = format (ot_plain, d, false);
+      d = format (o.scope (), ot_plain, d, false);
 
       if (!d.empty ())
         wrap_lines (os, d, length_ + 1, l); // +1 for extra space after arg.

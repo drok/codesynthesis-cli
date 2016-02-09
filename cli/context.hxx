@@ -127,7 +127,7 @@ public:
   // If para is true, start a new paragraph.
   //
   string
-  format (output_type, string const&, bool para);
+  format (semantics::scope&, output_type, string const&, bool para);
 
   void
   format_line (output_type, string&, const char*, size_t);
@@ -145,6 +145,13 @@ public:
   {
     return substitute (s, unit, p);
   }
+
+  // Substitute doc variable expansions (\$var$). Note that it leaves escapes
+  // (\\$) as is. Return true if any substitutions have been made, in which
+  // case result will contain the expansion result.
+  //
+  bool
+  substitute (semantics::scope&, const char* s, size_t n, string& result);
 
 public:
   static string const&

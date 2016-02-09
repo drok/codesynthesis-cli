@@ -618,23 +618,28 @@ format_line (output_type ot, string& r, const char* s, size_t n)
               throw generation_failed ();
             }
 
-            // Extract the link target.
+            // Find the end of the link target.
             //
-            for (++i; i + 1 < n; ++i)
+            size_t b (++i + 1), e (b);
+            for (; i + 1 < n; ++i)
             {
               char c (s[i + 1]);
 
-              if (c == ' ')
+              if (c == ' ' || c == '}')
               {
-                for (++i; i + 1 < n && s[i + 1] == ' '; ++i) ; // Skip spaces.
+                e = i + 1;
+
+                if (c == ' ') // Skip spaces.
+                  for (++i; i + 1 < n && s[i + 1] == ' '; ++i) ;
+
                 break;
               }
-
-              if (c == '}')
-                break;
-
-              t += c;
             }
+
+            // Run the link target through format_line(ot_plain) to handle
+            // escaping (e.g., \\$).
+            //
+            format_line (ot_plain, t, s + b, e - b);
 
             if (t.empty ())
             {
@@ -1115,7 +1120,7 @@ html_margin (string& v)
 
 
 string context::
-format (output_type ot, string const& s, bool para)
+format (semantics::scope& scope, output_type ot, string const& s, bool para)
 {
   stack<block> blocks;
   blocks.push (block (block::text, para)); // Top-level.
@@ -1137,6 +1142,7 @@ format (output_type ot, string const& s, bool para)
 
     const char* l;
     size_t n;
+    string subst; // Variable-substituted.
 
     if (pre)
     {
@@ -1158,6 +1164,14 @@ format (output_type ot, string const& s, bool para)
 
       l = s.c_str () + b;
       n = (last ? s.size () : e) - b;
+
+      // Perform variable expansions (\$var$).
+      //
+      if (substitute (scope, l, n, subst))
+      {
+        l = subst.c_str ();
+        n = subst.size ();
+      }
     }
 
     const char* ol (l); // Original, full line for diagnostics.
@@ -1838,6 +1852,79 @@ substitute (const string& s, semantics::cli_unit& u, const path* d)
 
   r.append (s, b, e - b); // Last chunk.
   return r;
+}
+
+bool context::
+substitute (semantics::scope& scope, const char* s, size_t n, string& result)
+{
+  bool sub (false);
+  result.clear ();
+
+  // Scan the string looking for variables (\$var$).
+  //
+  size_t b (0), e (b);
+  for (char p ('\0'); e != n; ++e)
+  {
+    char c (s[e]);
+
+    if (p == '\\')
+    {
+      if (c == '\\') // Escape sequence.
+      {
+        p = '\0';
+        continue;
+      }
+
+      if (c == '$')
+      {
+        // Variable expansion.
+        //
+        sub = true;
+
+        // Find the closing '$'.
+        //
+        size_t p (e + 1); // Position of the second '$'.
+        for (; p != n && s[p] != '$'; ++p) ;
+
+        if (p == n)
+        {
+          cerr << "error: missing closing '$' in '" << string (s, n) << "'"
+               << endl;
+          throw generation_failed ();
+        }
+
+        result.append (s, b, e - b - 1); // Save what came before.
+
+        // Var name.
+        //
+        ++e;
+        string v (s, e, p - e);
+
+        // Lookup and substiute.
+        //
+        using semantics::doc;
+
+        if (doc* d = unit.lookup<doc> (scope.fq_name (), "var: " + v))
+          result += d->front ();
+        else
+        {
+          cerr << "error: undefined variable '" << v << "' in '"
+               << string (s, n) << "'" << endl;
+          throw generation_failed ();
+        }
+
+        e = p;
+        b = e + 1;
+      }
+    }
+
+    p = s[e];
+  }
+
+  if (sub)
+    result.append (s, b, e - b); // Last chunk.
+
+  return sub;
 }
 
 string context::

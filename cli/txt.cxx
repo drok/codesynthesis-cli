@@ -156,7 +156,10 @@ namespace
       if (n > 1 && options.ansi_color ())
         translate_arg (ds[0], arg_set);
 
-      string s (format (ot_plain, translate (d, arg_set), true));
+      string s (format (ds.scope (),
+                        ot_plain,
+                        translate (d, arg_set),
+                        true));
 
       if (s.empty ())
         return;

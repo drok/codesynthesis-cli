@@ -139,7 +139,10 @@ namespace
       if (n > 1)
         translate_arg (ds[0], arg_set);
 
-      string s (format (ot_html, escape_html (translate (d, arg_set)), true));
+      string s (format (ds.scope (),
+                        ot_html,
+                        escape_html (translate (d, arg_set)),
+                        true));
 
       if (s.empty ())
         return;
@@ -208,7 +211,7 @@ namespace
           translate_arg (
             doc.size () > 0 ? doc[0] : string ("<arg>"), arg_set));
 
-        os << ' ' << format (ot_html, escape_html (s), false);
+        os << ' ' << format (o.scope (), ot_html, escape_html (s), false);
       }
 
       os << "</dt>" << endl;
@@ -231,7 +234,10 @@ namespace
 
       // Format the documentation string.
       //
-      d = format (ot_html, escape_html (translate (d, arg_set)), false);
+      d = format (o.scope (),
+                  ot_html,
+                  escape_html (translate (d, arg_set)),
+                  false);
 
       wrap_lines (os, "<dd>" + d + "</dd>", 4);
       os << endl;
