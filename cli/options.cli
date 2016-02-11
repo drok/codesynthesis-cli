@@ -256,6 +256,14 @@ class options
      expressions don't do what you expected them to do."
   };
 
+  std::map<char, std::string> --html-heading-map
+  {
+    "<c>=<h>",
+    "Map CLI heading <c> (valid values: '\cb{H}', '\cb{0}', '\cb{1}',
+     '\cb{h}', and '\cb{2}') to HTML heading <h> (for example, '\cb{h1}',
+     '\cb{h2}', etc)."
+  };
+
   // Prologues.
   //
   std::vector<std::string> --hxx-prologue

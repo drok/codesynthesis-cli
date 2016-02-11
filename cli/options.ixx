@@ -469,6 +469,18 @@ link_regex_trace () const
   return this->link_regex_trace_;
 }
 
+inline const std::map<char, std::string>& options::
+html_heading_map () const
+{
+  return this->html_heading_map_;
+}
+
+inline bool options::
+html_heading_map_specified () const
+{
+  return this->html_heading_map_specified_;
+}
+
 inline const std::vector<std::string>& options::
 hxx_prologue () const
 {

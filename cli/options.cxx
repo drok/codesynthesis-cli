@@ -418,13 +418,15 @@ namespace cli
     static void
     parse (X& x, bool& xs, scanner& s)
     {
-      std::string o (s.next ());
+      using namespace std;
+
+      string o (s.next ());
 
       if (s.more ())
       {
-        std::string v (s.next ());
-        std::istringstream is (v);
-        if (!(is >> x && is.eof ()))
+        string v (s.next ());
+        istringstream is (v);
+        if (!(is >> x && is.peek () == istringstream::traits_type::eof ()))
           throw invalid_value (o, v);
       }
       else
@@ -604,6 +606,8 @@ options ()
   link_regex_ (),
   link_regex_specified_ (false),
   link_regex_trace_ (),
+  html_heading_map_ (),
+  html_heading_map_specified_ (false),
   hxx_prologue_ (),
   hxx_prologue_specified_ (false),
   ixx_prologue_ (),
@@ -733,6 +737,8 @@ options (int& argc,
   link_regex_ (),
   link_regex_specified_ (false),
   link_regex_trace_ (),
+  html_heading_map_ (),
+  html_heading_map_specified_ (false),
   hxx_prologue_ (),
   hxx_prologue_specified_ (false),
   ixx_prologue_ (),
@@ -865,6 +871,8 @@ options (int start,
   link_regex_ (),
   link_regex_specified_ (false),
   link_regex_trace_ (),
+  html_heading_map_ (),
+  html_heading_map_specified_ (false),
   hxx_prologue_ (),
   hxx_prologue_specified_ (false),
   ixx_prologue_ (),
@@ -997,6 +1005,8 @@ options (int& argc,
   link_regex_ (),
   link_regex_specified_ (false),
   link_regex_trace_ (),
+  html_heading_map_ (),
+  html_heading_map_specified_ (false),
   hxx_prologue_ (),
   hxx_prologue_specified_ (false),
   ixx_prologue_ (),
@@ -1131,6 +1141,8 @@ options (int start,
   link_regex_ (),
   link_regex_specified_ (false),
   link_regex_trace_ (),
+  html_heading_map_ (),
+  html_heading_map_specified_ (false),
   hxx_prologue_ (),
   hxx_prologue_specified_ (false),
   ixx_prologue_ (),
@@ -1261,6 +1273,8 @@ options (::cli::scanner& s,
   link_regex_ (),
   link_regex_specified_ (false),
   link_regex_trace_ (),
+  html_heading_map_ (),
+  html_heading_map_specified_ (false),
   hxx_prologue_ (),
   hxx_prologue_specified_ (false),
   ixx_prologue_ (),
@@ -1439,6 +1453,10 @@ print_usage (::std::ostream& os, ::cli::usage_para p)
 
   os << "--link-regex-trace           Trace the process of applying regular expressions" << ::std::endl
      << "                             specified with the --link-regex option." << ::std::endl;
+
+  os << "--html-heading-map <c>=<h>   Map CLI heading <c> (valid values: 'H', '0', '1'," << ::std::endl
+     << "                             'h', and '2') to HTML heading <h> (for example," << ::std::endl
+     << "                             'h1', 'h2', etc)." << ::std::endl;
 
   os << "--hxx-prologue <text>        Insert <text> at the beginning of the generated" << ::std::endl
      << "                             C++ header file." << ::std::endl;
@@ -1658,6 +1676,9 @@ struct _cli_options_map_init
       &options::link_regex_specified_ >;
     _cli_options_map_["--link-regex-trace"] = 
     &::cli::thunk< options, bool, &options::link_regex_trace_ >;
+    _cli_options_map_["--html-heading-map"] = 
+    &::cli::thunk< options, std::map<char, std::string>, &options::html_heading_map_,
+      &options::html_heading_map_specified_ >;
     _cli_options_map_["--hxx-prologue"] = 
     &::cli::thunk< options, std::vector<std::string>, &options::hxx_prologue_,
       &options::hxx_prologue_specified_ >;

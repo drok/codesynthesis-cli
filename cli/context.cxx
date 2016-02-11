@@ -1158,7 +1158,7 @@ format (semantics::scope& scope, string const& s, bool para)
   // Mapping of \h to HTML tag. By default it is <h1> until we encounter
   // \h0 or \h1 at which point we change it to <h2>.
   //
-  string html_h ("h1");
+  char html_h ('1');
 
   bool last (false);
   for (size_t b (0), e; !last; b = e + 1)
@@ -1721,7 +1721,7 @@ format (semantics::scope& scope, string const& s, bool para)
                 case '1': break; // Always unwind.
                 case 'h':
                   {
-                    pop = html_h[1] == '1' || e.type == 'h' || e.type == '2';
+                    pop = html_h == '1' || e.type == 'h' || e.type == '2';
                     break;
                   }
                 case '2': pop = e.type == '2'; break;
@@ -1815,8 +1815,8 @@ format (semantics::scope& scope, string const& s, bool para)
               //
               // @@ This only works for a single string fragment.
               //
-              if (ph[0] == '0' || ph[0] == '1')
-                html_h = "h2";
+              if (t == '0' || t == '1')
+                html_h = '2';
 
               break;
             }
@@ -1906,17 +1906,28 @@ format (semantics::scope& scope, string const& s, bool para)
           {
           case block::h:
             {
+              char t (ph[0]);
+
               string h;
               string c;
 
-              switch (ph[0])
+              typedef map<char, string> map;
+              const map& hm (options.html_heading_map ());
+              map::const_iterator mi (hm.find (t));
+
+              if (mi == hm.end ())
               {
-              case '0': h = "h1"; c = "preface"; break;
-              case 'H': h = "h1"; c = "part"; break;
-              case '1': h = "h1"; break;
-              case 'h': h = html_h; break;
-              case '2': h = "h3"; break;
+                switch (t)
+                {
+                case '0': h = "h1"; c = "preface"; break;
+                case 'H': h = "h1"; c = "part"; break;
+                case '1': h = "h1"; break;
+                case 'h': h = html_h == '1' ? "h1" : "h2"; break;
+                case '2': h = "h3"; break;
+                }
               }
+              else
+                h = mi->second;
 
               v += '<' + h;
               if (!pi.empty ()) v += " id=\"" + pi + '"';
@@ -1939,8 +1950,8 @@ format (semantics::scope& scope, string const& s, bool para)
 
               // @@ This only works for a single string fragment.
               //
-              if (ph[0] == '0' || ph[0] == '1')
-                html_h = "h2";
+              if (t == '0' || t == '1')
+                html_h = '2';
 
               break;
             }
@@ -2056,6 +2067,8 @@ start_toc ()
     }
   case ot_man: break;
   }
+
+  return string ();
 }
 
 string context::
@@ -2095,6 +2108,8 @@ end_toc ()
     }
   case ot_man: break;
   }
+
+  return string ();
 }
 
 void context::
