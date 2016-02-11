@@ -103,6 +103,10 @@ public:
   id_set_type& id_set;
   id_set_type& ref_set;
 
+  // Map of heading ids to heading number (assigned during TOC generation)
+  //
+  typedef std::map<string, string> heading_map_type;
+  heading_map_type& heading_map;
 
   // TOC phase.
   //
@@ -133,6 +137,7 @@ private:
     regex_mapping link_regex_;
     id_set_type id_set_;
     id_set_type ref_set_;
+    heading_map_type heading_map_;
     unsigned short toc_;
     toc_stack tocs_;
   };

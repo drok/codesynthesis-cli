@@ -117,6 +117,7 @@ context (ostream& os_,
       link_regex (data_->link_regex_),
       id_set (data_->id_set_),
       ref_set (data_->ref_set_),
+      heading_map (data_->heading_map_),
       toc (data_->toc_),
       tocs (data_->tocs_)
 {
@@ -179,6 +180,7 @@ context (context& c)
       link_regex (c.link_regex),
       id_set (c.id_set),
       ref_set (c.ref_set),
+      heading_map (c.heading_map),
       toc (c.toc),
       tocs (c.tocs)
 {
@@ -1798,6 +1800,11 @@ format (semantics::scope& scope, string const& s, bool para)
                     }
                   }
 
+                  // Save the heading number for later.
+                  //
+                  if (!n.empty ())
+                    heading_map[pi] = n;
+
                   v += in + "<tr><th>" + n + "</th><td>" + pv; // No newline
                   tocs.push_back (toc_entry (t));
                   break;
@@ -1915,7 +1922,19 @@ format (semantics::scope& scope, string const& s, bool para)
               if (!pi.empty ()) v += " id=\"" + pi + '"';
               if (!c.empty ())  v += " class=\"" + c + '"';
               v += '>';
+
+              // See if we have a heading number (assigned by TOC).
+              //
+              if (!pi.empty ())
+              {
+                heading_map_type::const_iterator i (heading_map.find (pi));
+
+                if (i != heading_map.end ())
+                  v += i->second + ' ';
+              }
+
               v += pv;
+
               v += "</" + h + '>';
 
               // @@ This only works for a single string fragment.
@@ -2099,6 +2118,7 @@ verify_id_ref ()
 
   id_set.clear ();
   ref_set.clear ();
+  heading_map.clear ();
 }
 
 string context::
