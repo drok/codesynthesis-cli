@@ -487,13 +487,16 @@ generate_runtime_source (context& ctx, bool complete)
      << "static void" << endl
      << "parse (X& x, " << (sp ? "bool& xs, " : "") << "scanner& s)"
      << "{"
-     << "std::string o (s.next ());"
+     << "using namespace std;"
+     << endl
+     << "string o (s.next ());"
      << endl
      << "if (s.more ())"
      << "{"
-     << "std::string v (s.next ());"
-     << "std::istringstream is (v);"
-     << "if (!(is >> x && is.eof ()))" << endl
+     << "string v (s.next ());"
+     << "istringstream is (v);"
+     << "if (!(is >> x && " <<
+    "is.peek () == istringstream::traits_type::eof ()))" << endl
      << "throw invalid_value (o, v);"
      << "}"
      << "else" << endl
