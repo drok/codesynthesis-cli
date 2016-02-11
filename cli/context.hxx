@@ -99,6 +99,11 @@ public:
 
   regex_mapping const& link_regex;
 
+  typedef std::set<string> id_set_type;
+  id_set_type& id_set;
+  id_set_type& ref_set;
+
+
   // TOC phase.
   //
   // 0 - non-TOC
@@ -126,6 +131,8 @@ private:
     string cli_;
     keyword_set_type keyword_set_;
     regex_mapping link_regex_;
+    id_set_type id_set_;
+    id_set_type ref_set_;
     unsigned short toc_;
     toc_stack tocs_;
   };
@@ -165,6 +172,13 @@ public:
 
   string
   end_toc ();
+
+  // Make sure each local fragment reference has the corresponding id. Issue
+  // diagnostics and throw generation_failed if fails. Otherwise clear the
+  // id and ref sets.
+  //
+  void
+  verify_id_ref ();
 
   // Substitute doc variable expansions ($var$). Var must be a C identifier.
   // If the path is not NULL, then also recognize names that start with either

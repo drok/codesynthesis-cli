@@ -452,6 +452,8 @@ generate (options const& ops, semantics::cli_unit& unit, path const& p)
           ctx.toc++; // TOC phase after restart.
         }
       }
+
+      ctx.verify_id_ref ();
     }
 
     // HTML output
@@ -499,6 +501,8 @@ generate (options const& ops, semantics::cli_unit& unit, path const& p)
           ctx.toc++; // TOC phase after restart.
         }
       }
+
+      ctx.verify_id_ref ();
     }
 
     // txt output
@@ -543,6 +547,8 @@ generate (options const& ops, semantics::cli_unit& unit, path const& p)
           ctx.toc++; // TOC phase after restart.
         }
       }
+
+      ctx.verify_id_ref ();
     }
 
     auto_rm.cancel ();

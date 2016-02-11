@@ -2,57 +2,56 @@
 "\$TOC$"
 
 "
-\h0|Preface|
+\h0#preface|Preface|
 
 This document describes something awesome.
 
-\h|About This Document|
+\h#about-document|About This Document|
 
 And this document is also awesome.
 
-\h|More Information|
+\h#more-information|More Information|
 
 It is so awesome that no further information will be required."
 
 "
-\H|PART I|
+\H#part1|PART I|
 
 Start of part one.
 
-\h1|Introduction|
+\h1#intro|Introduction|
 
 Beginning of the first chapter.
 
-\h|Architecture and Workflow|
+\h#arch-flow|Architecture and Workflow|
 
 Some basics.
 
-\h|Benefits|
+\h#benefits|Benefits|
 
 You will like them.
 
-\h1|Hello World|
+\h1#hello|Hello World|
 
 Beginning of the second chapter.
 
-\h|Setup|
+\h#hell-setup|Setup|
 
 More basics.
 
-\h|Compiling|
+\h#hello-compile|Compiling|
 
 How to build the example
 
-\h2|Compiling with GCC|
+\h2#hello-compile-gcc|Compiling with GCC|
 
-GCC
+GCC. For Clang see \l{#hello-compile-clang Compiling with Clang}.
 
-\h2|Compiling with Clang|
+\h2#hello-compile-clang|Compiling with Clang|
 
-Clang
+Clang. For GCC see \l{#hello-compile-gcc Compiling with GCC}.
 
-\h|Conclusion|
+\h#hello-conclusion|Conclusion|
 
 Some remarks.
-
 "

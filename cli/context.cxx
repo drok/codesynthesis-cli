@@ -115,6 +115,8 @@ context (ostream& os_,
       reserved_name_map (options.reserved_name ()),
       keyword_set (data_->keyword_set_),
       link_regex (data_->link_regex_),
+      id_set (data_->id_set_),
+      ref_set (data_->ref_set_),
       toc (data_->toc_),
       tocs (data_->tocs_)
 {
@@ -175,6 +177,8 @@ context (context& c)
       reserved_name_map (c.reserved_name_map),
       keyword_set (c.keyword_set),
       link_regex (c.link_regex),
+      id_set (c.id_set),
+      ref_set (c.ref_set),
       toc (c.toc),
       tocs (c.tocs)
 {
@@ -684,6 +688,15 @@ format_line (output_type ot, string& r, const char* s, size_t n)
             else
               link_section.clear ();
 
+            // If this is a local fragment reference, add it to the set to be
+            // verified at the end.
+            //
+            if (t[0] == '#')
+            {
+              assert (link_section.empty ()); // Not a man page.
+              ref_set.insert (string (t, 1, string::npos));
+            }
+
             link_empty = i + 1 < n && s[i + 1] == '}';
 
             blocks.push_back (link);
@@ -1063,12 +1076,13 @@ struct block
   kind_type kind;
   bool para;     // True if first text fragment should be in own paragraph.
 
+  string id;
   string header;
   string value;
   string trailer;
 
-  block (kind_type k, bool p, const string& h = "")
-      : kind (k), para (p), header (h) {}
+  block (kind_type k, bool p, const string& i, const string& h = "")
+      : kind (k), para (p), id (i), header (h) {}
 };
 
 static const char* block_kind_str[] = {
@@ -1132,7 +1146,7 @@ string context::
 format (semantics::scope& scope, string const& s, bool para)
 {
   stack<block> blocks;
-  blocks.push (block (block::text, para)); // Top-level.
+  blocks.push (block (block::text, para, "")); // Top-level.
 
   // Number of li in ol. Since we don't support nested lists, we don't
   // need to push it into the stack.
@@ -1235,6 +1249,7 @@ format (semantics::scope& scope, string const& s, bool para)
     // First determine what kind of paragraph block this is.
     //
     block::kind_type k;
+    string id;
     string header;
     string trailer;
 
@@ -1246,15 +1261,25 @@ format (semantics::scope& scope, string const& s, bool para)
     }
     else
     {
+      // \h \H
+      //
       if (n >= 3 &&
-          l[0] == '\\' && (l[1] == 'h' || l[1] == 'H') && l[2] == '|')
+          l[0] == '\\' &&
+          (l[1] == 'h' || l[1] == 'H') &&
+          (l[2] == '|' || l[2] == '#'))
       {
         k = block::h;
         header = l[1];
         l += 3;
         n -= 3;
       }
-      else if (n >= 4 && l[0] == '\\' && l[1] == 'h' && l[3] == '|')
+      //
+      // \h0 \h1 \h2
+      //
+      else if (n >= 4 &&
+               l[0] == '\\' &&
+               l[1] == 'h' &&
+               (l[3] == '|' || l[3] == '#'))
       {
         if (l[2] != '0' && l[2] != '1' && l[2] != '2')
         {
@@ -1268,10 +1293,14 @@ format (semantics::scope& scope, string const& s, bool para)
         l += 4;
         n -= 4;
       }
+      //
+      // \ul \ol \dl
+      //
       else if (n >= 4 &&
-               (strncmp (l, "\\ul|", 4) == 0 ||
-                strncmp (l, "\\ol|", 4) == 0 ||
-                strncmp (l, "\\dl|", 4) == 0))
+               l[0] == '\\' &&
+               (l[1] == 'u' || l[1] == 'o' || l[1] == 'd') &&
+               l[2] == 'l' &&
+               (l[3] == '|' || l[3] == '#'))
       {
         switch (l[1])
         {
@@ -1283,7 +1312,14 @@ format (semantics::scope& scope, string const& s, bool para)
         l += 4;
         n -= 4;
       }
-      else if (n >= 4 && strncmp (l, "\\li|", 4) == 0)
+      //
+      // \li
+      //
+      else if (n >= 4 &&
+               l[0] == '\\' &&
+               l[1] == 'l' &&
+               l[2] == 'i' &&
+               (l[3] == '|' || l[3] == '#'))
       {
         k = block::li;
         l += 4;
@@ -1292,10 +1328,27 @@ format (semantics::scope& scope, string const& s, bool para)
       else
         k = block::text;
 
+      // Get the id, if present.
+      //
+      if (k != block::text && *(l - 1) == '#')
+      {
+        for (; n != 0 && *l != '|'; ++l, --n)
+          id += *l;
+
+        if (n == 0)
+        {
+          cerr << "error: paragraph begin '|' expected after id in '"
+               << string (ol, 0, on) << "'" << endl;
+          throw generation_failed ();
+        }
+
+        ++l; --n; // Skip '|'.
+      }
+
       // Skip leading spaces after opening '|'.
       //
       if (k != block::text)
-        while (n != 0 && (*l == 0x20 || *l == 0x0D || *l == 0x09)) {l++; n--;}
+        while (n != 0 && (*l == 0x20 || *l == 0x0D || *l == 0x09)) {++l; --n;}
 
       // Next figure out how many blocks we need to pop at the end of this
       // paragraph. Things get a bit complicated since '|' could be escaped.
@@ -1352,6 +1405,18 @@ format (semantics::scope& scope, string const& s, bool para)
       {
         cerr << "error: " << k << " inside " << ok << " "
              << "in documentation string '" << s << "'" << endl;
+        throw generation_failed ();
+      }
+    }
+
+    // Check id for duplicates. Do it only on the non-TOC pass.
+    //
+    if (!toc && !id.empty ())
+    {
+      if (!id_set.insert (id).second)
+      {
+        cerr << "error: duplicate id '" << id << "' in documentation "
+             << "string '" << s << "'" << endl;
         throw generation_failed ();
       }
     }
@@ -1435,10 +1500,10 @@ format (semantics::scope& scope, string const& s, bool para)
     //
     switch (k)
     {
-    case block::h: blocks.push (block (k, false, header)); break;
+    case block::h: blocks.push (block (k, false, id, header)); break;
     case block::ul:
     case block::ol: ol_count = 0; // Fall through.
-    case block::dl: blocks.push (block (k, true)); break;
+    case block::dl: blocks.push (block (k, true, id)); break;
     case block::li:
       {
         switch (blocks.top ().kind)
@@ -1460,7 +1525,7 @@ format (semantics::scope& scope, string const& s, bool para)
           break;
         }
 
-        blocks.push (block (k, false, header));
+        blocks.push (block (k, false, id, header));
         break;
       }
     case block::text: break; // No push.
@@ -1609,8 +1674,9 @@ format (semantics::scope& scope, string const& s, bool para)
     for (; pop != 0; --pop)
     {
       block pb (blocks.top ()); // move
-      string& pv (pb.value);
+      string& pi (pb.id);
       string& ph (pb.header);
+      string& pv (pb.value);
 
       blocks.pop ();
 
@@ -1825,14 +1891,24 @@ format (semantics::scope& scope, string const& s, bool para)
           {
           case block::h:
             {
+              string h;
+              string c;
+
               switch (ph[0])
               {
-              case '0': v += "<h1 class=\"preface\">" + pv + "</h1>"; break;
-              case 'H': v += "<h1 class=\"part\">" + pv + "</h1>"; break;
-              case '1': v += "<h1>" + pv + "</h1>"; break;
-              case '2': v += "<h3>" + pv + "</h3>"; break;
-              case 'h': v += '<' + html_h + '>' + pv + "</" + html_h + '>';
+              case '0': h = "h1"; c = "preface"; break;
+              case 'H': h = "h1"; c = "part"; break;
+              case '1': h = "h1"; break;
+              case 'h': h = html_h; break;
+              case '2': h = "h3"; break;
               }
+
+              v += '<' + h;
+              if (!pi.empty ()) v += " id=\"" + pi + '"';
+              if (!c.empty ())  v += " class=\"" + c + '"';
+              v += '>';
+              v += pv;
+              v += "</" + h + '>';
 
               // @@ This only works for a single string fragment.
               //
@@ -1992,6 +2068,29 @@ end_toc ()
     }
   case ot_man: break;
   }
+}
+
+void context::
+verify_id_ref ()
+{
+  bool f (false);
+
+  for (id_set_type::const_iterator i (ref_set.begin ());
+       i != ref_set.end ();
+       ++i)
+  {
+    if (id_set.find (*i) == id_set.end ())
+    {
+      cerr << "error: no id for fragment link '#" << *i << "'" << endl;
+      f = true;
+    }
+  }
+
+  if (f)
+    throw generation_failed ();
+
+  id_set.clear ();
+  ref_set.clear ();
 }
 
 string context::

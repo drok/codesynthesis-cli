@@ -751,6 +751,8 @@ namespace
 
             len = max;
           }
+
+          verify_id_ref ();
         }
 
         string up (cli + "::usage_para");
@@ -791,6 +793,8 @@ namespace
         os << "return p;"
            << "}";
 
+        verify_id_ref ();
+
         // Long version.
         //
         if (usage == ut_both)
@@ -826,6 +830,8 @@ namespace
 
           os << "return p;"
              << "}";
+
+          verify_id_ref ();
         }
       }
 
@@ -1126,6 +1132,8 @@ generate_source (context& ctx)
 
       os << "return p;"
          << "}";
+
+      ctx.verify_id_ref ();
     }
 
     // Long version.
@@ -1166,6 +1174,8 @@ generate_source (context& ctx)
 
       os << "return p;"
          << "}";
+
+      ctx.verify_id_ref ();
     }
 
     ctx.ns_close (qn, false);
