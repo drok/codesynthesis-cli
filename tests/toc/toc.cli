@@ -1,0 +1,58 @@
+"\h1|Table of Contents|"
+"\$TOC$"
+
+"
+\h0|Preface|
+
+This document describes something awesome.
+
+\h|About This Document|
+
+And this document is also awesome.
+
+\h|More Information|
+
+It is so awesome that no further information will be required."
+
+"
+\H|PART I|
+
+Start of part one.
+
+\h1|Introduction|
+
+Beginning of the first chapter.
+
+\h|Architecture and Workflow|
+
+Some basics.
+
+\h|Benefits|
+
+You will like them.
+
+\h1|Hello World|
+
+Beginning of the second chapter.
+
+\h|Setup|
+
+More basics.
+
+\h|Compiling|
+
+How to build the example
+
+\h2|Compiling with GCC|
+
+GCC
+
+\h2|Compiling with Clang|
+
+Clang
+
+\h|Conclusion|
+
+Some remarks.
+
+"

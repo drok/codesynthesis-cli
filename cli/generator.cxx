@@ -80,14 +80,32 @@ namespace
   }
 
   void
-  append (ostream& os,
-          vector<string> const& text,
-          string const& file,
-          semantics::cli_unit& u)
+  append (context& ctx, string const& s, const path* d = 0)
+  {
+    // Detect the switch to/from TOC mode.
+    //
+    unsigned short t (ctx.toc);
+    string const& r (ctx.substitute (s, d));
+
+    if (t != ctx.toc)
+    {
+      if (!r.empty ()) // TOC prologue/epilogue (returned by start/end_toc()).
+        ctx.os << r << endl;
+    }
+    // Skip it if we are in the TOC mode.
+    //
+    else if (!t)
+      ctx.os << r << endl;
+  }
+
+  void
+  append (context& ctx, vector<string> const& text, string const& file)
   {
     for (vector<string>::const_iterator i (text.begin ());
          i != text.end (); ++i)
-      os << context::substitute (*i, u) << endl;
+    {
+      append (ctx, *i);
+    }
 
     if (!file.empty ())
     {
@@ -101,7 +119,7 @@ namespace
       // the delimiter.
       //
       for (string s; getline (ifs, s); )
-        os << context::substitute (s, u, &d) << endl;
+        append (ctx, s, &d);
     }
   }
 }
@@ -176,7 +194,7 @@ generate (options const& ops, semantics::cli_unit& unit, path const& p)
       // Process names.
       //
       {
-        context ctx (cerr, unit, ops);
+        context ctx (cerr, context::ot_plain, unit, ops);
         process_names (ctx);
       }
 
@@ -265,7 +283,7 @@ generate (options const& ops, semantics::cli_unit& unit, path const& p)
       // HXX
       //
       {
-        context ctx (hxx, unit, ops);
+        context ctx (hxx, context::ot_plain, unit, ops);
 
         string guard (make_guard (gp + hxx_name, ctx));
 
@@ -277,7 +295,7 @@ generate (options const& ops, semantics::cli_unit& unit, path const& p)
         //
         hxx << "// Begin prologue." << endl
             << "//" << endl;
-        append (hxx, ops.hxx_prologue (), ops.hxx_prologue_file (), unit);
+        append (ctx, ops.hxx_prologue (), ops.hxx_prologue_file ());
         hxx << "//" << endl
             << "// End prologue." << endl
             << endl;
@@ -304,7 +322,7 @@ generate (options const& ops, semantics::cli_unit& unit, path const& p)
         //
         hxx << "// Begin epilogue." << endl
             << "//" << endl;
-        append (hxx, ops.hxx_epilogue (), ops.hxx_epilogue_file (), unit);
+        append (ctx, ops.hxx_epilogue (), ops.hxx_epilogue_file ());
         hxx << "//" << endl
             << "// End epilogue." << endl
             << endl;
@@ -316,13 +334,13 @@ generate (options const& ops, semantics::cli_unit& unit, path const& p)
       //
       if (inl)
       {
-        context ctx (ixx, unit, ops);
+        context ctx (ixx, context::ot_plain, unit, ops);
 
         // Copy prologue.
         //
         ixx << "// Begin prologue." << endl
             << "//" << endl;
-        append (ixx, ops.ixx_prologue (), ops.ixx_prologue_file (), unit);
+        append (ctx, ops.ixx_prologue (), ops.ixx_prologue_file ());
         ixx << "//" << endl
             << "// End prologue." << endl
             << endl;
@@ -342,7 +360,7 @@ generate (options const& ops, semantics::cli_unit& unit, path const& p)
         //
         ixx << "// Begin epilogue." << endl
             << "//" << endl;
-        append (ixx, ops.ixx_epilogue (), ops.ixx_epilogue_file (), unit);
+        append (ctx, ops.ixx_epilogue (), ops.ixx_epilogue_file ());
         ixx << "//" << endl
             << "// End epilogue." << endl;
       }
@@ -350,13 +368,13 @@ generate (options const& ops, semantics::cli_unit& unit, path const& p)
       // CXX
       //
       {
-        context ctx (cxx, unit, ops);
+        context ctx (cxx, context::ot_plain, unit, ops);
 
         // Copy prologue.
         //
         cxx << "// Begin prologue." << endl
             << "//" << endl;
-        append (cxx, ops.cxx_prologue (), ops.cxx_prologue_file (), unit);
+        append (ctx, ops.cxx_prologue (), ops.cxx_prologue_file ());
         cxx << "//" << endl
             << "// End prologue." << endl
             << endl;
@@ -385,7 +403,7 @@ generate (options const& ops, semantics::cli_unit& unit, path const& p)
         //
         cxx << "// Begin epilogue." << endl
             << "//" << endl;
-        append (cxx, ops.cxx_epilogue (), ops.cxx_epilogue_file (), unit);
+        append (ctx, ops.cxx_epilogue (), ops.cxx_epilogue_file ());
         cxx << "//" << endl
             << "// End epilogue." << endl
             << endl;
@@ -420,13 +438,20 @@ generate (options const& ops, semantics::cli_unit& unit, path const& p)
       // The explicit cast helps VC++ 8.0 overcome its issues.
       //
       ostream& os (ops.stdout_ () ? cout : static_cast<ostream&> (man));
+      context ctx (os, context::ot_man, unit, ops);
 
-      append (os, ops.man_prologue (), ops.man_prologue_file (), unit);
+      for (bool first (true); first || ctx.toc; first = false)
+      {
+        append (ctx, ops.man_prologue (), ops.man_prologue_file ());
+        generate_man (ctx);
+        append (ctx, ops.man_epilogue (), ops.man_epilogue_file ());
 
-      context ctx (os, unit, ops);
-      generate_man (ctx);
-
-      append (os, ops.man_epilogue (), ops.man_epilogue_file (), unit);
+        if (ctx.toc)
+        {
+          assert (first); // Second run should end in non-TOC mode.
+          ctx.toc++; // TOC phase after restart.
+        }
+      }
     }
 
     // HTML output
@@ -460,13 +485,20 @@ generate (options const& ops, semantics::cli_unit& unit, path const& p)
       // The explicit cast helps VC++ 8.0 overcome its issues.
       //
       ostream& os (ops.stdout_ () ? cout : static_cast<ostream&> (html));
+      context ctx (os, context::ot_html, unit, ops);
 
-      append (os, ops.html_prologue (), ops.html_prologue_file (), unit);
+      for (bool first (true); first || ctx.toc; first = false)
+      {
+        append (ctx, ops.html_prologue (), ops.html_prologue_file ());
+        generate_html (ctx);
+        append (ctx, ops.html_epilogue (), ops.html_epilogue_file ());
 
-      context ctx (os, unit, ops);
-      generate_html (ctx);
-
-      append (os, ops.html_epilogue (), ops.html_epilogue_file (), unit);
+        if (ctx.toc)
+        {
+          assert (first); // Second run should end in non-TOC mode.
+          ctx.toc++; // TOC phase after restart.
+        }
+      }
     }
 
     // txt output
@@ -497,13 +529,20 @@ generate (options const& ops, semantics::cli_unit& unit, path const& p)
       // The explicit cast helps VC++ 8.0 overcome its issues.
       //
       ostream& os (ops.stdout_ () ? cout : static_cast<ostream&> (txt));
+      context ctx (os, context::ot_plain, unit, ops);
 
-      append (os, ops.txt_prologue (), ops.txt_prologue_file (), unit);
+      for (bool first (true); first || ctx.toc; first = false)
+      {
+        append (ctx, ops.txt_prologue (), ops.txt_prologue_file ());
+        generate_txt (ctx);
+        append (ctx, ops.txt_epilogue (), ops.txt_epilogue_file ());
 
-      context ctx (os, unit, ops);
-      generate_txt (ctx);
-
-      append (os, ops.txt_epilogue (), ops.txt_epilogue_file (), unit);
+        if (ctx.toc)
+        {
+          assert (first); // Second run should end in non-TOC mode.
+          ctx.toc++; // TOC phase after restart.
+        }
+      }
     }
 
     auto_rm.cancel ();

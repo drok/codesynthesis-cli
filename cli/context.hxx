@@ -71,6 +71,17 @@ public:
   semantics::cli_unit& unit;
   options_type const& options;
 
+  // Documentation output type.
+  //
+  enum output_type
+  {
+    ot_plain,
+    ot_html,
+    ot_man
+  };
+
+  output_type ot;
+
   bool modifier;
   bool specifier;
   usage_type usage;
@@ -88,14 +99,35 @@ public:
 
   regex_mapping const& link_regex;
 
+  // TOC phase.
+  //
+  // 0 - non-TOC
+  // 1 - generating TOC after seeing expansion but before restart
+  // 2 - generating TOC after restart
+  // 0 - non-TOC after seeing expansion after restart
+  //
+  unsigned short& toc;
+
+  struct toc_entry
+  {
+    toc_entry (char t = '\0', size_t c = 0): type (t), count (c) {}
+
+    char type;    // Entry type (output type-specific, usually X from \hX).
+    size_t count; // Number of sub-entries so far.
+  };
+
+  typedef std::vector<toc_entry> toc_stack;
+  toc_stack& tocs;
+
 private:
   struct data
   {
     string inl_;
     string cli_;
     keyword_set_type keyword_set_;
-
     regex_mapping link_regex_;
+    unsigned short toc_;
+    toc_stack tocs_;
   };
 
 public:
@@ -111,13 +143,6 @@ public:
   // the <arg>-style constructs to \i{arg}. Format converts the string
   // to the output format.
   //
-  enum output_type
-  {
-    ot_plain,
-    ot_html,
-    ot_man
-  };
-
   static string
   translate_arg (string const&, std::set<string>&);
 
@@ -127,24 +152,27 @@ public:
   // If para is true, start a new paragraph.
   //
   string
-  format (semantics::scope&, output_type, string const&, bool para);
+  format (semantics::scope&, string const&, bool para);
 
   void
   format_line (output_type, string&, const char*, size_t);
 
+  // Called when we switch to the TOC mode and when we exit it,
+  // respectively.
+  //
+  string
+  start_toc ();
+
+  string
+  end_toc ();
+
   // Substitute doc variable expansions ($var$). Var must be a C identifier.
   // If the path is not NULL, then also recognize names that start with either
   // ./ or ../ and treat them as files relative to path. Such file expansions
-  // are substituted with the files' contents.
+  // are substituted with the file contents.
   //
-  static string
-  substitute (const string&, semantics::cli_unit&, const path* = 0);
-
   string
-  substitute (const string& s, const path* p = 0)
-  {
-    return substitute (s, unit, p);
-  }
+  substitute (const string&, const path* = 0);
 
   // Substitute doc variable expansions (\$var$). Note that it leaves escapes
   // (\\$) as is. Return true if any substitutions have been made, in which
@@ -204,7 +232,10 @@ public:
   first_sentence (string const&);
 
 public:
-  context (std::ostream&, semantics::cli_unit&, options_type const&);
+  context (std::ostream&,
+           output_type,
+           semantics::cli_unit&,
+           options_type const&);
 
   context (context&);
 

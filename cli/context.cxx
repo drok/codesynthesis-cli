@@ -98,12 +98,14 @@ namespace
 
 context::
 context (ostream& os_,
+         output_type ot_,
          semantics::cli_unit& unit_,
          options_type const& ops)
     : data_ (new (shared) data),
       os (os_),
       unit (unit_),
       options (ops),
+      ot (ot_),
       modifier (options.generate_modifier ()),
       specifier (options.generate_specifier ()),
       inl (data_->inl_),
@@ -112,7 +114,9 @@ context (ostream& os_,
       cli (data_->cli_),
       reserved_name_map (options.reserved_name ()),
       keyword_set (data_->keyword_set_),
-      link_regex (data_->link_regex_)
+      link_regex (data_->link_regex_),
+      toc (data_->toc_),
+      tocs (data_->tocs_)
 {
   if (options.suppress_usage ())
     usage = ut_none;
@@ -150,6 +154,8 @@ context (ostream& os_,
       throw generation_failed ();
     }
   }
+
+  toc = 0;
 }
 
 context::
@@ -158,6 +164,7 @@ context (context& c)
       os (c.os),
       unit (c.unit),
       options (c.options),
+      ot (c.ot),
       modifier (c.modifier),
       specifier (c.specifier),
       usage (c.usage),
@@ -167,7 +174,9 @@ context (context& c)
       cli (c.cli),
       reserved_name_map (c.reserved_name_map),
       keyword_set (c.keyword_set),
-      link_regex (c.link_regex)
+      link_regex (c.link_regex),
+      toc (c.toc),
+      tocs (c.tocs)
 {
 }
 
@@ -1120,7 +1129,7 @@ html_margin (string& v)
 
 
 string context::
-format (semantics::scope& scope, output_type ot, string const& s, bool para)
+format (semantics::scope& scope, string const& s, bool para)
 {
   stack<block> blocks;
   blocks.push (block (block::text, para)); // Top-level.
@@ -1165,14 +1174,60 @@ format (semantics::scope& scope, output_type ot, string const& s, bool para)
       l = s.c_str () + b;
       n = (last ? s.size () : e) - b;
 
-      // Perform variable expansions (\$var$).
+      // Perform variable expansions (\$var$). Also detect the switch
+      // to/from TOC mode.
       //
+      unsigned short t (toc);
       if (substitute (scope, l, n, subst))
       {
+        if (subst.empty ())
+          continue;
+
+        if (t != toc)
+        {
+          // This is a TOC prologue/epilogue (returned by start/end_toc()) and
+          // we shouldn't be formatting it.
+          //
+          assert (blocks.size () == 1);
+          string& v (blocks.top ().value);
+
+          // Require that \$TOC$ appears in its own doc string. Failed this
+          // it is tricky to get indentation right.
+          //
+          if (!v.empty () || !last)
+          {
+            cerr << "error: TOC variable should be in its own documentation "
+                 << "string" << endl;
+            throw generation_failed ();
+          }
+
+          switch (ot)
+          {
+          case ot_plain: break;
+          case ot_html:
+            {
+              // Different "newline protocol" inside TOC.
+              //
+              v += subst;
+
+              if (toc)
+                v += '\n';
+            }
+          case ot_man: break;
+          }
+
+          continue;
+        }
+
         l = subst.c_str ();
         n = subst.size ();
       }
     }
+
+    // If this is TOC phase 2, then we simply ignore everything.
+    //
+    if (toc == 2)
+      continue;
 
     const char* ol (l); // Original, full line for diagnostics.
     size_t on (n);
@@ -1412,8 +1467,13 @@ format (semantics::scope& scope, output_type ot, string const& s, bool para)
     case block::pre: break;  // No push.
     }
 
-    // Output paragraph text.
+    // Output paragraph text. If we are in TOC mode and this is a top-level
+    // block, then pretend we don't have anything to write. For non-top-level
+    // blocks, we handle this below, when we pop them.
     //
+    if (toc && blocks.size () == 1)
+      n = 0;
+
     if (n != 0)
     {
       block& b (blocks.top ());
@@ -1556,6 +1616,135 @@ format (semantics::scope& scope, output_type ot, string const& s, bool para)
 
       block& b (blocks.top ());
       string& v (b.value);
+
+      // Handle poping into top-level block in TOC mode.
+      //
+      if (toc && blocks.size () == 1)
+      {
+        if (pb.kind == block::h)
+        {
+          switch (ot)
+          {
+          case ot_plain: break;
+          case ot_html:
+            {
+              char t (ph[0]);
+
+              // Unwind heading levels that are deeper ("more sub") than us.
+              //
+              for (; tocs.size () != 1; tocs.pop_back ())
+              {
+                toc_entry const& e (tocs.back ());
+
+                bool pop (true);
+
+                switch (t)
+                {
+                case '0':
+                case 'H':
+                case '1': break; // Always unwind.
+                case 'h':
+                  {
+                    pop = html_h[1] == '1' || e.type == 'h' || e.type == '2';
+                    break;
+                  }
+                case '2': pop = e.type == '2'; break;
+                }
+
+                if (!pop)
+                  break;
+
+                // If we have sub-headings, then we need to close the table.
+                //
+                if (e.count != 0)
+                {
+                  size_t l (tocs.size ());
+
+                  v += string (l * 4 - 2, ' ') + "</table>\n";
+                  v += string (l * 4 - 4, ' ') + "</td></tr>\n";
+                }
+                else
+                  // Otherwise it is inline.
+                  //
+                  v += "</td></tr>\n";
+              }
+
+              size_t l (tocs.size ());
+              toc_entry& e (tocs.back ());
+
+              // If this is a first sub-entry, then we need to open the
+              // sub-table.
+              //
+              string in ((l * 4) - 2, ' ');
+
+              if (l > 1 && e.count == 0)
+              {
+                v += "\n";
+                v += in + "<table class=\"toc\">\n";
+              }
+
+              in += "  ";
+
+              switch (t)
+              {
+              case 'H':
+                {
+                  v += in + "<tr><th colspan=\"2\">" + pv + "</th></tr>\n";
+                  break;
+                }
+              case '0':
+              case '1':
+              case 'h':
+              case '2':
+                {
+                  // Calculate Chapter(X)/Section(X.Y)/Subsection(X.Y.Z) unless
+                  // it is the preface (or a subsection thereof).
+                  //
+                  string n;
+                  if (t != '0')
+                  {
+                    ++e.count;
+
+                    for (toc_stack::const_iterator i (tocs.begin ());
+                         i != tocs.end ();
+                         ++i)
+                    {
+                      if (i->type == '0')
+                      {
+                        n.clear ();
+                        break;
+                      }
+
+                      if (!n.empty ())
+                        n += '.';
+
+                      ostringstream os;
+                      os << i->count;
+                      n += os.str ();
+                    }
+                  }
+
+                  v += in + "<tr><th>" + n + "</th><td>" + pv; // No newline
+                  tocs.push_back (toc_entry (t));
+                  break;
+                }
+              }
+
+              // Same as in non-TOC mode below.
+              //
+              // @@ This only works for a single string fragment.
+              //
+              if (ph[0] == '0' || ph[0] == '1')
+                html_h = "h2";
+
+              break;
+            }
+          case ot_man: break;
+          }
+        }
+
+        continue;
+      }
 
       switch (ot)
       {
@@ -1752,7 +1941,61 @@ format (semantics::scope& scope, output_type ot, string const& s, bool para)
 }
 
 string context::
-substitute (const string& s, semantics::cli_unit& u, const path* d)
+start_toc ()
+{
+  switch (ot)
+  {
+  case ot_plain: break;
+  case ot_html:
+    {
+      tocs.push_back (toc_entry ('\0'));
+      return "  <table class=\"toc\">";
+    }
+  case ot_man: break;
+  }
+}
+
+string context::
+end_toc ()
+{
+  switch (ot)
+  {
+  case ot_plain: break;
+  case ot_html:
+    {
+      string v;
+
+      // Unwind the TOC stack until we reach top level. Same code as in
+      // format().
+      //
+      for (; tocs.size () != 1; tocs.pop_back ())
+      {
+        toc_entry const& e (tocs.back ());
+
+        // If we have sub-headings, then we need to close the table.
+        //
+        if (e.count != 0)
+        {
+          size_t l (tocs.size ());
+
+          v += string (l * 4 - 2, ' ') + "</table>\n";
+          v += string (l * 4 - 4, ' ') + "</td></tr>\n";
+        }
+        else
+          // Otherwise it is inline.
+          //
+          v += "</td></tr>\n";
+      }
+
+      v += "  </table>";
+      return v;
+    }
+  case ot_man: break;
+  }
+}
+
+string context::
+substitute (const string& s, const path* d)
 {
   string r;
 
@@ -1832,9 +2075,31 @@ substitute (const string& s, semantics::cli_unit& u, const path* d)
         }
         else
         {
+          // Handle special variables.
+          //
+          if (v == "TOC")
+          {
+            if (!r.empty () || p + 1 != n)
+            {
+              cerr << "error: TOC variable should be on its own line" << endl;
+              throw generation_failed ();
+            }
+
+            // Invert the TOC mode.
+            //
+            if ((toc = toc ? 0 : 1))
+              r = start_toc ();
+            else
+              r = end_toc ();
+
+            return r;
+          }
+
           // Lookup and substiute the variable.
           //
-          if (semantics::doc* d = u.lookup<semantics::doc> ("", "var: " + v))
+          using semantics::doc;
+
+          if (doc* d = unit.lookup<doc> ("", "var: " + v))
             r += d->front ();
           else
           {
@@ -1899,6 +2164,26 @@ substitute (semantics::scope& scope, const char* s, size_t n, string& result)
         //
         ++e;
         string v (s, e, p - e);
+
+        // Handle special variables.
+        //
+        if (v == "TOC")
+        {
+          if (!result.empty () || p + 1 != n)
+          {
+            cerr << "error: TOC variable should be its own paragraph" << endl;
+            throw generation_failed ();
+          }
+
+          // Invert the TOC mode.
+          //
+          if ((toc = toc ? 0 : 1))
+            result = start_toc ();
+          else
+            result = end_toc ();
+
+          return true;
+        }
 
         // Lookup and substiute.
         //

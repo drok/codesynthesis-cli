@@ -139,10 +139,10 @@ namespace
       if (n > 1)
         translate_arg (ds[0], arg_set);
 
-      string s (format (ds.scope (),
-                        ot_html,
-                        escape_html (translate (d, arg_set)),
-                        true));
+      unsigned short t (toc); // Detect the switch to/from TOC mode.
+
+      string s (
+        format (ds.scope (), escape_html (translate (d, arg_set)), true));
 
       if (s.empty ())
         return;
@@ -154,9 +154,11 @@ namespace
         list_ = false;
       }
 
-      wrap_lines (os, s, 2);
-      os << endl
-         << endl;
+      wrap_lines (os, s, (t || toc) ? 0 : 2); // TOC mode does its own thing.
+
+      if (!toc) // TOC mode does its own thing.
+        os << endl
+           << endl;
     }
 
   private:
@@ -178,6 +180,9 @@ namespace
 
       if (options.suppress_undocumented () && doc.empty ())
         return;
+
+      if (toc)
+        return; // No option documentation in the TOC mode.
 
       if (!list_)
       {
@@ -211,7 +216,7 @@ namespace
           translate_arg (
             doc.size () > 0 ? doc[0] : string ("<arg>"), arg_set));
 
-        os << ' ' << format (o.scope (), ot_html, escape_html (s), false);
+        os << ' ' << format (o.scope (), escape_html (s), false);
       }
 
       os << "</dt>" << endl;
@@ -234,10 +239,7 @@ namespace
 
       // Format the documentation string.
       //
-      d = format (o.scope (),
-                  ot_html,
-                  escape_html (translate (d, arg_set)),
-                  false);
+      d = format (o.scope (), escape_html (translate (d, arg_set)), false);
 
       wrap_lines (os, "<dd>" + d + "</dd>", 4);
       os << endl;
