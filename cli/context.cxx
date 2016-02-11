@@ -1696,6 +1696,14 @@ format (semantics::scope& scope, string const& s, bool para)
             {
               char t (ph[0]);
 
+              if (pi.empty ())
+              {
+                cerr << "error: TOC heading '" << pv << "' has no id" << endl;
+                throw generation_failed ();
+              }
+
+              pv = "<a href=\"#" + pi + "\">" + pv + "</a>";
+
               // Unwind heading levels that are deeper ("more sub") than us.
               //
               for (; tocs.size () != 1; tocs.pop_back ())
