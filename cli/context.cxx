@@ -1143,6 +1143,39 @@ html_margin (string& v)
   return os.str ();
 }
 
+// The same idea except there are no margins. So we just strip .br.
+//
+static void
+man_margin (string& v)
+{
+  size_t top (0), bot (0);
+
+  const char* b (v.c_str ());
+  const char* e (v.c_str () + v.size ());
+
+  for (; e - b >= 3 && strncmp (b, ".br", 3) == 0; ++top)
+  {
+    b += 3;
+
+    if (b != e && *b == '\n') // Remove following newline, if any.
+      ++b;
+  }
+
+  for (; e - b >= 3 && strncmp (e - 3, ".br", 3) == 0; ++bot)
+  {
+    e -= 3;
+
+    if (e != b && *(e - 1) == '\n') // Remove preceding newline, if any.
+      --e;
+  }
+
+  if (top != 0 || bot != 0)
+  {
+    string t;
+    t.swap (v);
+    v.assign (b, e - b);
+  }
+}
 
 string context::
 format (semantics::scope& scope, string const& s, bool para)
@@ -2021,11 +2054,16 @@ format (semantics::scope& scope, string const& s, bool para)
             }
           case block::li:
             {
+              man_margin (ph); // Strip leading/trailing .br.
+
               switch (b.kind)
               {
               case block::ul: v += ".IP \\(bu 2em\n" + pv; break;
               case block::ol: v += ".IP " + ph + ". 4em\n" + pv; break;
-              case block::dl: v += ".IP \"" + ph + "\"\n" + pv; break;
+              //
+              // Add .br to force the definition to start on the new line.
+              //
+              case block::dl: v += ".IP \"" + ph + "\"\n.br\n" + pv; break;
               default: break;
               }
 
