@@ -1800,12 +1800,17 @@ format (semantics::scope& scope, string const& s, bool para)
                     }
                   }
 
-                  // Save the heading number for later.
-                  //
-                  if (!n.empty ())
-                    heading_map[pi] = n;
+                  v += in + "<tr>";
 
-                  v += in + "<tr><th>" + n + "</th><td>" + pv; // No newline
+                  if (!n.empty ())
+                  {
+                    v += "<th>" + n + "</th><td>";
+                    heading_map[pi] = n; // Save it for later.
+                  }
+                  else
+                    v += "<td colspan=\"2\">";
+
+                  v += pv; // No newline
                   tocs.push_back (toc_entry (t));
                   break;
                 }
