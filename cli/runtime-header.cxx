@@ -292,6 +292,37 @@ generate_runtime_header (context& ctx)
      << "bool erase_;"
      << "};";
 
+  // vector_scanner
+  //
+  if (ctx.options.generate_vector_scanner ())
+  {
+    os << "class vector_scanner: public scanner"
+       << "{"
+       << "public:" << endl
+       << "vector_scanner (const std::vector<std::string>&, " <<
+      "std::size_t start = 0);"
+       << endl
+       << "std::size_t" << endl
+       << "end () const;"
+       << endl
+       << "virtual bool" << endl
+       << "more ();"
+       << endl
+       << "virtual const char*" << endl
+       << "peek ();"
+       << endl
+       << "virtual const char*" << endl
+       << "next ();"
+       << endl
+       << "virtual void" << endl
+       << "skip ();"
+       << endl
+       << "private:" << endl
+       << "const std::vector<std::string>& v_;"
+       << "std::size_t i_;"
+       << "};";
+  }
+
   // argv_file_scanner
   //
   if (ctx.options.generate_file_scanner ())

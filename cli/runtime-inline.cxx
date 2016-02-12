@@ -187,6 +187,27 @@ generate_runtime_inline (context& ctx)
      << "return i_;"
      << "}";
 
+  // vector_scanner
+  //
+  if (ctx.options.generate_vector_scanner ())
+  {
+    os << "// vector_scanner" << endl
+       << "//" << endl;
+
+    os << inl << "vector_scanner::" << endl
+       << "vector_scanner (const std::vector<std::string>& v, " <<
+      "std::size_t i)" << endl
+       << ": v_ (v), i_ (i)"
+       << "{"
+       << "}";
+
+    os << inl << "std::size_t vector_scanner::" << endl
+       << "end () const"
+       << "{"
+       << "return i_;"
+       << "}";
+  }
+
   // argv_file_scanner
   //
   if (ctx.options.generate_file_scanner ())

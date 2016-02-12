@@ -290,6 +290,12 @@ generate_file_scanner () const
 }
 
 inline const bool& options::
+generate_vector_scanner () const
+{
+  return this->generate_vector_scanner_;
+}
+
+inline const bool& options::
 suppress_inline () const
 {
   return this->suppress_inline_;

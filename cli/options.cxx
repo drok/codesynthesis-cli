@@ -576,6 +576,7 @@ options ()
   generate_parse_ (),
   generate_description_ (),
   generate_file_scanner_ (),
+  generate_vector_scanner_ (),
   suppress_inline_ (),
   cli_namespace_ ("::cli"),
   cli_namespace_specified_ (false),
@@ -707,6 +708,7 @@ options (int& argc,
   generate_parse_ (),
   generate_description_ (),
   generate_file_scanner_ (),
+  generate_vector_scanner_ (),
   suppress_inline_ (),
   cli_namespace_ ("::cli"),
   cli_namespace_specified_ (false),
@@ -841,6 +843,7 @@ options (int start,
   generate_parse_ (),
   generate_description_ (),
   generate_file_scanner_ (),
+  generate_vector_scanner_ (),
   suppress_inline_ (),
   cli_namespace_ ("::cli"),
   cli_namespace_specified_ (false),
@@ -975,6 +978,7 @@ options (int& argc,
   generate_parse_ (),
   generate_description_ (),
   generate_file_scanner_ (),
+  generate_vector_scanner_ (),
   suppress_inline_ (),
   cli_namespace_ ("::cli"),
   cli_namespace_specified_ (false),
@@ -1111,6 +1115,7 @@ options (int start,
   generate_parse_ (),
   generate_description_ (),
   generate_file_scanner_ (),
+  generate_vector_scanner_ (),
   suppress_inline_ (),
   cli_namespace_ ("::cli"),
   cli_namespace_specified_ (false),
@@ -1243,6 +1248,7 @@ options (::cli::scanner& s,
   generate_parse_ (),
   generate_description_ (),
   generate_file_scanner_ (),
+  generate_vector_scanner_ (),
   suppress_inline_ (),
   cli_namespace_ ("::cli"),
   cli_namespace_specified_ (false),
@@ -1390,6 +1396,8 @@ print_usage (::std::ostream& os, ::cli::usage_para p)
      << "                             examined at runtime." << ::std::endl;
 
   os << "--generate-file-scanner      Generate the argv_file_scanner implementation." << ::std::endl;
+
+  os << "--generate-vector-scanner    Generate the vector_scanner implementation." << ::std::endl;
 
   os << "--suppress-inline            Generate all functions non-inline." << ::std::endl;
 
@@ -1621,6 +1629,8 @@ struct _cli_options_map_init
     &::cli::thunk< options, bool, &options::generate_description_ >;
     _cli_options_map_["--generate-file-scanner"] = 
     &::cli::thunk< options, bool, &options::generate_file_scanner_ >;
+    _cli_options_map_["--generate-vector-scanner"] = 
+    &::cli::thunk< options, bool, &options::generate_vector_scanner_ >;
     _cli_options_map_["--suppress-inline"] = 
     &::cli::thunk< options, bool, &options::suppress_inline_ >;
     _cli_options_map_["--cli-namespace"] = 

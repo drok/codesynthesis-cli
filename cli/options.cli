@@ -68,6 +68,12 @@ class options
      well as files specified with command line options."
   };
 
+  bool --generate-vector-scanner
+  {
+    "Generate the \c{vector_scanner} implementation. This scanner is capable
+     of reading command line arguments from \cb{vector<string>}."
+  };
+
   bool --suppress-inline
   {
     "Generate all functions non-inline. By default simple functions are

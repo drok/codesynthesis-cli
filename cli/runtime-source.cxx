@@ -242,6 +242,47 @@ generate_runtime_source (context& ctx, bool complete)
        << "throw eos_reached ();"
        << "}";
 
+    // vector_scanner
+    //
+    if (ctx.options.generate_vector_scanner ())
+    {
+      os << "// vector_scanner" << endl
+         << "//" << endl
+
+         << "bool vector_scanner::" << endl
+         << "more ()"
+         << "{"
+         << "return i_ < v_.size ();"
+         << "}"
+
+         << "const char* vector_scanner::" << endl
+         << "peek ()"
+         << "{"
+         << "if (i_ < v_.size ())" << endl
+         << "return v_[i_].c_str ();"
+         << "else" << endl
+         << "throw eos_reached ();"
+         << "}"
+
+         << "const char* vector_scanner::" << endl
+         << "next ()"
+         << "{"
+         << "if (i_ < v_.size ())" << endl
+         << "return v_[i_++].c_str ();"
+         << "else" << endl
+         << "throw eos_reached ();"
+         << "}"
+
+         << "void vector_scanner::" << endl
+         << "skip ()"
+         << "{"
+         << "if (i_ < v_.size ())" << endl
+         << "++i_;"
+         << "else" << endl
+         << "throw eos_reached ();"
+         << "}";
+    }
+
     // argv_file_scanner
     //
     if (ctx.options.generate_file_scanner ())

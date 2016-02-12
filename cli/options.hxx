@@ -433,6 +433,9 @@ class options
   generate_file_scanner () const;
 
   const bool&
+  generate_vector_scanner () const;
+
+  const bool&
   suppress_inline () const;
 
   const std::string&
@@ -791,6 +794,7 @@ class options
   bool generate_parse_;
   bool generate_description_;
   bool generate_file_scanner_;
+  bool generate_vector_scanner_;
   bool suppress_inline_;
   std::string cli_namespace_;
   bool cli_namespace_specified_;
