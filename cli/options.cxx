@@ -578,6 +578,7 @@ options ()
   generate_file_scanner_ (),
   generate_vector_scanner_ (),
   suppress_inline_ (),
+  suppress_cli_ (),
   cli_namespace_ ("::cli"),
   cli_namespace_specified_ (false),
   ostream_type_ ("::std::ostream"),
@@ -710,6 +711,7 @@ options (int& argc,
   generate_file_scanner_ (),
   generate_vector_scanner_ (),
   suppress_inline_ (),
+  suppress_cli_ (),
   cli_namespace_ ("::cli"),
   cli_namespace_specified_ (false),
   ostream_type_ ("::std::ostream"),
@@ -845,6 +847,7 @@ options (int start,
   generate_file_scanner_ (),
   generate_vector_scanner_ (),
   suppress_inline_ (),
+  suppress_cli_ (),
   cli_namespace_ ("::cli"),
   cli_namespace_specified_ (false),
   ostream_type_ ("::std::ostream"),
@@ -980,6 +983,7 @@ options (int& argc,
   generate_file_scanner_ (),
   generate_vector_scanner_ (),
   suppress_inline_ (),
+  suppress_cli_ (),
   cli_namespace_ ("::cli"),
   cli_namespace_specified_ (false),
   ostream_type_ ("::std::ostream"),
@@ -1117,6 +1121,7 @@ options (int start,
   generate_file_scanner_ (),
   generate_vector_scanner_ (),
   suppress_inline_ (),
+  suppress_cli_ (),
   cli_namespace_ ("::cli"),
   cli_namespace_specified_ (false),
   ostream_type_ ("::std::ostream"),
@@ -1250,6 +1255,7 @@ options (::cli::scanner& s,
   generate_file_scanner_ (),
   generate_vector_scanner_ (),
   suppress_inline_ (),
+  suppress_cli_ (),
   cli_namespace_ ("::cli"),
   cli_namespace_specified_ (false),
   ostream_type_ ("::std::ostream"),
@@ -1400,6 +1406,9 @@ print_usage (::std::ostream& os, ::cli::usage_para p)
   os << "--generate-vector-scanner    Generate the vector_scanner implementation." << ::std::endl;
 
   os << "--suppress-inline            Generate all functions non-inline." << ::std::endl;
+
+  os << "--suppress-cli               Do not generate the CLI support types (scanners," << ::std::endl
+     << "                             parser, etc)." << ::std::endl;
 
   os << "--cli-namespace <ns>         Generate the CLI support types in the <ns>" << ::std::endl
      << "                             namespace (cli by default)." << ::std::endl;
@@ -1633,6 +1642,8 @@ struct _cli_options_map_init
     &::cli::thunk< options, bool, &options::generate_vector_scanner_ >;
     _cli_options_map_["--suppress-inline"] = 
     &::cli::thunk< options, bool, &options::suppress_inline_ >;
+    _cli_options_map_["--suppress-cli"] = 
+    &::cli::thunk< options, bool, &options::suppress_cli_ >;
     _cli_options_map_["--cli-namespace"] = 
     &::cli::thunk< options, std::string, &options::cli_namespace_,
       &options::cli_namespace_specified_ >;

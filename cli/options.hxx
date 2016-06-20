@@ -438,6 +438,9 @@ class options
   const bool&
   suppress_inline () const;
 
+  const bool&
+  suppress_cli () const;
+
   const std::string&
   cli_namespace () const;
 
@@ -796,6 +799,7 @@ class options
   bool generate_file_scanner_;
   bool generate_vector_scanner_;
   bool suppress_inline_;
+  bool suppress_cli_;
   std::string cli_namespace_;
   bool cli_namespace_specified_;
   std::string ostream_type_;

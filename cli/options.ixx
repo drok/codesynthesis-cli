@@ -301,6 +301,12 @@ suppress_inline () const
   return this->suppress_inline_;
 }
 
+inline const bool& options::
+suppress_cli () const
+{
+  return this->suppress_cli_;
+}
+
 inline const std::string& options::
 cli_namespace () const
 {

@@ -80,6 +80,14 @@ class options
      made inline. This option suppresses creation of the inline file."
   };
 
+  bool --suppress-cli
+  {
+    "Do not generate the CLI support types (scanners, parser, etc). Normally,
+     the support types are generated unless another \cb{.cli} was included,
+     in which case the support types are expected to be provided by its
+     generated code."
+  };
+
   std::string --cli-namespace = "::cli"
   {
     "<ns>",

@@ -204,13 +204,20 @@ generate (options const& ops, semantics::cli_unit& unit, path const& p)
       // have to include in the generated header file, we will still
       // need to generate some template code in the source file.
       //
-      bool runtime (true);
-      for (semantics::cli_unit::includes_iterator i (unit.includes_begin ());
-           runtime && i != unit.includes_end ();
-           ++i)
+      bool runtime (!ops.suppress_cli ());
+
+      if (runtime)
       {
-        if (i->is_a<semantics::cli_includes> ())
-          runtime = false;
+        for (semantics::cli_unit::includes_iterator i (unit.includes_begin ());
+             i != unit.includes_end ();
+             ++i)
+        {
+          if (i->is_a<semantics::cli_includes> ())
+          {
+            runtime = false;
+            break;
+          }
+        }
       }
 
       //
@@ -391,7 +398,8 @@ generate (options const& ops, semantics::cli_unit& unit, path const& p)
           if (runtime && !inl)
             generate_runtime_inline (ctx);
 
-          generate_runtime_source (ctx, runtime);
+          if (!ops.suppress_cli ())
+            generate_runtime_source (ctx, runtime);
 
           if (!inl)
             generate_inline (ctx);
