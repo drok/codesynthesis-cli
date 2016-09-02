@@ -1170,13 +1170,20 @@ doc_string (const char* l, size_t n)
         while (e > b && (t1[e] == 0x20 || t1[e] == 0x0D || t1[e] == 0x09))
           --e;
 
-        if (b == e && t1[b] == '\\')
+        // Pre-formatted fragment marker or its escape.
+        //
+        if (t1[b] == '\\' && (b == e || (b + 1 == e && t1[e] == '\\')))
         {
           // Use Start of Text (0x02) and End of Text (0x03) special
           // characters as pre-formatted fragment markers.
           //
-          pre = !pre;
-          t2 += (pre ? 0x02 : 0x03);
+          if (b == e)
+          {
+            pre = !pre;
+            t2 += (pre ? 0x02 : 0x03);
+          }
+          else
+            t2 += '\\'; // Unescape.
         }
         else if (b <= e)
           t2.append (t1, b, e - b + 1);
