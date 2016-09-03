@@ -278,6 +278,12 @@ class options
      '\cb{h2}', etc)."
   };
 
+  bool --omit-link-check
+  {
+    "Don't check that local fragment link references (\\l{#ref ...}) resolve
+     to ids."
+  };
+
   // Prologues.
   //
   std::vector<std::string> --hxx-prologue

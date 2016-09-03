@@ -2158,21 +2158,24 @@ end_toc ()
 void context::
 verify_id_ref ()
 {
-  bool f (false);
-
-  for (id_set_type::const_iterator i (ref_set.begin ());
-       i != ref_set.end ();
-       ++i)
+  if (!options.omit_link_check ())
   {
-    if (id_set.find (*i) == id_set.end ())
-    {
-      cerr << "error: no id for fragment link '#" << *i << "'" << endl;
-      f = true;
-    }
-  }
+    bool f (false);
 
-  if (f)
-    throw generation_failed ();
+    for (id_set_type::const_iterator i (ref_set.begin ());
+         i != ref_set.end ();
+         ++i)
+    {
+      if (id_set.find (*i) == id_set.end ())
+      {
+        cerr << "error: no id for fragment link '#" << *i << "'" << endl;
+        f = true;
+      }
+    }
+
+    if (f)
+      throw generation_failed ();
+  }
 
   id_set.clear ();
   ref_set.clear ();

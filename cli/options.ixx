@@ -493,6 +493,12 @@ html_heading_map_specified () const
   return this->html_heading_map_specified_;
 }
 
+inline const bool& options::
+omit_link_check () const
+{
+  return this->omit_link_check_;
+}
+
 inline const std::vector<std::string>& options::
 hxx_prologue () const
 {

@@ -534,6 +534,9 @@ class options
   bool
   html_heading_map_specified () const;
 
+  const bool&
+  omit_link_check () const;
+
   const std::vector<std::string>&
   hxx_prologue () const;
 
@@ -831,6 +834,7 @@ class options
   bool link_regex_trace_;
   std::map<char, std::string> html_heading_map_;
   bool html_heading_map_specified_;
+  bool omit_link_check_;
   std::vector<std::string> hxx_prologue_;
   bool hxx_prologue_specified_;
   std::vector<std::string> ixx_prologue_;

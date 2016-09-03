@@ -610,6 +610,7 @@ options ()
   link_regex_trace_ (),
   html_heading_map_ (),
   html_heading_map_specified_ (false),
+  omit_link_check_ (),
   hxx_prologue_ (),
   hxx_prologue_specified_ (false),
   ixx_prologue_ (),
@@ -743,6 +744,7 @@ options (int& argc,
   link_regex_trace_ (),
   html_heading_map_ (),
   html_heading_map_specified_ (false),
+  omit_link_check_ (),
   hxx_prologue_ (),
   hxx_prologue_specified_ (false),
   ixx_prologue_ (),
@@ -879,6 +881,7 @@ options (int start,
   link_regex_trace_ (),
   html_heading_map_ (),
   html_heading_map_specified_ (false),
+  omit_link_check_ (),
   hxx_prologue_ (),
   hxx_prologue_specified_ (false),
   ixx_prologue_ (),
@@ -1015,6 +1018,7 @@ options (int& argc,
   link_regex_trace_ (),
   html_heading_map_ (),
   html_heading_map_specified_ (false),
+  omit_link_check_ (),
   hxx_prologue_ (),
   hxx_prologue_specified_ (false),
   ixx_prologue_ (),
@@ -1153,6 +1157,7 @@ options (int start,
   link_regex_trace_ (),
   html_heading_map_ (),
   html_heading_map_specified_ (false),
+  omit_link_check_ (),
   hxx_prologue_ (),
   hxx_prologue_specified_ (false),
   ixx_prologue_ (),
@@ -1287,6 +1292,7 @@ options (::cli::scanner& s,
   link_regex_trace_ (),
   html_heading_map_ (),
   html_heading_map_specified_ (false),
+  omit_link_check_ (),
   hxx_prologue_ (),
   hxx_prologue_specified_ (false),
   ixx_prologue_ (),
@@ -1474,6 +1480,9 @@ print_usage (::std::ostream& os, ::cli::usage_para p)
   os << "--html-heading-map <c>=<h>   Map CLI heading <c> (valid values: 'H', '0', '1'," << ::std::endl
      << "                             'h', and '2') to HTML heading <h> (for example," << ::std::endl
      << "                             'h1', 'h2', etc)." << ::std::endl;
+
+  os << "--omit-link-check            Don't check that local fragment link references" << ::std::endl
+     << "                             (\\l{#ref ...}) resolve to ids." << ::std::endl;
 
   os << "--hxx-prologue <text>        Insert <text> at the beginning of the generated" << ::std::endl
      << "                             C++ header file." << ::std::endl;
@@ -1700,6 +1709,8 @@ struct _cli_options_map_init
     _cli_options_map_["--html-heading-map"] = 
     &::cli::thunk< options, std::map<char, std::string>, &options::html_heading_map_,
       &options::html_heading_map_specified_ >;
+    _cli_options_map_["--omit-link-check"] = 
+    &::cli::thunk< options, bool, &options::omit_link_check_ >;
     _cli_options_map_["--hxx-prologue"] = 
     &::cli::thunk< options, std::vector<std::string>, &options::hxx_prologue_,
       &options::hxx_prologue_specified_ >;

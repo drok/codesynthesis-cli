@@ -83,9 +83,16 @@ Generate the option description list that can be examined at runtime\.
 Generate the argv_file_scanner\fR implementation\. This scanner is capable of
 reading command line arguments from the argv\fR array as well as files
 specified with command line options\.
+.IP "\fB--generate-vector-scanner\fR"
+Generate the vector_scanner\fR implementation\. This scanner is capable of
+reading command line arguments from \fBvector<string>\fR\.
 .IP "\fB--suppress-inline\fR"
 Generate all functions non-inline\. By default simple functions are made
 inline\. This option suppresses creation of the inline file\.
+.IP "\fB--suppress-cli\fR"
+Do not generate the CLI support types (scanners, parser, etc)\. Normally, the
+support types are generated unless another \fB\.cli\fR was included, in which
+case the support types are expected to be provided by its generated code\.
 .IP "\fB--cli-namespace\fR \fIns\fR"
 Generate the CLI support types in the \fIns\fR namespace (\fBcli\fR by
 default)\. The namespace can be nested, for example \fBdetails::cli\fR\. If
@@ -95,12 +102,14 @@ namespace\.
 Output stream type instead of the default \fBstd::ostream\fR that should be
 used to print usage and exception information\.
 .IP "\fB--generate-cxx\fR"
-Generate C++ code\. If neither \fB--generate-man\fR nor \fB--generate-html\fR
-is specified, this mode is assumed by default\.
+Generate C++ code\. If neither \fB--generate-man\fR, \fB--generate-html\fR,
+nor \fB--generate-txt\fR is specified, this mode is assumed by default\.
 .IP "\fB--generate-man\fR"
 Generate documentation in the man page format\.
 .IP "\fB--generate-html\fR"
 Generate documentation in the HTML format\.
+.IP "\fB--generate-txt\fR"
+Generate documentation in the plain text format, similar to usage\.
 .IP "\fB--stdout\fR"
 Write output to STDOUT instead of a file\. This option is not valid when
 generating C++ code and is normally used to combine generated documentation
@@ -145,8 +154,8 @@ and would like their usage to have the same indentation level\.
 Use ANSI color escape sequences when printing usage\. By "color" we really
 only mean the bold and underline modifiers\. Note that Windows console does
 not recognize ANSI escape sequences and will display them as garbage\.
-However, if you pipe such output through \fBless\fR(1)\fR, it will display
-them correctly\.
+However, if you pipe such output through \fBless(1)\fR, it will display them
+correctly\.
 .IP "\fB--exclude-base\fR"
 Exclude base class information from usage and documentation\.
 .IP "\fB--include-base-last\fR"
@@ -157,13 +166,13 @@ Specify the documentation \fIkind\fR that should be used for the options class
 \fIname\fR\. The \fIname\fR value should be a fully-qualified class name, for
 example, \fBapp::options\fR\. The \fIkind\fR value can be \fBshort\fR,
 \fBlong\fR, or \fBexclude\fR\. If the value is \fBexclude\fR, then the class
-documentation is excluded from usage and man/HTML output\. For usage, the
+documentation is excluded from usage and man/HTML/text output\. For usage, the
 \fBshort\fR and \fBlong\fR values determine which usage function will be
 called when the class is used as base or as part of the page usage (see
-\fB--page-usage\fR)\. For man/HTML, these values determine which documentation
-strings are used in the output\.
+\fB--page-usage\fR)\. For man/HTML/text, these values determine which
+documentation strings are used in the output\.
 .IP "\fB--class\fR \fIname\fR"
-Generate the man page or HTML documentation only for the options class
+Generate the man page, HTML, or text documentation only for the options class
 \fIname\fR\. The \fIname\fR value should be a fully-qualified options class
 name, for example, \fBapp::options\fR\. To generate documentation for multiple
 classes, repeat this option and the documentation will be produced in the
@@ -177,6 +186,28 @@ variables can be substituted in prologues and epilogues (see
 \fB$\fR\fIname\fR\fB$\fR expansion syntax (use \fB$$\fR to escape expansion)\.
 They can also be defined in \fB\.cli\fR files using the
 "\e\fIname\fR=\fIval\fR"\fR syntax\.
+.IP "\fB--link-regex\fR \fIregex\fR"
+Add \fIregex\fR to the list of regular expressions used to transform link
+targets in the generated documentation\. The argument to this option is a
+Perl-like regular expression in the form
+\fB/\fR\fIpattern\fR\fB/\fR\fIreplacement\fR\fB/\fR\fR\. Any character can be
+used as a delimiter instead of '\fB/\fR' and the delimiter can be escaped
+inside \fIpattern\fR and \fIreplacement\fR with a backslash (\fB\e\fR)\. You
+can specify multiple regular expressions by repeating this option\. All the
+regular expressions are tried in the order specified and the first expression
+that matches is used\. Use the \fB--link-regex-trace\fR option to debug link
+transformation\.
+.IP "\fB--link-regex-trace\fR"
+Trace the process of applying regular expressions specified with the
+\fB--link-regex\fR option\. Use this option to find out why your regular
+expressions don't do what you expected them to do\.
+.IP "\fB--html-heading-map\fR \fIc\fR=\fIh\fR"
+Map CLI heading \fIc\fR (valid values: '\fBH\fR', '\fB0\fR', '\fB1\fR',
+'\fBh\fR', and '\fB2\fR') to HTML heading \fIh\fR (for example, '\fBh1\fR',
+'\fBh2\fR', etc)\.
+.IP "\fB--omit-link-check\fR"
+Don't check that local fragment link references (\el{#ref \.\.\.}) resolve to
+ids\.
 .IP "\fB--hxx-prologue\fR \fItext\fR"
 Insert \fItext\fR at the beginning of the generated C++ header file\.
 .IP "\fB--ixx-prologue\fR \fItext\fR"
@@ -187,6 +218,8 @@ Insert \fItext\fR at the beginning of the generated C++ source file\.
 Insert \fItext\fR at the beginning of the generated man page file\.
 .IP "\fB--html-prologue\fR \fItext\fR"
 Insert \fItext\fR at the beginning of the generated HTML file\.
+.IP "\fB--txt-prologue\fR \fItext\fR"
+Insert \fItext\fR at the beginning of the generated text file\.
 .IP "\fB--hxx-epilogue\fR \fItext\fR"
 Insert \fItext\fR at the end of the generated C++ header file\.
 .IP "\fB--ixx-epilogue\fR \fItext\fR"
@@ -194,9 +227,11 @@ Insert \fItext\fR at the end of the generated C++ inline file\.
 .IP "\fB--cxx-epilogue\fR \fItext\fR"
 Insert \fItext\fR at the end of the generated C++ source file\.
 .IP "\fB--man-epilogue\fR \fItext\fR"
-Insert \fItext\fR at the end of the generated man page text\.
+Insert \fItext\fR at the end of the generated man page file\.
 .IP "\fB--html-epilogue\fR \fItext\fR"
-Insert \fItext\fR at the end of the generated HTML text\.
+Insert \fItext\fR at the end of the generated HTML file\.
+.IP "\fB--txt-epilogue\fR \fItext\fR"
+Insert \fItext\fR at the end of the generated text file\.
 .IP "\fB--hxx-prologue-file\fR \fIfile\fR"
 Insert the content of \fIfile\fR at the beginning of the generated C++ header
 file\.
@@ -211,6 +246,8 @@ Insert the content of \fIfile\fR at the beginning of the generated man page
 file\.
 .IP "\fB--html-prologue-file\fR \fIfile\fR"
 Insert the content of \fIfile\fR at the beginning of the generated HTML file\.
+.IP "\fB--txt-prologue-file\fR \fIfile\fR"
+Insert the content of \fIfile\fR at the beginning of the generated text file\.
 .IP "\fB--hxx-epilogue-file\fR \fIfile\fR"
 Insert the content of \fIfile\fR at the end of the generated C++ header file\.
 .IP "\fB--ixx-epilogue-file\fR \fIfile\fR"
@@ -221,6 +258,8 @@ Insert the content of \fIfile\fR at the end of the generated C++ source file\.
 Insert the content of \fIfile\fR at the end of the generated man page file\.
 .IP "\fB--html-epilogue-file\fR \fIfile\fR"
 Insert the content of \fIfile\fR at the end of the generated HTML file\.
+.IP "\fB--txt-epilogue-file\fR \fIfile\fR"
+Insert the content of \fIfile\fR at the end of the generated text file\.
 .IP "\fB--output-prefix\fR \fIprefix\fR"
 Add \fIprefix\fR at the beginning of the generated output file name(s)\.
 .IP "\fB--output-suffix\fR \fIsuffix\fR"
@@ -242,19 +281,22 @@ generated man page file\.
 .IP "\fB--html-suffix\fR \fIsuffix\fR"
 Use \fIsuffix\fR instead of the default \fB\.html\fR to construct the name of
 the generated HTML file\.
+.IP "\fB--txt-suffix\fR \fIsuffix\fR"
+Use \fIsuffix\fR instead of the default \fB\.txt\fR to construct the name of
+the generated text file\.
 .IP "\fB--option-prefix\fR \fIprefix\fR"
-Use \fIprefix\fR instead of the default \fB-\fR as an option prefix\. Unknown
-command line arguments that start with this prefix are treated as unknown
-options\. If you set the option prefix to the empty value, then all the
-unknown command line arguments will be treated as program arguments\.
+Use \fIprefix\fR instead of the default '\fB-\fR' as an option prefix\.
+Unknown command line arguments that start with this prefix are treated as
+unknown options\. If you set the option prefix to the empty value, then all
+the unknown command line arguments will be treated as program arguments\.
 .IP "\fB--option-separator\fR \fIsep\fR"
-Use \fIsep\fR instead of the default \fB--\fR as an optional separator between
-options and arguments\. All the command line arguments that are parsed after
-this separator are treated as program arguments\. Set the option separator to
-the empty value if you don't want this functionality\.
+Use \fIsep\fR instead of the default '\fB--\fR' as an optional separator
+between options and arguments\. All the command line arguments that are parsed
+after this separator are treated as program arguments\. Set the option
+separator to the empty value if you don't want this functionality\.
 .IP "\fB--include-with-brackets\fR"
-Use angle brackets (<>) instead of quotes ("") in the generated \fB#include\fR
-directives\.
+Use angle brackets (\fB<>\fR) instead of quotes (\fB""\fR) in the generated
+\fB#include\fR directives\.
 .IP "\fB--include-prefix\fR \fIprefix\fR"
 Add \fIprefix\fR to the generated \fB#include\fR directive paths\.
 .IP "\fB--guard-prefix\fR \fIprefix\fR"
