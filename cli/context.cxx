@@ -1841,7 +1841,7 @@ format (semantics::scope& scope, string const& s, bool para)
                     heading_map[pi] = n; // Save it for later.
                   }
                   else
-                    v += "<td colspan=\"2\">";
+                    v += "<td class=\"preface\" colspan=\"2\">";
 
                   v += pv; // No newline
                   tocs.push_back (toc_entry (t));
