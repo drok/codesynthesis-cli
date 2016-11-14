@@ -37,7 +37,7 @@ main (int argc, char* argv[])
     {
       ostream& o (cout);
 
-      o << "CodeSynthesis CLI command line interface compiler 1.2.0.a1" << endl
+      o << "CodeSynthesis CLI command line interface compiler 1.2.0-a2" << endl
         << "Copyright (c) 2009-2011 Code Synthesis Tools CC" << endl;
 
       o << "This is free software; see the source for copying conditions. "
