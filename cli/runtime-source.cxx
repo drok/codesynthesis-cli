@@ -3,7 +3,7 @@
 // copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
 // license   : MIT; see accompanying LICENSE file
 
-#include "runtime-source.hxx"
+#include <cli/runtime-source.hxx>
 
 using namespace std;
 

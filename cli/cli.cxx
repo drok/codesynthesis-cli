@@ -5,17 +5,17 @@
 
 #include <vector>
 #include <string>
-#include <memory>   // std::auto_ptr
+#include <memory>   // unique_ptr
 #include <fstream>
 #include <iostream>
 
 #include <cutl/compiler/code-stream.hxx>
 
-#include <semantics/doc.hxx>
+#include <cli/semantics/doc.hxx>
 
-#include "options.hxx"
-#include "parser.hxx"
-#include "generator.hxx"
+#include <cli/options.hxx>
+#include <cli/parser.hxx>
+#include <cli/generator.hxx>
 
 using namespace std;
 using namespace cutl;
@@ -97,7 +97,7 @@ main (int argc, char* argv[])
     // Parse and generate.
     //
     parser p (include_paths);
-    auto_ptr<semantics::cli_unit> unit (p.parse (ifs, path));
+    unique_ptr<semantics::cli_unit> unit (p.parse (ifs, path));
 
     // Merge documentation variables from the command line.
     //

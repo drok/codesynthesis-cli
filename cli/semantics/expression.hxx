@@ -7,7 +7,7 @@
 #define CLI_SEMANTICS_EXPRESSION_HXX
 
 #include <string>
-#include <semantics/elements.hxx>
+#include <cli/semantics/elements.hxx>
 
 namespace semantics
 {

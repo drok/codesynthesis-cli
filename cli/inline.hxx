@@ -6,7 +6,7 @@
 #ifndef CLI_INLINE_HXX
 #define CLI_INLINE_HXX
 
-#include "context.hxx"
+#include <cli/context.hxx>
 
 void
 generate_inline (context&);

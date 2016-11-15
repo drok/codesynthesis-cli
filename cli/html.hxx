@@ -6,7 +6,7 @@
 #ifndef CLI_HTML_HXX
 #define CLI_HTML_HXX
 
-#include "context.hxx"
+#include <cli/context.hxx>
 
 void
 generate_html (context&);

@@ -3,8 +3,8 @@
 // copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
 // license   : MIT; see accompanying LICENSE file
 
-#include <traversal/option.hxx>
-#include <traversal/expression.hxx>
+#include <cli/traversal/option.hxx>
+#include <cli/traversal/expression.hxx>
 
 namespace traversal
 {

@@ -5,7 +5,7 @@
 
 #include <istream>
 
-#include "option-types.hxx"
+#include <cli/option-types.hxx>
 
 using namespace std;
 

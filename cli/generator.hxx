@@ -6,8 +6,8 @@
 #ifndef CLI_GENERATOR_HXX
 #define CLI_GENERATOR_HXX
 
-#include "options.hxx"
-#include "semantics/unit.hxx"
+#include <cli/options.hxx>
+#include <cli/semantics/unit.hxx>
 
 class generator
 {

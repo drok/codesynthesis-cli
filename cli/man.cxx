@@ -6,7 +6,7 @@
 #include <vector>
 #include <iostream>
 
-#include "man.hxx"
+#include <cli/man.hxx>
 
 using namespace std;
 

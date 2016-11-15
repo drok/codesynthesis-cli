@@ -6,7 +6,7 @@
 #ifndef CLI_MAN_HXX
 #define CLI_MAN_HXX
 
-#include "context.hxx"
+#include <cli/context.hxx>
 
 void
 generate_man (context&);

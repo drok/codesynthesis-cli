@@ -1,0 +1,14 @@
+: 1
+name: cli
+version: 1.2.0-a2
+summary: Command line interface compiler
+license: MIT
+tags: command, line, cli, compiler, option, argument, parse, usage, help
+description-file: README
+changes-file: NEWS
+url: http://www.codesynthesis.com/projects/cli/
+email: cli-users@codesynthesis.com; Mailing list
+requires: c++14
+depends: * build2 >= 0.4.0
+depends: * bpkg >= 0.4.0
+depends: libcutl == 1.11.0-a1

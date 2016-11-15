@@ -6,7 +6,7 @@
 #ifndef CLI_SEMANTICS_OPTION_HXX
 #define CLI_SEMANTICS_OPTION_HXX
 
-#include <semantics/elements.hxx>
+#include <cli/semantics/elements.hxx>
 
 namespace semantics
 {

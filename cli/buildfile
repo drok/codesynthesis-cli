@@ -1,10 +1,57 @@
+# file      : buildfile
+# copyright : Copyright (c) 2009-2013 Code Synthesis Tools CC
+# license   : MIT; see accompanying LICENSE file
+
 import libs = libcutl%lib{cutl}
 
-sema = semantics/{class doc elements expression namespace option unit}
-trav = traversal/{class elements namespace option unit}
+exe{cli}:                                     \
+          {            cxx}{ cli            } \
+          {hxx         cxx}{ context        } \
+          {hxx         cxx}{ generator      } \
+          {hxx         cxx}{ header         } \
+          {hxx         cxx}{ html           } \
+          {hxx         cxx}{ inline         } \
+          {hxx ixx     cxx}{ lexer          } \
+          {hxx         cxx}{ man            } \
+          {hxx         cxx}{ name-processor } \
+          {hxx ixx     cxx}{ options        } \
+          {hxx         cxx}{ option-types   } \
+          {hxx         cxx}{ parser         } \
+          {hxx         cxx}{ runtime-header } \
+          {hxx         cxx}{ runtime-inline } \
+          {hxx         cxx}{ runtime-source } \
+          {hxx            }{ semantics      } \
+          {hxx         cxx}{ source         } \
+          {hxx ixx        }{ token          } \
+          {hxx            }{ traversal      } \
+          {hxx         cxx}{ txt            } \
+semantics/{hxx         cxx}{ class          } \
+semantics/{hxx         cxx}{ doc            } \
+semantics/{hxx         cxx}{ elements       } \
+semantics/{hxx         cxx}{ expression     } \
+semantics/{hxx         cxx}{ namespace      } \
+semantics/{hxx         cxx}{ option         } \
+semantics/{hxx     txx cxx}{ unit           } \
+traversal/{hxx         cxx}{ class          } \
+traversal/{hxx            }{ doc            } \
+traversal/{hxx         cxx}{ elements       } \
+traversal/{hxx            }{ expression     } \
+traversal/{hxx         cxx}{ namespace      } \
+traversal/{hxx         cxx}{ option         } \
+traversal/{hxx         cxx}{ unit           } \
+                             $libs
 
-exe{cli}: cxx{cli generator html lexer name-processor parser runtime-inline \
-source context header inline man options runtime-header runtime-source \
-txt option-types $sema $trav} $libs
+# Generated options parser.
+#
+{hxx ixx cxx}{options}: cli{options}
 
-cxx.poptions += -I$out_base -I$src_base
+if $cli.configured
+{
+  cli.options += -I $src_root --include-with-brackets --include-prefix cli \
+--guard-prefix CLI --generate-file-scanner --generate-specifier \
+--reserved-name stdout
+}
+
+# Include generated cli files into the distribution.
+#
+{hxx ixx cxx}{options}: dist = true

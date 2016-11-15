@@ -5,7 +5,7 @@
 
 #include <iostream>
 
-#include "lexer.hxx"
+#include <cli/lexer.hxx>
 
 using namespace std;
 

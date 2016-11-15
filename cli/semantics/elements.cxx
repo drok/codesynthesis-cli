@@ -5,7 +5,7 @@
 
 #include <cutl/compiler/type-info.hxx>
 
-#include <semantics/elements.hxx>
+#include <cli/semantics/elements.hxx>
 
 namespace semantics
 {

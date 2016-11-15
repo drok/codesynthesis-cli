@@ -6,7 +6,7 @@
 #ifndef CLI_RUNTIME_INLINE_HXX
 #define CLI_RUNTIME_INLINE_HXX
 
-#include "context.hxx"
+#include <cli/context.hxx>
 
 void
 generate_runtime_inline (context&);

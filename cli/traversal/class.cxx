@@ -3,7 +3,7 @@
 // copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
 // license   : MIT; see accompanying LICENSE file
 
-#include <traversal/class.hxx>
+#include <cli/traversal/class.hxx>
 
 namespace traversal
 {

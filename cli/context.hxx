@@ -17,9 +17,9 @@
 #include <cutl/shared-ptr.hxx>
 #include <cutl/fs/path.hxx>
 
-#include "options.hxx"
-#include "semantics.hxx"
-#include "traversal.hxx"
+#include <cli/options.hxx>
+#include <cli/semantics.hxx>
+#include <cli/traversal.hxx>
 
 using std::endl;
 

@@ -1,22 +1,13 @@
 # Compiler/linker output.
 #
+*.d
 *.o
-*.o.d
+*.obj
 *.so
+*.dll
 *.a
-*.l
-*.l.cpp-options
-
-# Generated documentation.
-#
-*.pdf
-*.ps
-
-# Generated build system files.
-#
-*-dynamic.make
-config.build
-
-# Generated .gitignore files.
-#
-.gitignore
+*.lib
+*.exp
+*.exe
+*.exe.dlls/
+*.exe.manifest

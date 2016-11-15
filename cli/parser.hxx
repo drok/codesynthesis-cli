@@ -9,12 +9,12 @@
 #include <map>
 #include <string>
 #include <vector>
-#include <memory>  // auto_ptr
+#include <memory>  // unique_ptr
 #include <cstddef> // size_t
 #include <istream>
 
-#include "semantics/elements.hxx"
-#include "semantics/unit.hxx"
+#include <cli/semantics/elements.hxx>
+#include <cli/semantics/unit.hxx>
 
 class token;
 class lexer;
@@ -28,7 +28,7 @@ public:
 
   struct invalid_input {};
 
-  std::auto_ptr<semantics::cli_unit>
+  std::unique_ptr<semantics::cli_unit>
   parse (std::istream& is, semantics::path const& path);
 
 private:

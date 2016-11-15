@@ -3,22 +3,47 @@
 // copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
 // license   : MIT; see accompanying LICENSE file
 
-#include <unistd.h>    // stat
-#include <sys/types.h> // stat
-#include <sys/stat.h>  // stat
+#ifndef _WIN32
+#  include <unistd.h>    // stat
+#  include <sys/types.h> // stat
+#  include <sys/stat.h>  // stat
+#else
+#  include <sys/types.h> // _stat
+#  include <sys/stat.h>  // _stat(), S_I*
+
+#  ifdef _MSC_VER // Unlikely to be fixed in newer versions.
+#    define S_ISREG(m) (((m) & S_IFMT) == S_IFREG)
+#  endif
+#endif
 
 #include <fstream>
 #include <sstream>
 #include <iostream>
 
-#include "token.hxx"
-#include "lexer.hxx"
-#include "parser.hxx"
+#include <cli/token.hxx>
+#include <cli/lexer.hxx>
+#include <cli/parser.hxx>
 
-#include "semantics.hxx"
+#include <cli/semantics.hxx>
 
 using namespace std;
 using namespace semantics;
+
+// Check that the file exist without checking for permissions, etc.
+//
+inline static bool
+file_exists (const path& p)
+{
+#ifndef _WIN32
+  struct stat s;
+  int r (stat (p.string ().c_str (), &s));
+#else
+  struct _stat s;
+  int r (_stat (p.string ().c_str (), &s));
+#endif
+
+  return r == 0 && S_ISREG (s.st_mode);
+}
 
 const char* keywords[] =
 {
@@ -160,10 +185,10 @@ recover (token& t)
   }
 }
 
-auto_ptr<cli_unit> parser::
+unique_ptr<cli_unit> parser::
 parse (std::istream& is, path const& p)
 {
-  auto_ptr<cli_unit> unit (new cli_unit (p, 1, 1));
+  unique_ptr<cli_unit> unit (new cli_unit (p, 1, 1));
 
   {
     path ap (p);
@@ -303,16 +328,13 @@ source_decl ()
     //
     else
     {
-      struct stat s;
       for (paths::const_iterator i (include_paths_.begin ());
            i != include_paths_.end (); ++i)
       {
         p = *i / f;
         p.normalize ();
 
-        // Check that the file exist without checking for permissions, etc.
-        //
-        if (stat (p.string ().c_str (), &s) == 0 && S_ISREG (s.st_mode))
+        if (file_exists (p))
           break;
 
         p.clear ();
@@ -421,16 +443,13 @@ include_decl ()
       //
       else
       {
-        struct stat s;
         for (paths::const_iterator i (include_paths_.begin ());
              i != include_paths_.end (); ++i)
         {
           p = *i / f;
           p.normalize ();
 
-          // Check that the file exist without checking for permissions, etc.
-          //
-          if (stat (p.string ().c_str (), &s) == 0 && S_ISREG (s.st_mode))
+          if (file_exists (p))
             break;
 
           p.clear ();

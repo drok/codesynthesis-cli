@@ -131,6 +131,6 @@ private:
   std::string str_;
 };
 
-#include "token.ixx"
+#include <cli/token.ixx>
 
 #endif // CLI_TOKEN_HXX

@@ -6,8 +6,8 @@
 #include <set>
 #include <sstream>
 
-#include "context.hxx"
-#include "name-processor.hxx"
+#include <cli/context.hxx>
+#include <cli/name-processor.hxx>
 
 using namespace std;
 

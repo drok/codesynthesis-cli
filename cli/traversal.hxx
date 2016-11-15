@@ -6,12 +6,12 @@
 #ifndef CLI_TRAVERSAL_HXX
 #define CLI_TRAVERSAL_HXX
 
-#include <traversal/class.hxx>
-#include <traversal/doc.hxx>
-#include <traversal/elements.hxx>
-#include <traversal/expression.hxx>
-#include <traversal/namespace.hxx>
-#include <traversal/option.hxx>
-#include <traversal/unit.hxx>
+#include <cli/traversal/class.hxx>
+#include <cli/traversal/doc.hxx>
+#include <cli/traversal/elements.hxx>
+#include <cli/traversal/expression.hxx>
+#include <cli/traversal/namespace.hxx>
+#include <cli/traversal/option.hxx>
+#include <cli/traversal/unit.hxx>
 
 #endif // CLI_TRAVERSAL_HXX

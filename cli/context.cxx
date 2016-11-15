@@ -10,7 +10,7 @@
 #include <sstream>
 #include <iostream>
 
-#include "context.hxx"
+#include <cli/context.hxx>
 
 using namespace std;
 

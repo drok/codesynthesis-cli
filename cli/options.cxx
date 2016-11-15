@@ -9,7 +9,7 @@
 //
 // End prologue.
 
-#include "options.hxx"
+#include <cli/options.hxx>
 
 #include <map>
 #include <set>
