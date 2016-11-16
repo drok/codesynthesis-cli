@@ -1,0 +1,14 @@
+# file      : tests/specifier/buildfile
+# copyright : Copyright (c) 2009-2013 Code Synthesis Tools CC
+# license   : MIT; see accompanying LICENSE file
+
+exe{driver}: cxx{driver} {hxx ixx cxx}{test}
+exe{driver}: test.arguments = -a -c foo
+
+cxx.poptions =+ -I$out_base
+
+# Generated options parser.
+#
+{hxx ixx cxx}{test}: cli{test}
+
+cli.options = --generate-specifier --generate-modifier

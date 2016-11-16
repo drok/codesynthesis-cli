@@ -1,0 +1,192 @@
+# file      : unit-tests/lexer/testscript
+# copyright : Copyright (c) 2009-2013 Code Synthesis Tools CC
+# license   : MIT; see accompanying LICENSE file
+
+# @@ Give tests some meaningfull descriptions.
+#
+
+: 000
+:
+cat <<EOI >>>test.cli;
+help
+help-me
+-h
+--help
+--help-me
+--help-me-
+/h
+/help-me
+/help/me
+--_
+
+EOI
+$* test.cli >>EOO
+identifier: help
+identifier: help-me
+identifier: -h
+identifier: --help
+identifier: --help-me
+identifier: --help-me-
+identifier: /h
+identifier: /help-me
+identifier: /help
+identifier: /me
+identifier: --_
+<EOS>
+EOO
+
+: 001
+:
+cat <<EOI >>>test.cli;
+5
+123456
+-12345
+-    1
+-
+123
+EOI
+$* test.cli >>EOO
+5
+123456
+-12345
+-1
+-123
+<EOS>
+EOO
+
+: 002
+:
+cat <<EOI >>>test.cli;
+'a'
+'\\n'
+'\\\\'
+'\\0'
+'\\''
+'\\xaf'
+'\\111'
+EOI
+$* test.cli >>EOO
+'a'
+'\\n'
+'\\\\'
+'\\0'
+'\\''
+'\\xaf'
+'\\111'
+<EOS>
+EOO
+
+: 003
+:
+cat <<EOI >>>test.cli;
+"abc";
+"a\\nb";
+"abc\\\\";
+"aaa\\0";
+"\\"";
+"a\\xaf";
+"a\\111";
+"abc""def";
+"abc"   "def";
+"abc
+  def
+
+     xyz";
+EOI
+$* test.cli >>EOO
+"abc"
+;
+"a\\nb"
+;
+"abc\\\\"
+;
+"aaa\\0"
+;
+"\\""
+;
+"a\\xaf"
+;
+"a\\111"
+;
+"abc""def"
+;
+"abc""def"
+;
+"abc
+  def
+
+     xyz"
+;
+<EOS>
+EOO
+
+: 004
+:
+cat <<EOI >>>test.cli;
+include "foo/abc.hxx";
+include <vector>;
+include "c++:map";
+include <cli:map>;
+include "map.cli"
+EOI
+$* test.cli >>EOO
+keyword: include
+c++ path: "foo/abc.hxx"
+;
+keyword: include
+c++ path: <vector>
+;
+keyword: include
+c++ path: "map"
+;
+keyword: include
+cli path: <map>
+;
+keyword: include
+cli path: "map.cli"
+<EOS>
+EOO
+
+: 005
+:
+cat <<EOI >>>test.cli;
+\(abc, 123 - 345, 12.34)
+<foo, bar::baz, 123*345>
+EOI
+$* test.cli >>EOO
+\(abc, 123 - 345, 12.34)
+<foo, bar::baz, 123*345>
+<EOS>
+EOO
+
+: 006
+:
+cat <<EOI >>>test.cli;
+// c++ comment ;
+/* c comment ; */
+;
+"a" // foo
+"b"
+"a" /* foo
+bar
+baz */ "b";
+- // aaa
+5;
+- /* a
+a
+a*/ 5
+// eos
+:
+::
+EOI
+$* test.cli >>EOO
+;
+"a""b""a""b"
+;
+-5
+;
+-5
+:
+::
+<EOS>
+EOO

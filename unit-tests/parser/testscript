@@ -1,0 +1,243 @@
+# file      : unit-tests/parser/testscript
+# copyright : Copyright (c) 2009-2013 Code Synthesis Tools CC
+# license   : MIT; see accompanying LICENSE file
+
+# @@ Give tests some meaningfull descriptions. Probably move c++-style comments
+#    from the test.cli files to test descriptions.
+#
+
+: 000
+:
+cat <<EOI >>>test.cli;
+// def-unit
+//
+include <string>;
+namespace n {}
+class c {};
+EOI
+$* test.cli >:""
+
+: 001
+:
+cat <<EOI >>>base.cli;
+EOI
+cat <<EOI >>>common.cli;
+include "base.cli";
+EOI
+cat <<EOI >>>test.cli;
+// include-decl-seq, include-decl
+//
+include <string>;
+include "types.hxx";
+include "common.cli";
+include "../001/base.cli";
+EOI
+$* test.cli >:""
+
+: 002
+:
+cat <<EOI >>>test.cli;
+// namespace-def, namespace-def-body
+//
+namespace n1 {}
+
+namespace n1
+{
+  namespace n2 {}
+  class c {};
+  namespace n2
+  {
+    namespace n3 {}
+  }
+}
+
+namespace n4 {}
+EOI
+$* test.cli >:""
+
+: 003
+:
+cat <<EOI >>>test.cli;
+// class-def, inheritance-spec, abstract-spec
+//
+class c1
+{
+};
+
+class c2 = 0
+{
+};
+
+class c3: c1, ::c2
+{
+};
+
+namespace n1
+{
+  class c {};
+}
+
+class c4: n1::c = 0
+{
+};
+
+EOI
+$* test.cli >:""
+
+: 004
+:
+cat <<EOI >>>test.cli;
+// option-def-seq
+//
+class c
+{
+  bool -a;
+  int -b;
+  float -c;
+};
+EOI
+$* test.cli >:""
+
+: 005
+:
+cat <<EOI >>>test.cli;
+// option-def, type-spec, fundamental-type-spec, option-name-seq,
+// option-name, initializer, initializer-expr
+//
+class c
+{
+  bool --bool;
+  char --char;
+
+  int  -i1;
+  unsigned int -i2;
+  int unsigned -i3;
+  long -i4;
+  long int -i5;
+  int long -i6;
+  unsigned long -i7;
+  long unsigned -i8;
+
+  unsigned long int -i9;
+  long unsigned int -i10;
+  int long unsigned -i11;
+  unsigned int long -i12;
+
+  short -i13;
+  unsigned short -i14;
+  short unsigned -i15;
+
+  char -i16;
+  signed char -i17;
+  char signed -i18;
+  unsigned char -i19;
+  char unsigned -i20;
+
+  long long -ll1;
+  long long int -ll2;
+  long long unsigned -ll3;
+  int long long -ll4;
+  unsigned long long -ll5;
+  long long int unsigned -ll6;
+  long long unsigned int -ll7;
+  unsigned long long int -ll8;
+  unsigned int long long -ll9;
+  int long long unsigned -ll10;
+  int unsigned long long -ll11;
+
+  double -d1;
+  long double -d2;
+  double long -d3;
+
+  foo -o1;
+  ::foo -o2;
+  ::foo<bar> -o3;
+  foo::bar -o4;
+  ::foo::bar -o5;
+  ::foo<bar>::baz -o6;
+  ::foo<bar>::baz< ::fox<2> > -o7;
+
+  bool -n1|--name1|/name1;
+  bool "-n2"|"--name2";
+
+  string -init1 = "string";
+  char -init2 = 'c';
+  int -init3 = -5;
+  bool -inti4 = true;
+  long -init5 = \(2 * 4 - 5);
+  type -init6 = type::default_value;
+  type -init7 \(abc, 2 - 1);
+};
+EOI
+$* test.cli >:""
+
+: 006
+:
+cat <<EOI >>>test.cli;
+// option-doc
+//
+class c
+{
+  bool --help | -h {"Help me"};
+
+  int --comp = 5
+  {
+    "<level>",
+    "Set compression level",
+    "Set compression level to <level>.
+
+     The minimum value for this options is 0 and
+     maximum is 9."
+  };
+};
+EOI
+$* test.cli >:""
+
+: 007
+:
+cat <<EOI >>>base.cli;
+class b1 {};
+
+namespace n1
+{
+  class b2 {};
+
+  namespace i1
+  {
+    class b3 {};
+  }
+}
+EOI
+cat <<EOI >>>test.cli;
+// base class lookup
+//
+
+include "base.cli";
+
+class c1 {};
+class c2: c1 {};
+class c3: ::c1 {};
+
+namespace n1
+{
+  class c4 {};
+  class c5: c4 {};
+  class c6: n1::c4 {};
+  class c7: ::n1::c4 {};
+
+  class c8: b2 {}; // From included.
+  class c9: i1::b3 {}; // From included.
+
+  namespace i1
+  {
+    class c10: c4 {};    // Outer scope.
+    class c11: b3 {};    // From included.
+    class c12: b2 {};    // Outer scope from included.
+    class c4: n1::c4 {}; // Qualified name from outer scope.
+  }
+}
+
+class c13: n1::c4 {};
+class c14: ::n1::c4 {};
+EOI
+$* test.cli >:""

@@ -1155,7 +1155,7 @@ doc_string (const char* l, size_t n)
     size_t b (0), e, p;
 
     bool pre (false);
-    size_t m; // Number of leading spaces to remove in pre.
+    size_t m (0); // Number of leading spaces to remove in pre.
 
     while (more)
     {

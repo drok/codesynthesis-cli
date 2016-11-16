@@ -24,6 +24,6 @@ main (int argc, char* argv[])
   }
   catch (const cli::exception& e)
   {
-    cout << e << endl;
+    cerr << e << endl;
   }
 }

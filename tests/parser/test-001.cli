@@ -1,6 +1,0 @@
-// include-decl-seq, include-decl
-//
-include <string>;
-include "types.hxx";
-include "test-001-common.cli";
-include "../parser/test-001-base.cli";

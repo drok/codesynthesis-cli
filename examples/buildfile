@@ -1,0 +1,7 @@
+# file      : examples/buildfile
+# copyright : Copyright (c) 2009-2013 Code Synthesis Tools CC
+# license   : MIT; see accompanying LICENSE file
+
+d = features/ file/ hello/
+./: $d doc{README}
+include $d

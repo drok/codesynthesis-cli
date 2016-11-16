@@ -272,11 +272,11 @@ namespace
 
   //
   //
-  struct includes: traversal::cxx_includes,
-                   traversal::cli_includes,
-                   context
+  struct includes_: traversal::cxx_includes,
+                    traversal::cli_includes,
+                    context
   {
-    includes (context& c) : context (c) {}
+    includes_ (context& c) : context (c) {}
 
     virtual void
     traverse (semantics::cxx_includes& i)
@@ -318,7 +318,7 @@ generate_header (context& ctx)
   ostream& os (ctx.os);
 
   traversal::cli_unit unit;
-  includes includes (ctx);
+  includes_ includes (ctx);
   traversal::names unit_names;
   namespace_ ns (ctx);
   class_ cl (ctx);

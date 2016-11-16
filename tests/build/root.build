@@ -1,0 +1,27 @@
+# file      : tests/build/root.build
+# copyright : Copyright (c) 2009-2013 Code Synthesis Tools CC
+# license   : MIT; see accompanying LICENSE file
+
+cxx.std = 11
+
+using cxx
+
+hxx{*}: extension = hxx
+ixx{*}: extension = ixx
+txx{*}: extension = txx
+cxx{*}: extension = cxx
+
+# Load cli module. It must be available from the system or from the base
+# project. Generating files with cli is a part of the tests, so distributing
+# pre-generated files would be meaningless.
+#
+# @@ How to initialize the module to use a base project cli executable by
+#    default (if present and not configured to use another one)? Should it be
+#    assignment like 'config.cli = $out_root/../cli/cli' prior 'using config'
+#    in bootstrap.build, but what if it doesn't exist?
+#
+using cli
+
+# Every exe{} in this subproject is by default a test.
+#
+exe{*}: test = true

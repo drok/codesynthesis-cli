@@ -1,8 +1,0 @@
-// option-def-seq
-//
-class c
-{
-  bool -a;
-  int -b;
-  float -c;
-};

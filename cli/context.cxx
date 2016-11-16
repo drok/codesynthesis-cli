@@ -404,8 +404,8 @@ format_line (output_type ot, string& r, const char* s, size_t n)
   vector<block> blocks;
 
   string link_target;
-  string link_section; // If not empty, man section; target is man name.
-  bool link_empty;     // Link has no text.
+  string link_section;     // If not empty, man section; target is man name.
+  bool link_empty (false); // Link has no text.
 
   bool escape (false);
   for (size_t i (0); i < n; ++i)
@@ -1186,7 +1186,7 @@ format (semantics::scope& scope, string const& s, bool para)
   // Number of li in ol. Since we don't support nested lists, we don't
   // need to push it into the stack.
   //
-  size_t ol_count;
+  size_t ol_count (0);
 
   // Mapping of \h to HTML tag. By default it is <h1> until we encounter
   // \h0 or \h1 at which point we change it to <h2>.
@@ -1283,7 +1283,7 @@ format (semantics::scope& scope, string const& s, bool para)
 
     // First determine what kind of paragraph block this is.
     //
-    block::kind_type k;
+    block::kind_type k (block::h);
     string id;
     string header;
     string trailer;

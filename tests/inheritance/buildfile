@@ -1,0 +1,15 @@
+# file      : tests/erase/buildfile
+# copyright : Copyright (c) 2009-2013 Code Synthesis Tools CC
+# license   : MIT; see accompanying LICENSE file
+
+exe{driver}: cxx{driver} {hxx ixx cxx}{test}
+exe{driver}: test.arguments = --very-long-flag -s short -i 123 --string long
+exe{driver}: test.output = test.std
+
+cxx.poptions =+ -I$out_base
+
+# Generated options parser.
+#
+{hxx ixx cxx}{test}: cli{test}
+
+cli.options = --generate-description --option-length 17

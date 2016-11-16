@@ -171,7 +171,7 @@ namespace
 
   struct option: traversal::option, context
   {
-    option (context& c, class_doc_type cd) : context (c), cd_ (cd) {}
+    option (context& c, class_doc_type) : context (c)/*, cd_ (cd)*/ {}
 
     virtual void
     traverse (type& o)
@@ -187,7 +187,7 @@ namespace
     }
 
   private:
-    class_doc_type cd_;
+    // class_doc_type cd_;
   };
 
   //

@@ -2,11 +2,27 @@
 # copyright : Copyright (c) 2009-2013 Code Synthesis Tools CC
 # license   : MIT; see accompanying LICENSE file
 
-d = cli/
+d = cli/ unit-tests/
+
+# Building examples/ and tests/ while bootstrapping the compiler is tricky.
+# What we are going to do is omit these two directories if there is no cli
+# compiler yet. Once it's built the user can reconfigure the project which
+# will enable tests and examples. Alternatively, the user can install the
+# compiler and test the installation with out-of-tree builds of tests/ and
+# examples/.
+#
+# @@ A problem with this approach is an old cli compiler installed in the
+#    system -- it will be used for the project including tests and examples.
+#
+if $cli.configured
+  d += tests/ examples/
+
 ./: $d doc{INSTALL LICENSE NEWS README version} file{manifest}
 include $d
 
-# Don't install tests or the INSTALL file.
+# Don't install examples, tests or the INSTALL file.
 #
-dir{tests/}: install = false
-doc{INSTALL}@./: install = false
+dir{examples/}:   install = false
+dir{tests/}:      install = false
+dir{unit-tests/}: install = false
+doc{INSTALL}@./:  install = false
