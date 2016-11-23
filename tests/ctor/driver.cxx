@@ -12,11 +12,9 @@ main (int argc, char* argv[])
   //
   {
     options o1 (argc, argv);
-    options o2 (argc, argv,
+    options o2 (argc, argv, true);
+    options o3 (argc, argv, true,
                 cli::unknown_mode::fail);
-    options o3 (argc, argv,
-                cli::unknown_mode::fail,
-                cli::unknown_mode::stop);
     options o4 (argc, argv, true,
                 cli::unknown_mode::fail,
                 cli::unknown_mode::stop);
@@ -24,11 +22,9 @@ main (int argc, char* argv[])
 
   {
     options o1 (1, argc, argv);
-    options o2 (1, argc, argv,
+    options o2 (1, argc, argv, true);
+    options o3 (1, argc, argv, true,
                 cli::unknown_mode::fail);
-    options o3 (1, argc, argv,
-                cli::unknown_mode::fail,
-                cli::unknown_mode::stop);
     options o4 (1, argc, argv, true,
                 cli::unknown_mode::fail,
                 cli::unknown_mode::stop);
@@ -37,11 +33,9 @@ main (int argc, char* argv[])
   {
     int end;
     options o1 (argc, argv, end);
-    options o2 (argc, argv, end,
+    options o2 (argc, argv, end, true);
+    options o3 (argc, argv, end, true,
                 cli::unknown_mode::fail);
-    options o3 (argc, argv, end,
-                cli::unknown_mode::fail,
-                cli::unknown_mode::stop);
     options o4 (argc, argv, end, true,
                 cli::unknown_mode::fail,
                 cli::unknown_mode::stop);
@@ -50,11 +44,9 @@ main (int argc, char* argv[])
   {
     int end;
     options o1 (1, argc, argv, end);
-    options o2 (1, argc, argv, end,
+    options o2 (1, argc, argv, end, true);
+    options o3 (1, argc, argv, end, true,
                 cli::unknown_mode::fail);
-    options o3 (1, argc, argv, end,
-                cli::unknown_mode::fail,
-                cli::unknown_mode::stop);
     options o4 (1, argc, argv, end, true,
                 cli::unknown_mode::fail,
                 cli::unknown_mode::stop);
