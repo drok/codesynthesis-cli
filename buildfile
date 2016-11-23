@@ -11,8 +11,8 @@ d = cli/ unit-tests/
 # compiler and test the installation with out-of-tree builds of tests/ and
 # examples/.
 #
-# @@ A problem with this approach is an old cli compiler installed in the
-#    system -- it will be used for the project including tests and examples.
+# Note that to make sure we don't pick up some system-installed cli, we
+# default (in bootstrap.build) to leaving the cli module unconfigured.
 #
 if $cli.configured
   d += tests/ examples/

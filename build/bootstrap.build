@@ -14,7 +14,14 @@ dist.package = $project-$version
 if ($revision != 0)
   dist.package += +$revision
 
+# By default leave the cli module unconfigured since we don't want to use some
+# system-installed cli. Note that this value will be overridden if set both on
+# the command line or in config.build.
+#
+config.cli = false
+
 using config
+
 using dist
 using test
 using install
