@@ -7,60 +7,60 @@ test = $effect($cli.path)
 : toc
 :
 cat <<EOI >>>toc.cli;
-"\\h1|Table of Contents|"
-"\\\$TOC\$"
+"\h1|Table of Contents|"
+"\$TOC$"
 
 "
-\\h0#preface|Preface|
+\h0#preface|Preface|
 
 This document describes something awesome.
 
-\\h#about-document|About This Document|
+\h#about-document|About This Document|
 
 And this document is also awesome.
 
-\\h#more-information|More Information|
+\h#more-information|More Information|
 
 It is so awesome that no further information will be required."
 
 "
-\\H#part1|PART I|
+\H#part1|PART I|
 
 Start of part one.
 
-\\h1#intro|Introduction|
+\h1#intro|Introduction|
 
 Beginning of the first chapter.
 
-\\h#arch-flow|Architecture and Workflow|
+\h#arch-flow|Architecture and Workflow|
 
 Some basics.
 
-\\h#benefits|Benefits|
+\h#benefits|Benefits|
 
 You will like them.
 
-\\h1#hello|Hello World|
+\h1#hello|Hello World|
 
 Beginning of the second chapter.
 
-\\h#hell-setup|Setup|
+\h#hell-setup|Setup|
 
 More basics.
 
-\\h#hello-compile|Compiling|
+\h#hello-compile|Compiling|
 
 How to build the example
 
-\\h2#hello-compile-gcc|Compiling with GCC|
+\h2#hello-compile-gcc|Compiling with GCC|
 
-GCC. For Clang see \\l{#hello-compile-clang Compiling with Clang}.
+GCC. For Clang see \l{#hello-compile-clang Compiling with Clang}.
 
-\\h2#hello-compile-clang|Compiling with Clang|
+\h2#hello-compile-clang|Compiling with Clang|
 
-Clang. For GCC see \\l{#hello-compile-gcc Compiling with GCC}.
+Clang. For GCC see \l{#hello-compile-gcc Compiling with GCC}.
 
-\\h#hello-conclusion|Conclusion|
+\h#hello-conclusion|Conclusion|
 
 Some remarks.
 "

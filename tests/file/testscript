@@ -133,7 +133,7 @@ cat <<EOI >>>test.cli;
 -a '''
 -a '"'
 EOI
-$* --file test.cli >>EOO
+$* --file test.cli >>"EOO"
 -a
 a"b"c
 -a

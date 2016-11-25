@@ -58,21 +58,21 @@ EOO
 :
 cat <<EOI >>>test.cli;
 'a'
-'\\n'
-'\\\\'
-'\\0'
-'\\''
-'\\xaf'
-'\\111'
+'\n'
+'\\'
+'\0'
+'\''
+'\xaf'
+'\111'
 EOI
 $* test.cli >>EOO
 'a'
-'\\n'
-'\\\\'
-'\\0'
-'\\''
-'\\xaf'
-'\\111'
+'\n'
+'\\'
+'\0'
+'\''
+'\xaf'
+'\111'
 <EOS>
 EOO
 
@@ -80,12 +80,12 @@ EOO
 :
 cat <<EOI >>>test.cli;
 "abc";
-"a\\nb";
-"abc\\\\";
-"aaa\\0";
-"\\"";
-"a\\xaf";
-"a\\111";
+"a\nb";
+"abc\\";
+"aaa\0";
+"\"";
+"a\xaf";
+"a\111";
 "abc""def";
 "abc"   "def";
 "abc
@@ -96,17 +96,17 @@ EOI
 $* test.cli >>EOO
 "abc"
 ;
-"a\\nb"
+"a\nb"
 ;
-"abc\\\\"
+"abc\\"
 ;
-"aaa\\0"
+"aaa\0"
 ;
-"\\""
+"\""
 ;
-"a\\xaf"
+"a\xaf"
 ;
-"a\\111"
+"a\111"
 ;
 "abc""def"
 ;
@@ -150,11 +150,11 @@ EOO
 : 005
 :
 cat <<EOI >>>test.cli;
-\(abc, 123 - 345, 12.34)
+(abc, 123 - 345, 12.34)
 <foo, bar::baz, 123*345>
 EOI
 $* test.cli >>EOO
-\(abc, 123 - 345, 12.34)
+(abc, 123 - 345, 12.34)
 <foo, bar::baz, 123*345>
 <EOS>
 EOO

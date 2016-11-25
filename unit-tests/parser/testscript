@@ -164,9 +164,9 @@ class c
   char -init2 = 'c';
   int -init3 = -5;
   bool -inti4 = true;
-  long -init5 = \(2 * 4 - 5);
+  long -init5 = (2 * 4 - 5);
   type -init6 = type::default_value;
-  type -init7 \(abc, 2 - 1);
+  type -init7 (abc, 2 - 1);
 };
 EOI
 $* test.cli >:""
