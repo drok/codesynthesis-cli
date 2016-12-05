@@ -4,7 +4,7 @@
 
 exe{driver}: cxx{driver} {hxx ixx cxx}{test}
 
-cxx.poptions =+ -I$out_base
+cxx.poptions =+ "-I$out_base"
 
 # Generated options parser.
 #

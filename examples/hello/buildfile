@@ -5,7 +5,7 @@
 exe{driver}: cxx{driver} {hxx ixx cxx}{hello} doc{README}
 exe{driver}: test.arguments = --greeting Hi John Jane
 
-cxx.poptions =+ -I$out_base
+cxx.poptions =+ "-I$out_base"
 
 # Generated options parser.
 #

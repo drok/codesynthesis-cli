@@ -5,7 +5,7 @@
 exe{driver}: cxx{driver} {hxx ixx cxx}{test}
 exe{driver}: test.arguments = foo -a bar -b 123 --arg -- -b 234
 
-cxx.poptions =+ -I$out_base
+cxx.poptions =+ "-I$out_base"
 
 # Generated options parser.
 #
