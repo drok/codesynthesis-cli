@@ -1,6 +1,6 @@
 // file      : cli/runtime-inline.hxx
 // author    : Boris Kolpackov <boris@codesynthesis.com>
-// copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
+// copyright : Copyright (c) 2009-2017 Code Synthesis Tools CC
 // license   : MIT; see accompanying LICENSE file
 
 #ifndef CLI_RUNTIME_INLINE_HXX
