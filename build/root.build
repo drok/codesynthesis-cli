@@ -26,3 +26,7 @@ if! $cli.configured
   define cli: file
   cli{*}: extension = cli
 }
+
+# Specify the test target for cross-testing.
+#
+test.target = $cxx.target
