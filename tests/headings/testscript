@@ -8,7 +8,7 @@ test = $effect($cli.path)
 :
 : Note that auto-headings break if we split into multiple doc strings.
 :
-cat <<EOI >>>map.cli;
+cat <<EOI >=map.cli;
 "
 \h1|Heading 1|
 

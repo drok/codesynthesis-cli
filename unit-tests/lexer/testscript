@@ -7,7 +7,7 @@
 
 : 000
 :
-cat <<EOI >>>test.cli;
+cat <<EOI >=test.cli;
 help
 help-me
 -h
@@ -37,7 +37,7 @@ EOO
 
 : 001
 :
-cat <<EOI >>>test.cli;
+cat <<EOI >=test.cli;
 5
 123456
 -12345
@@ -56,7 +56,7 @@ EOO
 
 : 002
 :
-cat <<EOI >>>test.cli;
+cat <<EOI >=test.cli;
 'a'
 '\n'
 '\\'
@@ -78,7 +78,7 @@ EOO
 
 : 003
 :
-cat <<EOI >>>test.cli;
+cat <<EOI >=test.cli;
 "abc";
 "a\nb";
 "abc\\";
@@ -122,7 +122,7 @@ EOO
 
 : 004
 :
-cat <<EOI >>>test.cli;
+cat <<EOI >=test.cli;
 include "foo/abc.hxx";
 include <vector>;
 include "c++:map";
@@ -149,7 +149,7 @@ EOO
 
 : 005
 :
-cat <<EOI >>>test.cli;
+cat <<EOI >=test.cli;
 (abc, 123 - 345, 12.34)
 <foo, bar::baz, 123*345>
 EOI
@@ -161,7 +161,7 @@ EOO
 
 : 006
 :
-cat <<EOI >>>test.cli;
+cat <<EOI >=test.cli;
 // c++ comment ;
 /* c comment ; */
 ;

@@ -8,7 +8,7 @@
 
 : 000
 :
-cat <<EOI >>>test.cli;
+cat <<EOI >=test.cli;
 // def-unit
 //
 include <string>;
@@ -19,12 +19,12 @@ $* test.cli >:""
 
 : 001
 :
-cat <<EOI >>>base.cli;
+cat <<EOI >=base.cli;
 EOI
-cat <<EOI >>>common.cli;
+cat <<EOI >=common.cli;
 include "base.cli";
 EOI
-cat <<EOI >>>test.cli;
+cat <<EOI >=test.cli;
 // include-decl-seq, include-decl
 //
 include <string>;
@@ -36,7 +36,7 @@ $* test.cli >:""
 
 : 002
 :
-cat <<EOI >>>test.cli;
+cat <<EOI >=test.cli;
 // namespace-def, namespace-def-body
 //
 namespace n1 {}
@@ -57,7 +57,7 @@ $* test.cli >:""
 
 : 003
 :
-cat <<EOI >>>test.cli;
+cat <<EOI >=test.cli;
 // class-def, inheritance-spec, abstract-spec
 //
 class c1
@@ -86,7 +86,7 @@ $* test.cli >:""
 
 : 004
 :
-cat <<EOI >>>test.cli;
+cat <<EOI >=test.cli;
 // option-def-seq
 //
 class c
@@ -100,7 +100,7 @@ $* test.cli >:""
 
 : 005
 :
-cat <<EOI >>>test.cli;
+cat <<EOI >=test.cli;
 // option-def, type-spec, fundamental-type-spec, option-name-seq,
 // option-name, initializer, initializer-expr
 //
@@ -173,7 +173,7 @@ $* test.cli >:""
 
 : 006
 :
-cat <<EOI >>>test.cli;
+cat <<EOI >=test.cli;
 // option-doc
 //
 class c
@@ -195,7 +195,7 @@ $* test.cli >:""
 
 : 007
 :
-cat <<EOI >>>base.cli;
+cat <<EOI >=base.cli;
 class b1 {};
 
 namespace n1
@@ -208,7 +208,7 @@ namespace n1
   }
 }
 EOI
-cat <<EOI >>>test.cli;
+cat <<EOI >=test.cli;
 // base class lookup
 //
 

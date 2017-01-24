@@ -6,7 +6,7 @@ test = $effect($cli.path)
 
 : toc
 :
-cat <<EOI >>>toc.cli;
+cat <<EOI >=toc.cli;
 "\h1|Table of Contents|"
 "\$TOC$"
 

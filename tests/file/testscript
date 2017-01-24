@@ -8,12 +8,12 @@
 #
 eol = ""
 
-+cat <<EOI >>>empty.cli
++cat <<EOI >=empty.cli
 # Empty options file.
 #
 
 EOI
-+cat <<EOI >>>base.cli
++cat <<EOI >=base.cli
 -a 21
 -b 21
 EOI
@@ -23,7 +23,7 @@ EOI
 
 : 000
 :
-cat <<EOI >>>test.cli;
+cat <<EOI >=test.cli;
 -a 	11
 -b  11
   -a 12
@@ -54,7 +54,7 @@ EOO
 
 : 001
 :
-cat <<EOI >>>test.cli;
+cat <<EOI >=test.cli;
 # Empty options file.
 #
 
@@ -70,7 +70,7 @@ EOO
 
 : 002
 :
-cat <<EOI >>>test.cli;
+cat <<EOI >=test.cli;
 -a 11
 -b 11
 --
@@ -114,7 +114,7 @@ EOE
 
 : 004
 :
-cat <<EOI >>>test.cli;
+cat <<EOI >=test.cli;
 -a a"b"c
 -a "abc"
 -a "a"b"
@@ -170,7 +170,7 @@ EOO
 
 : 005
 :
-cat <<EOI >>>test.cli;
+cat <<EOI >=test.cli;
 -a "
 EOI
 $* --file test.cli 2>>EOE
@@ -179,7 +179,7 @@ EOE
 
 : 006
 :
-cat <<EOI >>>test.cli;
+cat <<EOI >=test.cli;
 -a "abc
 EOI
 $* --file test.cli 2>>EOE
@@ -188,7 +188,7 @@ EOE
 
 : 007
 :
-cat <<EOI >>>test.cli;
+cat <<EOI >=test.cli;
 -a abc"
 EOI
 $* --file test.cli 2>>EOE
@@ -197,7 +197,7 @@ EOE
 
 : 008
 :
-cat <<EOI >>>test.cli;
+cat <<EOI >=test.cli;
 -a '
 EOI
 $* --file test.cli 2>>EOE
@@ -206,7 +206,7 @@ EOE
 
 : 009
 :
-cat <<EOI >>>test.cli;
+cat <<EOI >=test.cli;
 -a 'abc
 EOI
 $* --file test.cli 2>>EOE
@@ -215,7 +215,7 @@ EOE
 
 : 010
 :
-cat <<EOI >>>test.cli;
+cat <<EOI >=test.cli;
 -a abc'
 EOI
 $* --file test.cli 2>>EOE
@@ -224,7 +224,7 @@ EOE
 
 : 011
 :
-cat <<EOI >>>test.cli;
+cat <<EOI >=test.cli;
 -a "abc'
 EOI
 $* --file test.cli 2>>EOE
@@ -233,7 +233,7 @@ EOE
 
 : 012
 :
-cat <<EOI >>>test.cli;
+cat <<EOI >=test.cli;
 -a 'abc"
 EOI
 $* --file test.cli 2>>EOE
