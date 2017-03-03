@@ -2,11 +2,9 @@
 # copyright : Copyright (c) 2009-2017 Code Synthesis Tools CC
 # license   : MIT; see accompanying LICENSE file
 
-exe{driver}: cxx{driver} {hxx ixx cxx}{hello} doc{README}
+exe{driver}: cxx{driver} cli.cxx{hello} doc{README}
 exe{driver}: test.arguments = --greeting Hi John Jane
 
 cxx.poptions =+ "-I$out_base"
 
-# Generated options parser.
-#
-{hxx ixx cxx}{hello}: cli{hello}
+cli.cxx{hello}: cli{hello}

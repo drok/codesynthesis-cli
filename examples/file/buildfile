@@ -2,13 +2,10 @@
 # copyright : Copyright (c) 2009-2017 Code Synthesis Tools CC
 # license   : MIT; see accompanying LICENSE file
 
-exe{driver}: cxx{driver} {hxx ixx cxx}{options} doc{README} file{test.ops}
+exe{driver}: cxx{driver} cli.cxx{options} doc{README} file{test.ops}
 exe{driver}: test.arguments = --options-file $src_base/test.ops
 
 cxx.poptions =+ "-I$out_base"
 
-# Generated options parser.
-#
-{hxx ixx cxx}{options}: cli{options}
-
+cli.cxx{options}: cli{options}
 cli.options = --generate-file-scanner
