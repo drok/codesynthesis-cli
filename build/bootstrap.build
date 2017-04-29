@@ -4,15 +4,7 @@
 
 project = cli
 
-using build@0.4.0
-
-version = 1.2.0-a2
-revision = 0
-
-dist.package = $project-$version
-
-if ($revision != 0)
-  dist.package += +$revision
+using version
 
 # By default leave the cli module unconfigured since we don't want to use some
 # system-installed cli. Note that this value will be overridden if set both on

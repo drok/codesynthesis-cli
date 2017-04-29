@@ -25,6 +25,7 @@ exe{cli}:                                     \
           {hxx ixx        }{ token          } \
           {hxx            }{ traversal      } \
           {hxx         cxx}{ txt            } \
+          {hxx            }{ version        } \
 semantics/{hxx         cxx}{ class          } \
 semantics/{hxx         cxx}{ doc            } \
 semantics/{hxx         cxx}{ elements       } \
@@ -40,6 +41,9 @@ traversal/{hxx         cxx}{ namespace      } \
 traversal/{hxx         cxx}{ option         } \
 traversal/{hxx         cxx}{ unit           } \
                              $libs
+
+hxx{version}: in{version} $src_root/file{manifest}
+hxx{version}: dist = true
 
 # Generated options parser.
 #

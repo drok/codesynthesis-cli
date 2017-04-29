@@ -17,6 +17,8 @@
 #include <cli/parser.hxx>
 #include <cli/generator.hxx>
 
+#include <cli/version.hxx>
+
 using namespace std;
 using namespace cutl;
 
@@ -37,7 +39,7 @@ main (int argc, char* argv[])
     {
       ostream& o (cout);
 
-      o << "CodeSynthesis CLI command line interface compiler 1.2.0-a2" << endl
+      o << "CLI (command line interface compiler) " << CLI_VERSION_ID << endl
         << "Copyright (c) 2009-2017 Code Synthesis Tools CC" << endl;
 
       o << "This is free software; see the source for copying conditions. "
