@@ -873,7 +873,7 @@ namespace
           os << "static " << desc << "_type " << desc << "_;";
 
         os << "return " << desc << "_;"
-           << "};";
+           << "}";
       }
 
       // _parse ()
