@@ -9,6 +9,6 @@ src = lexer parser \
 semantics/{class elements expression namespace option unit} \
 traversal/{class elements namespace option unit}
 
-exe{driver}: cxx{driver} ../../cli/cxx{$src} $libs test{testscript}
+exe{driver}: {hxx cxx}{*} ../../cli/cxx{$src} $libs test{testscript}
 
 include ../../cli/

@@ -14,6 +14,10 @@ d = cli/ unit-tests/
 # Note that to make sure we don't pick up some system-installed cli, we
 # default (in bootstrap.build) to leaving the cli module unconfigured.
 #
+# Also note that creating distribution with the cli module unconfigured, you
+# will end up with incomplete distribution directory (without tests, examples
+# and options.cli file).
+#
 if $cli.configured
   d += tests/ examples/
 

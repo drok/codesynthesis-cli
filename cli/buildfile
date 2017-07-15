@@ -4,43 +4,10 @@
 
 import libs = libcutl%lib{cutl}
 
-exe{cli}:                                     \
-          {            cxx}{ cli            } \
-          {hxx         cxx}{ context        } \
-          {hxx         cxx}{ generator      } \
-          {hxx         cxx}{ header         } \
-          {hxx         cxx}{ html           } \
-          {hxx         cxx}{ inline         } \
-          {hxx ixx     cxx}{ lexer          } \
-          {hxx         cxx}{ man            } \
-          {hxx         cxx}{ name-processor } \
-          {hxx ixx     cxx}{ options        } \
-          {hxx         cxx}{ option-types   } \
-          {hxx         cxx}{ parser         } \
-          {hxx         cxx}{ runtime-header } \
-          {hxx         cxx}{ runtime-inline } \
-          {hxx         cxx}{ runtime-source } \
-          {hxx            }{ semantics      } \
-          {hxx         cxx}{ source         } \
-          {hxx ixx        }{ token          } \
-          {hxx            }{ traversal      } \
-          {hxx         cxx}{ txt            } \
-          {hxx            }{ version        } \
-semantics/{hxx         cxx}{ class          } \
-semantics/{hxx         cxx}{ doc            } \
-semantics/{hxx         cxx}{ elements       } \
-semantics/{hxx         cxx}{ expression     } \
-semantics/{hxx         cxx}{ namespace      } \
-semantics/{hxx         cxx}{ option         } \
-semantics/{hxx     txx cxx}{ unit           } \
-traversal/{hxx         cxx}{ class          } \
-traversal/{hxx            }{ doc            } \
-traversal/{hxx         cxx}{ elements       } \
-traversal/{hxx            }{ expression     } \
-traversal/{hxx         cxx}{ namespace      } \
-traversal/{hxx         cxx}{ option         } \
-traversal/{hxx         cxx}{ unit           } \
-                             $libs
+exe{cli}: {hxx ixx txx cxx}{** -version -options} \
+          {hxx}{version}                          \
+          {hxx ixx cxx}{options}                  \
+          $libs
 
 hxx{version}: in{version} $src_root/file{manifest}
 hxx{version}: dist = true

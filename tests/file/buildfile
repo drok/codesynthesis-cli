@@ -2,7 +2,7 @@
 # copyright : Copyright (c) 2009-2017 Code Synthesis Tools CC
 # license   : MIT; see accompanying LICENSE file
 
-exe{driver}: cxx{driver} cli.cxx{test} test{testscript}
+exe{driver}: {hxx cxx}{* -test} cli.cxx{test} test{testscript}
 
 cxx.poptions =+ "-I$out_base"
 
