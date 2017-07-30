@@ -4,10 +4,11 @@
 
 import libs = libcutl%lib{cutl}
 
-exe{cli}: {hxx ixx txx cxx}{** -version -options} \
-          {hxx}{version}                          \
-          {hxx ixx cxx}{options}                  \
-          $libs
+exe{cli}: cxx{cli} libu{cli}
+
+libu{cli}: {hxx ixx txx cxx}{** -cli -version -options} \
+           {hxx}{version} {hxx ixx cxx}{options}        \
+           $libs
 
 hxx{version}: in{version} $src_root/file{manifest}
 hxx{version}: dist = true

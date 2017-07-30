@@ -2,11 +2,5 @@
 # copyright : Copyright (c) 2009-2017 Code Synthesis Tools CC
 # license   : MIT; see accompanying LICENSE file
 
-#@@ Temporary until we get utility library support.
-#
-import libs = libcutl%lib{cutl}
-src = lexer
-
-exe{driver}: {hxx cxx}{*} ../../cli/cxx{$src} $libs test{testscript}
-
 include ../../cli/
+exe{driver}: {hxx cxx}{*} ../../cli/libu{cli} test{testscript}
