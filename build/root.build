@@ -21,8 +21,10 @@ cxx.poptions =+ "-I$out_root" "-I$src_root"
 #
 using? cli
 
-# Don't link whole archives by default in unit-tests/.
+# All exe{} in unit-tests/ are, well, tests. Also don't link whole archives
+# by default there.
 #
+unit-tests/exe{*}: test = true
 unit-tests/libu{*}: bin.whole = false
 
 # Specify the test target for cross-testing.
