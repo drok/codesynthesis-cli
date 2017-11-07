@@ -6,9 +6,9 @@ license: MIT
 tags: command, line, cli, compiler, option, argument, parse, usage, help
 description-file: README
 changes-file: NEWS
-url: http://www.codesynthesis.com/projects/cli/
-doc-url: http://www.codesynthesis.com/projects/cli/doc/guide/
-src-url: http://scm.codesynthesis.com/?p=cli/cli.git\;a=tree
+url: https://www.codesynthesis.com/projects/cli/
+doc-url: https://www.codesynthesis.com/projects/cli/doc/guide/
+src-url: https://git.codesynthesis.com/cgit/cli/cli/
 email: cli-users@codesynthesis.com; Mailing list
 build-email: builds@codesynthesis.com
 requires: c++14
