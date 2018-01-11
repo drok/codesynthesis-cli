@@ -1,4 +1,4 @@
-# file      : buildfile
+# file      : cli/buildfile
 # copyright : Copyright (c) 2009-2017 Code Synthesis Tools CC
 # license   : MIT; see accompanying LICENSE file
 
@@ -18,7 +18,7 @@ if $cli.configured
 {
   cli.cxx{options}: cli{options}
 
-  cli.options += -I $src_root --include-with-brackets --include-prefix cli \
+  cli.options += --include-with-brackets --include-prefix cli \
 --guard-prefix CLI --generate-file-scanner --generate-specifier \
 --reserved-name stdout
 
