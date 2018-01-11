@@ -1025,9 +1025,8 @@ format_line (output_type ot, string& r, const char* s, size_t n)
 
             break;
           }
-
-          // Fall through.
         }
+        // Fall through.
       default:
         r += c;
         break;

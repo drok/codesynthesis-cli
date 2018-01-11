@@ -554,9 +554,8 @@ decl (token& t)
     {
       if (t.punctuation () != token::p_lcbrace)
         break;
-
-      // Fall through.
     }
+    // Fall through.
   case token::t_string_lit:
     {
       scope_doc (t);
