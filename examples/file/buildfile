@@ -2,8 +2,9 @@
 # copyright : Copyright (c) 2009-2017 Code Synthesis Tools CC
 # license   : MIT; see accompanying LICENSE file
 
-exe{driver}: {hxx cxx}{* -options} cli.cxx{options} doc{README} file{test.ops}
-exe{driver}: test.arguments = --options-file $src_base/test.ops
+exe{driver}: {hxx cxx}{* -options} cli.cxx{options} doc{README}
+exe{driver}: test.arguments = --options-file
+exe{driver}: file{test.ops}: test.input = true # Added after test.arguments.
 
 cxx.poptions =+ "-I$out_base"
 

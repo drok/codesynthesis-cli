@@ -1,10 +1,10 @@
-# file      : tests/erase/buildfile
+# file      : tests/inheritance/buildfile
 # copyright : Copyright (c) 2009-2017 Code Synthesis Tools CC
 # license   : MIT; see accompanying LICENSE file
 
 exe{driver}: {hxx cxx}{* -test} cli.cxx{test}
+exe{driver}: file{test.std}: test.stdout = true
 exe{driver}: test.arguments = --very-long-flag -s short -i 123 --string long
-exe{driver}: test.output = test.std
 
 cxx.poptions =+ "-I$out_base"
 
