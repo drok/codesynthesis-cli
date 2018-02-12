@@ -337,48 +337,67 @@ translate (string const& s, std::set<string> const& set)
   string r;
   r.reserve (s.size ());
 
+  bool pre (false);
   size_t p (string::npos);
 
   for (size_t i (0), n (s.size ()); i < n; ++i)
   {
-    if (p == string::npos && s[i] == '<')
-    {
-      p = i;
-      continue;
-    }
+    char c (s[i]);
 
-    if (p != string::npos)
+    // Skip pre-formatted fragments.
+    //
+    if (c == (pre ? 0x03 : 0x02))
     {
-      if (s[i] == '>')
+      pre = !pre;
+
+      if (p != string::npos)
       {
-        string a (s, p + 1, i - p - 1);
-
-        if (set.find (a) != set.end ())
-        {
-          r += "\\ci{";
-
-          for (size_t j (0), n (a.size ()); j < n; ++j)
-          {
-            if (a[j] == '}' && (j == 0 || a[j - 1] != '\\'))
-              r += "\\}";
-            else
-              r += a[j];
-          }
-
-          r += '}';
-        }
-        else
-        {
-          r += '<';
-          r += a;
-          r += '>';
-        }
+        assert (pre);
+        r.append (s, p, i - p);
         p = string::npos;
       }
-      continue;
+    }
+    else if (!pre)
+    {
+      if (p == string::npos && c == '<')
+      {
+        p = i;
+        continue;
+      }
+
+      if (p != string::npos)
+      {
+        if (c == '>')
+        {
+          string a (s, p + 1, i - p - 1);
+
+          if (set.find (a) != set.end ())
+          {
+            r += "\\ci{";
+
+            for (size_t j (0), n (a.size ()); j < n; ++j)
+            {
+              if (a[j] == '}' && (j == 0 || a[j - 1] != '\\'))
+                r += "\\}";
+              else
+                r += a[j];
+            }
+
+            r += '}';
+          }
+          else
+          {
+            r += '<';
+            r += a;
+            r += '>';
+          }
+          p = string::npos;
+        }
+        continue;
+      }
     }
 
-    r += s[i];
+    r += c;
   }
 
   // If we found the opening '<' but no closing '>', add the rest.
