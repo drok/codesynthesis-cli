@@ -437,6 +437,31 @@ format_line (output_type ot, string& r, const char* s, size_t n)
 
       switch (c)
       {
+      case ' ':
+        {
+          // Non-ignorable space.
+          //
+          switch (ot)
+          {
+          case ot_plain:
+            {
+              r += ' ';
+              break;
+            }
+          case ot_html:
+            {
+              r += "&#160;";
+              break;
+            }
+          case ot_man:
+            {
+              r += "\\ ";
+              break;
+            }
+          }
+
+          break;
+        }
       case '-':
         {
           // N-dash. If someone wants m-dash, can use \-- with \-{}- as
