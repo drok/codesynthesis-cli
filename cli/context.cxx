@@ -1684,7 +1684,60 @@ format (semantics::scope& scope, string const& s, bool para)
               format_line (ot, t, l, n);
               string s (html_margin (t));
 
-              v += (s.empty () ? "<p>" : "<p style=\"" + s + "\">");
+              // If the entire paragraph is wrapped in <code> then signal this
+              // fact via the "code" class. This can be used, for example, to
+              // change alignment from "justify" to "left" in order to support
+              // custom alignments (in combination with non-ignorable space
+              // escaping; think multi-line synopsis in man pages).
+              //
+              // While at it also cleanup nested <code></code> fragments (we
+              // may end up with quite a few of them due to the <arg>
+              // translation).
+              //
+              string c;
+              {
+                size_t n (t.size ());
+
+                if (n >= 13                            &&
+                    t.compare (0, 6, "<code>") == 0    &&
+                    t.compare (n - 7, 7, "</code>") == 0)
+                {
+                  string tt;
+
+                  // Make sure this is one contigous <code>.
+                  //
+                  size_t b (1); // <code>/</code> balance.
+                  for (size_t i (6), j (0);
+                       i != n && (i = t.find ("code>", i)) != string::npos;
+                       j = i = i + 5)
+                  {
+                    if      (t[i - 1] == '<')                    b++;
+                    else if (t[i - 1] == '/' && t[i - 2] == '<') b--;
+                    else continue;
+
+                    // Append previous chunk.
+                    //
+                    tt.append (t, j, i - j - (t[i - 1] == '<' ? 1 : 2));
+
+                    if (b == 0)
+                    {
+                      if (i + 5 == n)
+                      {
+                        tt.append (t, i - 2, 7); // Closing </code>.
+                        t = move (tt);
+                        c = "code";
+                      }
+
+                      break;
+                    }
+                  }
+                }
+              }
+
+              v += "<p";
+              if (!c.empty ()) v += " class=\"" + c + "\"";
+              if (!s.empty ()) v += " style=\"" + s + "\"";
+              v += ">";
               v += t;
               v += "</p>";
             }
