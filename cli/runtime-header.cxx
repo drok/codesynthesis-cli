@@ -16,8 +16,11 @@ generate_runtime_header (context& ctx)
     os << "#include <deque>" << endl;
 
   if (ctx.options.generate_description ())
-    os << "#include <map>" << endl
-       << "#include <vector>" << endl;
+    os << "#include <map>" << endl;
+
+  if (ctx.options.generate_description ()  ||
+      ctx.options.generate_vector_scanner ())
+    os << "#include <vector>" << endl;
 
   os << "#include <iosfwd>" << endl
      << "#include <string>" << endl
