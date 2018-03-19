@@ -2586,6 +2586,8 @@ class_doc (semantics::class_& c)
 
   if (k == "exclude")
     return cd_exclude;
+  if (k == "exclude-base")
+    return cd_exclude_base;
   else if (k == "short")
     return cd_short;
   else if (k == "long")

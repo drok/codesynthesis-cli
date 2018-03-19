@@ -213,15 +213,17 @@ class options
   std::map<std::string, std::string> --class-doc
   {
     "<name>=<kind>",
-    "Specify the documentation <kind> that should be used for the options
-     class <name>. The <name> value should be a fully-qualified class name,
-     for example, \cb{app::options}. The <kind> value can be \cb{short},
-     \cb{long}, or \cb{exclude}. If the value is \cb{exclude}, then the
-     class documentation is excluded from usage and man/HTML/text output. For
-     usage, the \cb{short} and \cb{long} values determine which usage
-     function will be called when the class is used as base or as part of
-     the page usage (see \cb{--page-usage}). For man/HTML/text, these values
-     determine which documentation strings are used in the output."
+    "Specify the documentation <kind> that should be used for the options class
+     <name>. The <name> value should be a fully-qualified class name, for
+     example, \cb{app::options}. The <kind> value can be \cb{short},
+     \cb{long}, \cb{exclude}, or \cb{exclude-base}. If the value is
+     \cb{exclude}, then the class documentation is excluded from usage and
+     man/HTML/text output. If it is \cb{exclude-base}, then it is only
+     excluded when used as a base. For usage, the \cb{short} and \cb{long}
+     values determine which usage function will be called when the class is
+     used as base or as part of the page usage (see \cb{--page-usage}). For
+     man/HTML/text, these values determine which documentation strings are
+     used in the output."
   };
 
   std::vector<std::string> --class

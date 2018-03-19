@@ -519,7 +519,7 @@ namespace
     {
       class_doc_type cd (class_doc (c));
 
-      if (cd == cd_exclude)
+      if (cd == cd_exclude || cd == cd_exclude_base)
         return;
 
       const char* t (
@@ -1040,7 +1040,7 @@ namespace
         return;
 
       const char* t (
-        (cd == cd_default
+        (cd == cd_default || cd == cd_exclude_base
          ? usage != ut_both || usage_ == ut_short
          : cd == cd_short) ? "" : "long_");
 

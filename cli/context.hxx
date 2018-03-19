@@ -37,6 +37,7 @@ enum class_doc
 {
   cd_default,
   cd_exclude,
+  cd_exclude_base,
   cd_short,
   cd_long
 };

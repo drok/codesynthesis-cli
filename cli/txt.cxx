@@ -194,18 +194,26 @@ namespace
   //
   struct class_: traversal::class_, context
   {
-    class_ (context& c): context (c) {*this >> inherits_ >> *this;}
+    class_ (context& c): context (c), base_ (false)
+    {
+      *this >> inherits_ >> *this;
+    }
 
     virtual void
     traverse (type& c)
     {
       class_doc_type cd (class_doc (c));
 
-      if (cd == cd_exclude)
+      if (cd == cd_exclude || (base_ && cd == cd_exclude_base))
         return;
 
       if (!options.exclude_base () && !options.include_base_last ())
+      {
+        bool ob (base_);
+        base_ = true;
         inherits (c);
+        base_ = ob;
+      }
 
       doc dc (*this, cd);
       option op (*this, cd);
@@ -215,10 +223,16 @@ namespace
       names (c, n);
 
       if (!options.exclude_base () && options.include_base_last ())
+      {
+        bool ob (base_);
+        base_ = true;
         inherits (c);
+        base_ = ob;
+      }
     }
 
   private:
+    bool base_;
     traversal::inherits inherits_;
   };
 }
