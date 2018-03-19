@@ -308,6 +308,9 @@ generate_runtime_header (context& ctx)
        << "std::size_t" << endl
        << "end () const;"
        << endl
+       << "void" << endl
+       << "reset (std::size_t start = 0);"
+       << endl
        << "virtual bool" << endl
        << "more ();"
        << endl

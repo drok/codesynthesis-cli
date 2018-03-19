@@ -206,6 +206,12 @@ generate_runtime_inline (context& ctx)
        << "{"
        << "return i_;"
        << "}";
+
+    os << inl << "void vector_scanner::" << endl
+       << "reset (std::size_t i)"
+       << "{"
+       << "i_ = i;"
+       << "}";
   }
 
   // argv_file_scanner
