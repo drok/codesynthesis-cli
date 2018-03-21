@@ -231,7 +231,8 @@ generate_runtime_inline (context& ctx)
        << ": argv_scanner (argc, argv, erase)," << endl
        << "  option_ (option)," << endl
        << "  options_ (&option_info_)," << endl
-       << "  options_count_ (1)";
+       << "  options_count_ (1)," << endl
+       << "  i_ (1)";
     if (sep)
       os << "," << endl
          << "  skip_ (false)";
@@ -249,7 +250,8 @@ generate_runtime_inline (context& ctx)
        << ": argv_scanner (start, argc, argv, erase)," << endl
        << "  option_ (option)," << endl
        << "  options_ (&option_info_)," << endl
-       << "  options_count_ (1)";
+       << "  options_count_ (1)," << endl
+       << "  i_ (1)";
     if (sep)
       os << "," << endl
          << "  skip_ (false)";
@@ -266,7 +268,8 @@ generate_runtime_inline (context& ctx)
        << "bool erase)" << endl
        << ": argv_scanner (argc, argv, erase)," << endl
        << "  options_ (options)," << endl
-       << "  options_count_ (options_count)";
+       << "  options_count_ (options_count)," << endl
+       << "  i_ (1)";
     if (sep)
       os << "," << endl
          << "  skip_ (false)";
@@ -282,7 +285,8 @@ generate_runtime_inline (context& ctx)
        << "bool erase)" << endl
        << ": argv_scanner (start, argc, argv, erase)," << endl
        << "  options_ (options)," << endl
-       << "  options_count_ (options_count)";
+       << "  options_count_ (options_count)," << endl
+       << "  i_ (1)";
     if (sep)
       os << "," << endl
          << "  skip_ (false)";

@@ -274,9 +274,9 @@ namespace cli
       return base::next ();
     else
     {
-      hold_.swap (args_.front ());
+      hold_[i_ == 0 ? ++i_ : --i_].swap (args_.front ());
       args_.pop_front ();
-      return hold_.c_str ();
+      return hold_[i_].c_str ();
     }
   }
 
@@ -420,7 +420,7 @@ namespace cli
     {
       using namespace std;
 
-      string o (s.next ());
+      const char* o (s.next ());
 
       if (s.more ())
       {

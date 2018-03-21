@@ -224,6 +224,12 @@ namespace cli
     std::string argument_;
   };
 
+  // Command line argument scanner interface.
+  //
+  // The values returned by next() are guaranteed to be valid
+  // for the two previous arguments up until a call to a third
+  // peek() or next().
+  //
   class scanner
   {
     public:
@@ -335,8 +341,13 @@ namespace cli
     const option_info* options_;
     std::size_t options_count_;
 
-    std::string hold_;
     std::deque<std::string> args_;
+
+    // Circular buffer of two arguments.
+    //
+    std::string hold_[2];
+    std::size_t i_;
+
     bool skip_;
   };
 

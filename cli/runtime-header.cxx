@@ -246,7 +246,13 @@ generate_runtime_header (context& ctx)
 
   // scanner
   //
-  os << "class scanner"
+  os << "// Command line argument scanner interface."                  << endl
+     << "//"                                                           << endl
+     << "// The values returned by next() are guaranteed to be valid"  << endl
+     << "// for the two previous arguments up until a call to a third" << endl
+     << "// peek() or next()."                                         << endl
+     << "//"                                                           << endl
+     << "class scanner"
      << "{"
      << "public:" << endl
      << "virtual" << endl
@@ -396,11 +402,16 @@ generate_runtime_header (context& ctx)
        << "const option_info* options_;"
        << "std::size_t options_count_;"
        << endl
-       << "std::string hold_;"
-       << "std::deque<std::string> args_;";
+       << "std::deque<std::string> args_;"
+       << endl
+       << "// Circular buffer of two arguments." << endl
+       << "//" << endl
+       << "std::string hold_[2];"
+       << "std::size_t i_;";
 
     if (!ctx.opt_sep.empty ())
-      os << "bool skip_;";
+      os << endl
+         << "bool skip_;";
 
     os << "};";
   }
