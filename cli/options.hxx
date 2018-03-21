@@ -402,382 +402,991 @@ class options
            ::cli::unknown_mode option = ::cli::unknown_mode::fail,
            ::cli::unknown_mode argument = ::cli::unknown_mode::stop);
 
-  // Option accessors.
+  // Option accessors and modifiers.
   //
   const bool&
   help () const;
 
+  bool&
+  help ();
+
+  void
+  help (const bool&);
+
   const bool&
   version () const;
+
+  bool&
+  version ();
+
+  void
+  version (const bool&);
 
   const std::vector<std::string>&
   include_path () const;
 
+  std::vector<std::string>&
+  include_path ();
+
+  void
+  include_path (const std::vector<std::string>&);
+
   bool
   include_path_specified () const;
+
+  void
+  include_path_specified (bool);
 
   const std::string&
   output_dir () const;
 
+  std::string&
+  output_dir ();
+
+  void
+  output_dir (const std::string&);
+
   bool
   output_dir_specified () const;
+
+  void
+  output_dir_specified (bool);
 
   const cxx_version&
   std () const;
 
+  cxx_version&
+  std ();
+
+  void
+  std (const cxx_version&);
+
   bool
   std_specified () const;
+
+  void
+  std_specified (bool);
 
   const bool&
   generate_modifier () const;
 
+  bool&
+  generate_modifier ();
+
+  void
+  generate_modifier (const bool&);
+
   const bool&
   generate_specifier () const;
+
+  bool&
+  generate_specifier ();
+
+  void
+  generate_specifier (const bool&);
 
   const bool&
   generate_parse () const;
 
+  bool&
+  generate_parse ();
+
+  void
+  generate_parse (const bool&);
+
   const bool&
   generate_description () const;
+
+  bool&
+  generate_description ();
+
+  void
+  generate_description (const bool&);
 
   const bool&
   generate_file_scanner () const;
 
+  bool&
+  generate_file_scanner ();
+
+  void
+  generate_file_scanner (const bool&);
+
   const bool&
   generate_vector_scanner () const;
+
+  bool&
+  generate_vector_scanner ();
+
+  void
+  generate_vector_scanner (const bool&);
+
+  const bool&
+  generate_group_scanner () const;
+
+  bool&
+  generate_group_scanner ();
+
+  void
+  generate_group_scanner (const bool&);
 
   const bool&
   suppress_inline () const;
 
+  bool&
+  suppress_inline ();
+
+  void
+  suppress_inline (const bool&);
+
   const bool&
   suppress_cli () const;
+
+  bool&
+  suppress_cli ();
+
+  void
+  suppress_cli (const bool&);
 
   const std::string&
   cli_namespace () const;
 
+  std::string&
+  cli_namespace ();
+
+  void
+  cli_namespace (const std::string&);
+
   bool
   cli_namespace_specified () const;
+
+  void
+  cli_namespace_specified (bool);
 
   const std::string&
   ostream_type () const;
 
+  std::string&
+  ostream_type ();
+
+  void
+  ostream_type (const std::string&);
+
   bool
   ostream_type_specified () const;
+
+  void
+  ostream_type_specified (bool);
 
   const bool&
   generate_cxx () const;
 
+  bool&
+  generate_cxx ();
+
+  void
+  generate_cxx (const bool&);
+
   const bool&
   generate_man () const;
+
+  bool&
+  generate_man ();
+
+  void
+  generate_man (const bool&);
 
   const bool&
   generate_html () const;
 
+  bool&
+  generate_html ();
+
+  void
+  generate_html (const bool&);
+
   const bool&
   generate_txt () const;
+
+  bool&
+  generate_txt ();
+
+  void
+  generate_txt (const bool&);
 
   const bool&
   stdout_ () const;
 
+  bool&
+  stdout_ ();
+
+  void
+  stdout_ (const bool&);
+
   const bool&
   suppress_undocumented () const;
+
+  bool&
+  suppress_undocumented ();
+
+  void
+  suppress_undocumented (const bool&);
 
   const bool&
   suppress_usage () const;
 
+  bool&
+  suppress_usage ();
+
+  void
+  suppress_usage (const bool&);
+
   const bool&
   long_usage () const;
+
+  bool&
+  long_usage ();
+
+  void
+  long_usage (const bool&);
 
   const bool&
   short_usage () const;
 
+  bool&
+  short_usage ();
+
+  void
+  short_usage (const bool&);
+
   const std::string&
   page_usage () const;
+
+  std::string&
+  page_usage ();
+
+  void
+  page_usage (const std::string&);
 
   bool
   page_usage_specified () const;
 
+  void
+  page_usage_specified (bool);
+
   const std::size_t&
   option_length () const;
+
+  std::size_t&
+  option_length ();
+
+  void
+  option_length (const std::size_t&);
 
   bool
   option_length_specified () const;
 
+  void
+  option_length_specified (bool);
+
   const bool&
   ansi_color () const;
+
+  bool&
+  ansi_color ();
+
+  void
+  ansi_color (const bool&);
 
   const bool&
   exclude_base () const;
 
+  bool&
+  exclude_base ();
+
+  void
+  exclude_base (const bool&);
+
   const bool&
   include_base_last () const;
+
+  bool&
+  include_base_last ();
+
+  void
+  include_base_last (const bool&);
 
   const std::map<std::string, std::string>&
   class_doc () const;
 
+  std::map<std::string, std::string>&
+  class_doc ();
+
+  void
+  class_doc (const std::map<std::string, std::string>&);
+
   bool
   class_doc_specified () const;
+
+  void
+  class_doc_specified (bool);
 
   const std::vector<std::string>&
   class_ () const;
 
+  std::vector<std::string>&
+  class_ ();
+
+  void
+  class_ (const std::vector<std::string>&);
+
   bool
   class__specified () const;
+
+  void
+  class__specified (bool);
 
   const std::map<std::string, std::string>&
   docvar () const;
 
+  std::map<std::string, std::string>&
+  docvar ();
+
+  void
+  docvar (const std::map<std::string, std::string>&);
+
   bool
   docvar_specified () const;
+
+  void
+  docvar_specified (bool);
 
   const std::vector<std::string>&
   link_regex () const;
 
+  std::vector<std::string>&
+  link_regex ();
+
+  void
+  link_regex (const std::vector<std::string>&);
+
   bool
   link_regex_specified () const;
+
+  void
+  link_regex_specified (bool);
 
   const bool&
   link_regex_trace () const;
 
+  bool&
+  link_regex_trace ();
+
+  void
+  link_regex_trace (const bool&);
+
   const std::map<char, std::string>&
   html_heading_map () const;
+
+  std::map<char, std::string>&
+  html_heading_map ();
+
+  void
+  html_heading_map (const std::map<char, std::string>&);
 
   bool
   html_heading_map_specified () const;
 
+  void
+  html_heading_map_specified (bool);
+
   const bool&
   omit_link_check () const;
+
+  bool&
+  omit_link_check ();
+
+  void
+  omit_link_check (const bool&);
 
   const std::vector<std::string>&
   hxx_prologue () const;
 
+  std::vector<std::string>&
+  hxx_prologue ();
+
+  void
+  hxx_prologue (const std::vector<std::string>&);
+
   bool
   hxx_prologue_specified () const;
+
+  void
+  hxx_prologue_specified (bool);
 
   const std::vector<std::string>&
   ixx_prologue () const;
 
+  std::vector<std::string>&
+  ixx_prologue ();
+
+  void
+  ixx_prologue (const std::vector<std::string>&);
+
   bool
   ixx_prologue_specified () const;
+
+  void
+  ixx_prologue_specified (bool);
 
   const std::vector<std::string>&
   cxx_prologue () const;
 
+  std::vector<std::string>&
+  cxx_prologue ();
+
+  void
+  cxx_prologue (const std::vector<std::string>&);
+
   bool
   cxx_prologue_specified () const;
+
+  void
+  cxx_prologue_specified (bool);
 
   const std::vector<std::string>&
   man_prologue () const;
 
+  std::vector<std::string>&
+  man_prologue ();
+
+  void
+  man_prologue (const std::vector<std::string>&);
+
   bool
   man_prologue_specified () const;
+
+  void
+  man_prologue_specified (bool);
 
   const std::vector<std::string>&
   html_prologue () const;
 
+  std::vector<std::string>&
+  html_prologue ();
+
+  void
+  html_prologue (const std::vector<std::string>&);
+
   bool
   html_prologue_specified () const;
+
+  void
+  html_prologue_specified (bool);
 
   const std::vector<std::string>&
   txt_prologue () const;
 
+  std::vector<std::string>&
+  txt_prologue ();
+
+  void
+  txt_prologue (const std::vector<std::string>&);
+
   bool
   txt_prologue_specified () const;
+
+  void
+  txt_prologue_specified (bool);
 
   const std::vector<std::string>&
   hxx_epilogue () const;
 
+  std::vector<std::string>&
+  hxx_epilogue ();
+
+  void
+  hxx_epilogue (const std::vector<std::string>&);
+
   bool
   hxx_epilogue_specified () const;
+
+  void
+  hxx_epilogue_specified (bool);
 
   const std::vector<std::string>&
   ixx_epilogue () const;
 
+  std::vector<std::string>&
+  ixx_epilogue ();
+
+  void
+  ixx_epilogue (const std::vector<std::string>&);
+
   bool
   ixx_epilogue_specified () const;
+
+  void
+  ixx_epilogue_specified (bool);
 
   const std::vector<std::string>&
   cxx_epilogue () const;
 
+  std::vector<std::string>&
+  cxx_epilogue ();
+
+  void
+  cxx_epilogue (const std::vector<std::string>&);
+
   bool
   cxx_epilogue_specified () const;
+
+  void
+  cxx_epilogue_specified (bool);
 
   const std::vector<std::string>&
   man_epilogue () const;
 
+  std::vector<std::string>&
+  man_epilogue ();
+
+  void
+  man_epilogue (const std::vector<std::string>&);
+
   bool
   man_epilogue_specified () const;
+
+  void
+  man_epilogue_specified (bool);
 
   const std::vector<std::string>&
   html_epilogue () const;
 
+  std::vector<std::string>&
+  html_epilogue ();
+
+  void
+  html_epilogue (const std::vector<std::string>&);
+
   bool
   html_epilogue_specified () const;
+
+  void
+  html_epilogue_specified (bool);
 
   const std::vector<std::string>&
   txt_epilogue () const;
 
+  std::vector<std::string>&
+  txt_epilogue ();
+
+  void
+  txt_epilogue (const std::vector<std::string>&);
+
   bool
   txt_epilogue_specified () const;
+
+  void
+  txt_epilogue_specified (bool);
 
   const std::string&
   hxx_prologue_file () const;
 
+  std::string&
+  hxx_prologue_file ();
+
+  void
+  hxx_prologue_file (const std::string&);
+
   bool
   hxx_prologue_file_specified () const;
+
+  void
+  hxx_prologue_file_specified (bool);
 
   const std::string&
   ixx_prologue_file () const;
 
+  std::string&
+  ixx_prologue_file ();
+
+  void
+  ixx_prologue_file (const std::string&);
+
   bool
   ixx_prologue_file_specified () const;
+
+  void
+  ixx_prologue_file_specified (bool);
 
   const std::string&
   cxx_prologue_file () const;
 
+  std::string&
+  cxx_prologue_file ();
+
+  void
+  cxx_prologue_file (const std::string&);
+
   bool
   cxx_prologue_file_specified () const;
+
+  void
+  cxx_prologue_file_specified (bool);
 
   const std::string&
   man_prologue_file () const;
 
+  std::string&
+  man_prologue_file ();
+
+  void
+  man_prologue_file (const std::string&);
+
   bool
   man_prologue_file_specified () const;
+
+  void
+  man_prologue_file_specified (bool);
 
   const std::string&
   html_prologue_file () const;
 
+  std::string&
+  html_prologue_file ();
+
+  void
+  html_prologue_file (const std::string&);
+
   bool
   html_prologue_file_specified () const;
+
+  void
+  html_prologue_file_specified (bool);
 
   const std::string&
   txt_prologue_file () const;
 
+  std::string&
+  txt_prologue_file ();
+
+  void
+  txt_prologue_file (const std::string&);
+
   bool
   txt_prologue_file_specified () const;
+
+  void
+  txt_prologue_file_specified (bool);
 
   const std::string&
   hxx_epilogue_file () const;
 
+  std::string&
+  hxx_epilogue_file ();
+
+  void
+  hxx_epilogue_file (const std::string&);
+
   bool
   hxx_epilogue_file_specified () const;
+
+  void
+  hxx_epilogue_file_specified (bool);
 
   const std::string&
   ixx_epilogue_file () const;
 
+  std::string&
+  ixx_epilogue_file ();
+
+  void
+  ixx_epilogue_file (const std::string&);
+
   bool
   ixx_epilogue_file_specified () const;
+
+  void
+  ixx_epilogue_file_specified (bool);
 
   const std::string&
   cxx_epilogue_file () const;
 
+  std::string&
+  cxx_epilogue_file ();
+
+  void
+  cxx_epilogue_file (const std::string&);
+
   bool
   cxx_epilogue_file_specified () const;
+
+  void
+  cxx_epilogue_file_specified (bool);
 
   const std::string&
   man_epilogue_file () const;
 
+  std::string&
+  man_epilogue_file ();
+
+  void
+  man_epilogue_file (const std::string&);
+
   bool
   man_epilogue_file_specified () const;
+
+  void
+  man_epilogue_file_specified (bool);
 
   const std::string&
   html_epilogue_file () const;
 
+  std::string&
+  html_epilogue_file ();
+
+  void
+  html_epilogue_file (const std::string&);
+
   bool
   html_epilogue_file_specified () const;
+
+  void
+  html_epilogue_file_specified (bool);
 
   const std::string&
   txt_epilogue_file () const;
 
+  std::string&
+  txt_epilogue_file ();
+
+  void
+  txt_epilogue_file (const std::string&);
+
   bool
   txt_epilogue_file_specified () const;
+
+  void
+  txt_epilogue_file_specified (bool);
 
   const std::string&
   output_prefix () const;
 
+  std::string&
+  output_prefix ();
+
+  void
+  output_prefix (const std::string&);
+
   bool
   output_prefix_specified () const;
+
+  void
+  output_prefix_specified (bool);
 
   const std::string&
   output_suffix () const;
 
+  std::string&
+  output_suffix ();
+
+  void
+  output_suffix (const std::string&);
+
   bool
   output_suffix_specified () const;
+
+  void
+  output_suffix_specified (bool);
 
   const std::string&
   hxx_suffix () const;
 
+  std::string&
+  hxx_suffix ();
+
+  void
+  hxx_suffix (const std::string&);
+
   bool
   hxx_suffix_specified () const;
+
+  void
+  hxx_suffix_specified (bool);
 
   const std::string&
   ixx_suffix () const;
 
+  std::string&
+  ixx_suffix ();
+
+  void
+  ixx_suffix (const std::string&);
+
   bool
   ixx_suffix_specified () const;
+
+  void
+  ixx_suffix_specified (bool);
 
   const std::string&
   cxx_suffix () const;
 
+  std::string&
+  cxx_suffix ();
+
+  void
+  cxx_suffix (const std::string&);
+
   bool
   cxx_suffix_specified () const;
+
+  void
+  cxx_suffix_specified (bool);
 
   const std::string&
   man_suffix () const;
 
+  std::string&
+  man_suffix ();
+
+  void
+  man_suffix (const std::string&);
+
   bool
   man_suffix_specified () const;
+
+  void
+  man_suffix_specified (bool);
 
   const std::string&
   html_suffix () const;
 
+  std::string&
+  html_suffix ();
+
+  void
+  html_suffix (const std::string&);
+
   bool
   html_suffix_specified () const;
+
+  void
+  html_suffix_specified (bool);
 
   const std::string&
   txt_suffix () const;
 
+  std::string&
+  txt_suffix ();
+
+  void
+  txt_suffix (const std::string&);
+
   bool
   txt_suffix_specified () const;
+
+  void
+  txt_suffix_specified (bool);
 
   const std::string&
   option_prefix () const;
 
+  std::string&
+  option_prefix ();
+
+  void
+  option_prefix (const std::string&);
+
   bool
   option_prefix_specified () const;
+
+  void
+  option_prefix_specified (bool);
 
   const std::string&
   option_separator () const;
 
+  std::string&
+  option_separator ();
+
+  void
+  option_separator (const std::string&);
+
   bool
   option_separator_specified () const;
+
+  void
+  option_separator_specified (bool);
 
   const bool&
   include_with_brackets () const;
 
+  bool&
+  include_with_brackets ();
+
+  void
+  include_with_brackets (const bool&);
+
   const std::string&
   include_prefix () const;
+
+  std::string&
+  include_prefix ();
+
+  void
+  include_prefix (const std::string&);
 
   bool
   include_prefix_specified () const;
 
+  void
+  include_prefix_specified (bool);
+
   const std::string&
   guard_prefix () const;
+
+  std::string&
+  guard_prefix ();
+
+  void
+  guard_prefix (const std::string&);
 
   bool
   guard_prefix_specified () const;
 
+  void
+  guard_prefix_specified (bool);
+
   const std::map<std::string, std::string>&
   reserved_name () const;
+
+  std::map<std::string, std::string>&
+  reserved_name ();
+
+  void
+  reserved_name (const std::map<std::string, std::string>&);
 
   bool
   reserved_name_specified () const;
 
+  void
+  reserved_name_specified (bool);
+
   const std::string&
   options_file () const;
 
+  std::string&
+  options_file ();
+
+  void
+  options_file (const std::string&);
+
   bool
   options_file_specified () const;
+
+  void
+  options_file_specified (bool);
 
   // Print usage information.
   //
@@ -812,6 +1421,7 @@ class options
   bool generate_description_;
   bool generate_file_scanner_;
   bool generate_vector_scanner_;
+  bool generate_group_scanner_;
   bool suppress_inline_;
   bool suppress_cli_;
   std::string cli_namespace_;

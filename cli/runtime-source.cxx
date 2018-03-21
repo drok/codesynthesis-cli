@@ -180,6 +180,72 @@ generate_runtime_source (context& ctx, bool complete)
          << "}";
     }
 
+    if (ctx.options.generate_group_scanner ())
+    {
+      // unexpected_group
+      //
+      os << "// unexpected_group" << endl
+         << "//" << endl
+
+         << "unexpected_group::" << endl
+         << "~unexpected_group () throw ()"
+         << "{"
+         << "}"
+
+         << "void unexpected_group::" << endl
+         << "print (" << os_type << "& os) const"
+         << "{"
+         << "os << \"unexpected grouped argument '\" << group_ << \"' \"" << endl
+         << "   << \"for argument '\" << argument_ << \"'\";"
+         << "}"
+
+         << "const char* unexpected_group::" << endl
+         << "what () const throw ()"
+         << "{"
+         << "return \"unexpected grouped argument\";"
+         << "}";
+
+        // group_separator
+        //
+        os << "// group_separator" << endl
+           << "//" << endl
+
+           << "group_separator::" << endl
+           << "~group_separator () throw ()"
+           << "{"
+           << "}"
+
+           << "void group_separator::" << endl
+           << "print (" << os_type << "& os) const"
+           << "{"
+           << "bool ex (!expected_.empty ());"
+           << "bool en (!encountered_.empty ());"
+           << endl
+           << "if (ex)"
+           << "{"
+           << "os << \"expected group separator '\" << expected_ << \"'\";"
+           << "if (en)" << endl
+           << "os << \" instead of '\" << encountered_ << \"'\";"
+           << "}"
+           << "else" << endl
+           << "os << \"unexpected group separator '\" << encountered_ << \"'\";"
+           << endl
+           << "if (en)" << endl
+           << "os << \", use '\\\\\" << encountered_ << \"' to escape\";"
+           << "}"
+
+           << "const char* group_separator::" << endl
+           << "what () const throw ()"
+           << "{"
+           << "bool ex (!expected_.empty ());"
+           << "bool en (!encountered_.empty ());"
+           << endl
+           << "return en" << endl
+           << "  ? ex ? \"wrong group separator\"    : \"unexpected group separator\"" << endl
+           << "  : ex ? \"expected group separator\" : \"\";"
+           << "}";
+    }
+
     // scanner
     //
     os << "// scanner" << endl
@@ -491,6 +557,146 @@ generate_runtime_source (context& ctx, bool complete)
          << "}"
          << "}"
          << "}" // while
+         << "}";
+    }
+
+    // group_scanner
+    //
+    if (ctx.options.generate_group_scanner ())
+    {
+      os << "// group_scanner" << endl
+         << "//" << endl
+
+         << "bool group_scanner::" << endl
+         << "more ()"
+         << "{"
+         << "// We don't want to call scan_group() here since that"     << endl
+         << "// would invalidate references to previous arguments."     << endl
+         << "// But we do need to check that the previous group was"    << endl
+         << "// handled."                                               << endl
+         << "//"                                                        << endl
+         << "if (state_ == scanned)"
+         << "{"
+         << "if (group_scan_.end () != group_.size ())" << endl
+         << "throw unexpected_group (arg_[i_], group_scan_.next ());"
+         << "}"
+         << "return scan_.more ();"
+         << "}"
+
+         << "const char* group_scanner::" << endl
+         << "peek ()"
+         << "{"
+         << "if (state_ != peeked)"  << endl
+         << "scan_group (peeked);"
+         << "scan_.peek ();"
+         << "// Return unescaped." << endl
+         << "return arg_[i_].c_str ();"
+         << "}"
+
+         << "const char* group_scanner::" << endl
+         << "next ()"
+         << "{"
+         << "if (state_ != peeked)" << endl
+         << "scan_group (peeked);"
+         << "scan_.next ();"
+         << "scan_group (scanned);"
+         << "// Return unescaped." << endl
+         << "return arg_[i_].c_str ();"
+         << "}"
+
+         << "void group_scanner::" << endl
+         << "skip ()"
+         << "{"
+         << "if (state_ != peeked)" << endl
+         << "scan_group (peeked);"
+         << "scan_.skip ();"
+         << "scan_group (skipped);"
+         << "}"
+
+         << "void group_scanner::" << endl
+         << "scan_group (state st)"
+         << "{"
+         << "// If the previous argument has been scanned, then make"   << endl
+         << "// sure the group has been scanned (handled) as well."     << endl
+         << "//"                                                        << endl
+         << "if (state_ == scanned)"
+         << "{"
+         <<   "if (group_scan_.end () != group_.size ())" << endl
+         <<     "throw unexpected_group (arg_[i_], group_scan_.next ());"
+         << "}"
+
+         << "if (state_ != peeked)"
+         << "{"
+         <<   "arg_[i_ == 0 ? ++i_ : --i_].clear ();"
+         <<   "group_.clear ();"
+         <<   "group_scan_.reset ();"
+         << "}"
+
+         << "// We recognize all group sequences both before and "      << endl
+         << "// after the argument and diagnose any misuse. We may"     << endl
+         << "// also have multiple groups:"                             << endl
+         << "//"                                                        << endl
+         << "// { -x }+ { -y }+ arg"                                    << endl
+         << "//"                                                        << endl
+         <<                                                                endl
+         << "// Using group_ won't cover empty groups."                 << endl
+         << "//"                                                        << endl
+         << "bool g (false);"
+         <<                                                                endl
+         << "while (scan_.more ())"
+         << "{"
+         <<   "const char* a (scan_.peek ());"
+         <<   "size_t i (*a == '\\\\' ? 1 : 0);"
+         <<   "separator s (sense (a + i));"
+         <<                                                                endl
+         <<   "if (s == none || i != 0)"
+         <<   "{"
+         <<     "if (state_ != peeked)" << endl
+         <<       "arg_[i_] = a + (s != none ? i : 0);"
+         <<     "break;"
+         <<   "}"
+
+         <<   "// Start of a leading group for the next argument."      << endl
+         <<   "//"                                                      << endl
+         <<   "if (s == open && state_ == peeked)" << endl
+         <<     "break;"
+         <<                                                                endl
+         <<   "if (s != (state_ == peeked ? open_plus : open))" << endl
+         <<     "throw group_separator (a, \"\");"
+         <<                                                                endl
+         <<   "g = true;"
+         <<                                                                endl
+         <<   "// Scan the group until the closing separator."          << endl
+         <<   "//"                                                      << endl
+         <<   "scan_.next ();"
+         <<   "s = none;"
+         <<   "while (s == none && scan_.more ())"
+         <<   "{"
+         <<     "a = scan_.next ();"
+         <<     "i = (*a == '\\\\' ? 1 : 0);"
+         <<     "s = sense (a + i);"
+         <<                                                                endl
+         <<     "if (s == none || i != 0)"
+         <<     "{"
+         <<       "group_.push_back (a + (s != none ? i : 0));"
+         <<       "s = none;"
+         <<     "}"
+         <<   "}"
+
+         <<   "if (s != (state_ == peeked ? close : close_plus))"
+         <<   "{"
+         <<     "throw group_separator ((s != none        ? a   : \"\")," << endl
+         <<                            "(state_ == peeked ? \"}\" : \"}+\"));"
+         <<   "}"
+         << "}"
+
+         << "// Handle the case where we have seen the leading group"   << endl
+         << "// but there are no more arguments."                       << endl
+         << "//"                                                        << endl
+         << "if (g && state_ != peeked && !scan_.more ())" << endl
+         <<   "throw group_separator (\"{\", \"\");"
+         <<                                                                endl
+         << "state_ = st;"
          << "}";
     }
 

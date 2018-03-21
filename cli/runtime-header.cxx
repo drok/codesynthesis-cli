@@ -244,6 +244,63 @@ generate_runtime_header (context& ctx)
        << "};";
   }
 
+  if (ctx.options.generate_group_scanner ())
+  {
+    os << "class unexpected_group: public exception"
+       << "{"
+       << "public:" << endl
+       << "virtual" << endl
+       << "~unexpected_group () throw ();"
+       << endl
+       << "unexpected_group (const std::string& argument," << endl
+       <<                   "const std::string& group);"
+       << endl
+       << "const std::string&" << endl
+       << "argument () const;"
+       << endl
+       << "const std::string&" << endl
+       << "group () const;"
+       << endl
+       << "virtual void" << endl
+       << "print (std::ostream&) const;"
+       << endl
+       << "virtual const char*" << endl
+       << "what () const throw ();"
+       << endl
+       << "private:" << endl
+       << "std::string argument_;"
+       << "std::string group_;"
+       << "};";
+
+    os << "class group_separator: public exception" << endl
+       << "{"
+       << "public:" << endl
+       << "virtual" << endl
+       << "~group_separator () throw ();"
+       << endl
+       << "// Note: either (but not both) can be empty." << endl
+       << "//" << endl
+       << "group_separator (const std::string& encountered," << endl
+       <<                  "const std::string& expected);"
+       << endl
+       << "const std::string&" << endl
+       << "encountered () const;"
+       << endl
+       << "const std::string&" << endl
+       << "expected () const;"
+       << endl
+       << "virtual void" << endl
+       << "print (std::ostream&) const;"
+       << endl
+       << "virtual const char*" << endl
+       << "what () const throw ();"
+       << endl
+       << "private:" << endl
+       << "std::string encountered_;"
+       << "std::string expected_;"
+       << "};";
+  }
+
   // scanner
   //
   os << "// Command line argument scanner interface."                  << endl
@@ -414,6 +471,81 @@ generate_runtime_header (context& ctx)
          << "bool skip_;";
 
     os << "};";
+  }
+
+  // group_scanner
+  //
+  if (ctx.options.generate_group_scanner ())
+  {
+    os << "class group_scanner: public scanner"
+       << "{"
+       << "public:" << endl
+       << "group_scanner (scanner&);"
+       << endl
+       << "virtual bool" << endl
+       << "more ();"
+       << endl
+       << "virtual const char*" << endl
+       << "peek ();"
+       << endl
+       << "virtual const char*" << endl
+       << "next ();"
+       << endl
+       << "virtual void" << endl
+       << "skip ();"
+       << endl
+       << "// The group is only available after the call to next()"     << endl
+       << "// (and skip() -- in case one needs to make sure the group"  << endl
+       << "// was empty, or some such) and is only valid (and must be"  << endl
+       << "// handled) until the next call to any of the scanner"       << endl
+       << "// functions (including more())."                            << endl
+       << "//"                                                          << endl
+       << "scanner&" << endl
+       << "group ();"
+       << endl
+       << "// Escape an argument that is a group separator. Return the" << endl
+       << "// passed string if no escaping is required."                << endl
+       << "//" << endl
+       << "static const char*" << endl
+       << "escape (const char*);"
+       << endl
+       << "private:" << endl
+       << "enum state"
+       << "{"
+       << "peeked,  // Argument peeked at with peek()."       << endl
+       << "scanned, // Argument scanned with next()."         << endl
+       << "skipped, // Argument skipped with skip()/initial." << endl
+       << "};"
+       << "enum separator"
+       << "{"
+       << "none,"            << endl
+       << "open,      // {"  << endl
+       << "close,     // }"  << endl
+       << "open_plus, // +{" << endl
+       << "close_plus // }+" << endl
+       << "};"
+       << "static separator" << endl
+       << "sense (const char*);"
+       << endl
+       << "// If the state is scanned or skipped, then scan the"        << endl
+       << "// leading groups and save the next (unescaped) argument in" << endl
+       << "// arg_. If the state is peeked, then scan the trailing"     << endl
+       << "// groups. In both cases set the new state."                 << endl
+       << "//"                                                          << endl
+       << "void" << endl
+       << "scan_group (state);"
+       << endl
+       << "scanner& scan_;"
+       << "state state_;"
+       << endl
+       << "// Circular buffer of two arguments." << endl
+       << "//" << endl
+       << "std::string arg_[2];"
+       << "std::size_t i_;"
+       << endl
+       << "std::vector<std::string> group_;"
+       << "vector_scanner group_scan_;"
+       << "};";
   }
 
   // Option description.

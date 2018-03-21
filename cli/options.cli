@@ -74,6 +74,14 @@ class options
      of reading command line arguments from \cb{vector<string>}."
   };
 
+  bool --generate-group-scanner
+  {
+    "Generate the \c{group_scanner} implementation. This scanner supports the
+     notion of argument groups that are only applied to a certain argument.
+
+     @@ TODO"
+  };
+
   bool --suppress-inline
   {
     "Generate all functions non-inline. By default simple functions are

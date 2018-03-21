@@ -17,7 +17,7 @@ public:
   class failed {};
 
   void
-  generate (options const&, semantics::cli_unit&, semantics::path const&);
+  generate (options&, semantics::cli_unit&, semantics::path const&);
 
 private:
   generator (generator const&);

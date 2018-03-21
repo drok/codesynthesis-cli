@@ -130,8 +130,11 @@ generator ()
 }
 
 void generator::
-generate (options const& ops, semantics::cli_unit& unit, path const& p)
+generate (options& ops, semantics::cli_unit& unit, path const& p)
 {
+  if (ops.generate_group_scanner ())
+    ops.generate_vector_scanner (true);
+
   try
   {
     path file (p.leaf ());

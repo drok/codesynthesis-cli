@@ -20,7 +20,7 @@ if $cli.configured
 
   cli.options += --include-with-brackets --include-prefix cli \
 --guard-prefix CLI --generate-file-scanner --generate-specifier \
---reserved-name stdout
+--generate-modifier --reserved-name stdout
 
   # Include the generated cli files into the distribution and don't remove
   # them when cleaning in src (so that clean results in a state identical to

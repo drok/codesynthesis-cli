@@ -577,6 +577,7 @@ options ()
   generate_description_ (),
   generate_file_scanner_ (),
   generate_vector_scanner_ (),
+  generate_group_scanner_ (),
   suppress_inline_ (),
   suppress_cli_ (),
   cli_namespace_ ("::cli"),
@@ -711,6 +712,7 @@ options (int& argc,
   generate_description_ (),
   generate_file_scanner_ (),
   generate_vector_scanner_ (),
+  generate_group_scanner_ (),
   suppress_inline_ (),
   suppress_cli_ (),
   cli_namespace_ ("::cli"),
@@ -848,6 +850,7 @@ options (int start,
   generate_description_ (),
   generate_file_scanner_ (),
   generate_vector_scanner_ (),
+  generate_group_scanner_ (),
   suppress_inline_ (),
   suppress_cli_ (),
   cli_namespace_ ("::cli"),
@@ -985,6 +988,7 @@ options (int& argc,
   generate_description_ (),
   generate_file_scanner_ (),
   generate_vector_scanner_ (),
+  generate_group_scanner_ (),
   suppress_inline_ (),
   suppress_cli_ (),
   cli_namespace_ ("::cli"),
@@ -1124,6 +1128,7 @@ options (int start,
   generate_description_ (),
   generate_file_scanner_ (),
   generate_vector_scanner_ (),
+  generate_group_scanner_ (),
   suppress_inline_ (),
   suppress_cli_ (),
   cli_namespace_ ("::cli"),
@@ -1259,6 +1264,7 @@ options (::cli::scanner& s,
   generate_description_ (),
   generate_file_scanner_ (),
   generate_vector_scanner_ (),
+  generate_group_scanner_ (),
   suppress_inline_ (),
   suppress_cli_ (),
   cli_namespace_ ("::cli"),
@@ -1410,6 +1416,8 @@ print_usage (::std::ostream& os, ::cli::usage_para p)
   os << "--generate-file-scanner      Generate the argv_file_scanner implementation." << ::std::endl;
 
   os << "--generate-vector-scanner    Generate the vector_scanner implementation." << ::std::endl;
+
+  os << "--generate-group-scanner     Generate the group_scanner implementation." << ::std::endl;
 
   os << "--suppress-inline            Generate all functions non-inline." << ::std::endl;
 
@@ -1649,6 +1657,8 @@ struct _cli_options_map_init
     &::cli::thunk< options, bool, &options::generate_file_scanner_ >;
     _cli_options_map_["--generate-vector-scanner"] = 
     &::cli::thunk< options, bool, &options::generate_vector_scanner_ >;
+    _cli_options_map_["--generate-group-scanner"] = 
+    &::cli::thunk< options, bool, &options::generate_group_scanner_ >;
     _cli_options_map_["--suppress-inline"] = 
     &::cli::thunk< options, bool, &options::suppress_inline_ >;
     _cli_options_map_["--suppress-cli"] = 

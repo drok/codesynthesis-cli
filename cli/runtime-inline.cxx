@@ -11,6 +11,10 @@ void
 generate_runtime_inline (context& ctx)
 {
   ostream& os (ctx.os);
+
+  os << "#include <cassert>" << endl
+     << endl;
+
   string const& inl (ctx.inl);
   string const& os_type (ctx.options.ostream_type ());
 
@@ -164,6 +168,57 @@ generate_runtime_inline (context& ctx)
        << "}";
   }
 
+  if (ctx.options.generate_group_scanner ())
+  {
+    // unexpected_group
+    //
+    os << "// unexpected_group" << endl
+       << "//" << endl
+
+       << inl << "unexpected_group::" << endl
+       << "unexpected_group (const std::string& argument," << endl
+       <<                   "const std::string& group)" << endl
+       << ": argument_ (argument), group_ (group)"
+       << "{"
+       << "}"
+
+       << inl << "const std::string& unexpected_group::" << endl
+       << "argument () const"
+       << "{"
+       << "return argument_;"
+       << "}"
+
+       << inl << "const std::string& unexpected_group::" << endl
+       << "group () const"
+       << "{"
+       << "return group_;"
+       << "}";
+
+    // group_separator
+    //
+    os << "// group_separator" << endl
+       << "//" << endl
+
+       << inl << "group_separator::" << endl
+       << "group_separator (const std::string& encountered," << endl
+       <<                  "const std::string& expected)" << endl
+       << ": encountered_ (encountered), expected_ (expected)"
+       << "{"
+       << "}"
+
+       << inl << "const std::string& group_separator::" << endl
+       << "encountered () const"
+       << "{"
+       << "return encountered_;"
+       << "}"
+
+       << inl << "const std::string& group_separator::" << endl
+       << "expected () const"
+       << "{"
+       << "return expected_;"
+       << "}";
+  }
+
   // argv_scanner
   //
   os << "// argv_scanner" << endl
@@ -291,6 +346,67 @@ generate_runtime_inline (context& ctx)
       os << "," << endl
          << "  skip_ (false)";
     os << "{"
+       << "}";
+  }
+
+  // group_scanner
+  //
+  if (ctx.options.generate_group_scanner ())
+  {
+    os << "// group_scanner" << endl
+       << "//" << endl
+
+       << inl << "group_scanner::" << endl
+       << "group_scanner (scanner& s)" << endl
+       << ": scan_ (s), state_ (skipped), i_ (1), group_scan_ (group_)"
+       << "{"
+       << "}"
+
+       << inl << "scanner& group_scanner::" << endl
+       << "group ()"
+       << "{"
+       << "assert (state_ == scanned || state_ == skipped);"
+       << "return group_scan_;"
+       << "}"
+
+       << inl << "const char* group_scanner::" << endl
+       << "escape (const char* a)"
+       << "{"
+       <<   "switch (sense (a))"
+       <<   "{"
+       <<   "case separator::none:       break;"
+       <<   "case separator::open:       return \"\\\\{\";"
+       <<   "case separator::close:      return \"\\\\}\";"
+       <<   "case separator::open_plus:  return \"\\\\+{\";"
+       <<   "case separator::close_plus: return \"\\\\}+\";"
+       <<   "}"
+       << "return a;"
+       << "}"
+
+       << inl << "group_scanner::separator group_scanner::" << endl
+       << "sense (const char* s)"
+       << "{"
+       <<   "switch (s[0])"
+       <<   "{"
+       <<   "case '{': return s[1] == '\\0' ? open  : none;"
+       <<   "case '}':"
+       <<     "{"
+       <<       "switch (s[1])"
+       <<       "{"
+       <<       "case '+': return s[2] == '\\0' ? close_plus  : none;"
+       <<       "default:  return s[1] == '\\0' ? close       : none;"
+       <<       "}"
+       <<     "}"
+       <<   "case '+':"
+       <<     "{"
+       <<       "switch (s[1])"
+       <<       "{"
+       <<       "case '{': return s[2] == '\\0' ? open_plus  : none;"
+       <<       "default:  return                             none;"
+       <<       "}"
+       <<     "}"
+       <<   "}"
+       << "return none;"
        << "}";
   }
 
