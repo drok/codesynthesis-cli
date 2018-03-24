@@ -1866,11 +1866,12 @@ _parse (const char* o, ::cli::scanner& s)
   return false;
 }
 
-void options::
+bool options::
 _parse (::cli::scanner& s,
         ::cli::unknown_mode opt_mode,
         ::cli::unknown_mode arg_mode)
 {
+  bool r = false;
   bool opt = true;
 
   while (s.more ())
@@ -1879,12 +1880,14 @@ _parse (::cli::scanner& s,
 
     if (std::strcmp (o, "--") == 0)
     {
-      s.skip ();
       opt = false;
+      s.skip ();
+      r = true;
       continue;
     }
 
-    if (opt && _parse (o, s));
+    if (opt && _parse (o, s))
+      r = true;
     else if (opt && std::strncmp (o, "-", 1) == 0 && o[1] != '\0')
     {
       switch (opt_mode)
@@ -1892,6 +1895,7 @@ _parse (::cli::scanner& s,
         case ::cli::unknown_mode::skip:
         {
           s.skip ();
+          r = true;
           continue;
         }
         case ::cli::unknown_mode::stop:
@@ -1913,6 +1917,7 @@ _parse (::cli::scanner& s,
         case ::cli::unknown_mode::skip:
         {
           s.skip ();
+          r = true;
           continue;
         }
         case ::cli::unknown_mode::stop:
@@ -1928,6 +1933,8 @@ _parse (::cli::scanner& s,
       break;
     }
   }
+
+  return r;
 }
 
 // Begin epilogue.

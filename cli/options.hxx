@@ -1410,7 +1410,7 @@ class options
   _parse (const char*, ::cli::scanner&);
 
   private:
-  void
+  bool
   _parse (::cli::scanner&,
           ::cli::unknown_mode option,
           ::cli::unknown_mode argument);

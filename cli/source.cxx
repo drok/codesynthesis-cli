@@ -584,10 +584,16 @@ namespace
       if (!abst)
       {
         bool p (options.generate_parse ());
-        string n (
-          p
-          ? "void " + name + "::\n" + (name != "parse" ? "parse" : "parse_")
-          : name + "::\n" + name);
+
+        string n, res, ret;
+        if (p)
+        {
+          n = "bool " + name + "::\n" + (name != "parse" ? "parse" : "parse_");
+          res = "bool r = ";
+          ret = "return r;";
+        }
+        else
+          n = name + "::\n" + name;
 
         os << n << " (int& argc," << endl
            << "char** argv," << endl
@@ -602,7 +608,8 @@ namespace
         }
         os << "{"
            << cli << "::argv_scanner s (argc, argv, erase);"
-           << "_parse (s, opt, arg);"
+           << res << "_parse (s, opt, arg);"
+           << ret
            << "}";
 
         os << n << " (int start," << endl
@@ -619,7 +626,8 @@ namespace
         }
         os << "{"
            << cli << "::argv_scanner s (start, argc, argv, erase);"
-           << "_parse (s, opt, arg);"
+           << res << "_parse (s, opt, arg);"
+           << ret
            << "}";
 
         os << n << " (int& argc," << endl
@@ -636,8 +644,9 @@ namespace
         }
         os << "{"
            << cli << "::argv_scanner s (argc, argv, erase);"
-           << "_parse (s, opt, arg);"
+           << res << "_parse (s, opt, arg);"
            << "end = s.end ();"
+           << ret
            << "}";
 
         os << n << " (int start," << endl
@@ -655,8 +664,9 @@ namespace
         }
         os << "{"
            << cli << "::argv_scanner s (start, argc, argv, erase);"
-           << "_parse (s, opt, arg);"
+           << res << "_parse (s, opt, arg);"
            << "end = s.end ();"
+           << ret
            << "}";
 
         os << n << " (" << cli << "::scanner& s," << endl
@@ -669,7 +679,8 @@ namespace
           names (c, names_init);
         }
         os << "{"
-           << "_parse (s, opt, arg);"
+           << res << "_parse (s, opt, arg);"
+           << ret
            << "}";
       }
 
@@ -923,11 +934,12 @@ namespace
         bool pfx (!opt_prefix.empty ());
         bool sep (!opt_sep.empty ());
 
-        os << "void " << name << "::" << endl
+        os << "bool " << name << "::" << endl
            << "_parse (" << cli << "::scanner& s," << endl
            << um << (pfx ? " opt_mode" : "") << "," << endl
            << um << " arg_mode)"
-           << "{";
+           << "{"
+           << "bool r = false;";
 
         if (sep)
           os << "bool opt = true;" // Still recognizing options.
@@ -946,12 +958,14 @@ namespace
           if (!options.keep_separator ())
           {
             os << "s.skip ();" // We don't want to erase the separator.
+               << "r = true;"
                << "continue;";
           }
           os << "}";
         }
 
-        os << "if (" << (sep ? "opt && " : "") << "_parse (o, s));";
+        os << "if (" << (sep ? "opt && " : "") << "_parse (o, s))" << endl
+           << "r = true;";
 
         // Unknown option.
         //
@@ -972,6 +986,7 @@ namespace
              << "case " << cli << "::unknown_mode::skip:" << endl
              << "{"
              << "s.skip ();"
+             << "r = true;"
              << "continue;"
              << "}"
              << "case " << cli << "::unknown_mode::stop:" << endl
@@ -996,6 +1011,7 @@ namespace
            << "case " << cli << "::unknown_mode::skip:" << endl
            << "{"
            << "s.skip ();"
+           << "r = true;"
            << "continue;"
            << "}"
            << "case " << cli << "::unknown_mode::stop:" << endl
@@ -1011,6 +1027,7 @@ namespace
            << "}"
 
            << "}" // for
+           << "return r;"
            << "}";
       }
     }

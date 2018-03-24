@@ -136,9 +136,16 @@ namespace
 
         // Are we generating parsing constructors or parse() functions?
         //
-        string n (options.generate_parse ()
-                  ? string ("void\n") + (name != "parse" ? "parse" : "parse_")
-                  : name);
+        string n;
+        if (options.generate_parse ())
+        {
+          os << "// Return true if anything has been parsed." << endl
+             << "//" << endl;
+
+          n = string ("bool\n") + (name != "parse" ? "parse" : "parse_");
+        }
+        else
+          n = name;
 
         os << n << " (int& argc," << endl
            << "char** argv," << endl
@@ -247,7 +254,7 @@ namespace
       //
       if (!abst)
         os << "private:" << endl
-           << "void" << endl
+           << "bool" << endl
            << "_parse (" << cli << "::scanner&," << endl
            << um << " option," << endl
            << um << " argument);"
