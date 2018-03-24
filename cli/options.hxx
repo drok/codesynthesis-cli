@@ -1320,6 +1320,15 @@ class options
   option_separator_specified (bool);
 
   const bool&
+  keep_separator () const;
+
+  bool&
+  keep_separator ();
+
+  void
+  keep_separator (const bool&);
+
+  const bool&
   include_with_brackets () const;
 
   bool&
@@ -1524,6 +1533,7 @@ class options
   bool option_prefix_specified_;
   std::string option_separator_;
   bool option_separator_specified_;
+  bool keep_separator_;
   bool include_with_brackets_;
   std::string include_prefix_;
   bool include_prefix_specified_;

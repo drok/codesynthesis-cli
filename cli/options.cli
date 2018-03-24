@@ -575,6 +575,12 @@ class options
      option separator to the empty value if you don't want this functionality."
   };
 
+  bool --keep-separator
+  {
+    "Leave the option separator in the scanner. This is primarily useful for
+     incremental option parsing."
+  };
+
   bool --include-with-brackets
   {
     "Use angle brackets (\cb{<>}) instead of quotes (\cb{\"\"}) in the

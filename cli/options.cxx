@@ -680,6 +680,7 @@ options ()
   option_prefix_specified_ (false),
   option_separator_ ("--"),
   option_separator_specified_ (false),
+  keep_separator_ (),
   include_with_brackets_ (),
   include_prefix_ (),
   include_prefix_specified_ (false),
@@ -815,6 +816,7 @@ options (int& argc,
   option_prefix_specified_ (false),
   option_separator_ ("--"),
   option_separator_specified_ (false),
+  keep_separator_ (),
   include_with_brackets_ (),
   include_prefix_ (),
   include_prefix_specified_ (false),
@@ -953,6 +955,7 @@ options (int start,
   option_prefix_specified_ (false),
   option_separator_ ("--"),
   option_separator_specified_ (false),
+  keep_separator_ (),
   include_with_brackets_ (),
   include_prefix_ (),
   include_prefix_specified_ (false),
@@ -1091,6 +1094,7 @@ options (int& argc,
   option_prefix_specified_ (false),
   option_separator_ ("--"),
   option_separator_specified_ (false),
+  keep_separator_ (),
   include_with_brackets_ (),
   include_prefix_ (),
   include_prefix_specified_ (false),
@@ -1231,6 +1235,7 @@ options (int start,
   option_prefix_specified_ (false),
   option_separator_ ("--"),
   option_separator_specified_ (false),
+  keep_separator_ (),
   include_with_brackets_ (),
   include_prefix_ (),
   include_prefix_specified_ (false),
@@ -1367,6 +1372,7 @@ options (::cli::scanner& s,
   option_prefix_specified_ (false),
   option_separator_ ("--"),
   option_separator_specified_ (false),
+  keep_separator_ (),
   include_with_brackets_ (),
   include_prefix_ (),
   include_prefix_specified_ (false),
@@ -1593,6 +1599,8 @@ print_usage (::std::ostream& os, ::cli::usage_para p)
 
   os << "--option-separator <sep>     Use <sep> instead of the default '--' as an" << ::std::endl
      << "                             optional separator between options and arguments." << ::std::endl;
+
+  os << "--keep-separator             Leave the option separator in the scanner." << ::std::endl;
 
   os << "--include-with-brackets      Use angle brackets (<>) instead of quotes (\"\") in" << ::std::endl
      << "                             the generated #include directives." << ::std::endl;
@@ -1823,6 +1831,8 @@ struct _cli_options_map_init
     _cli_options_map_["--option-separator"] = 
     &::cli::thunk< options, std::string, &options::option_separator_,
       &options::option_separator_specified_ >;
+    _cli_options_map_["--keep-separator"] = 
+    &::cli::thunk< options, bool, &options::keep_separator_ >;
     _cli_options_map_["--include-with-brackets"] = 
     &::cli::thunk< options, bool, &options::include_with_brackets_ >;
     _cli_options_map_["--include-prefix"] = 

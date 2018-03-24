@@ -9,6 +9,8 @@
 //
 // End prologue.
 
+#include <cassert>
+
 namespace cli
 {
   // usage_para
@@ -2043,6 +2045,24 @@ inline void options::
 option_separator_specified(bool x)
 {
   this->option_separator_specified_ = x;
+}
+
+inline const bool& options::
+keep_separator () const
+{
+  return this->keep_separator_;
+}
+
+inline bool& options::
+keep_separator ()
+{
+  return this->keep_separator_;
+}
+
+inline void options::
+keep_separator(const bool& x)
+{
+  this->keep_separator_ = x;
 }
 
 inline const bool& options::

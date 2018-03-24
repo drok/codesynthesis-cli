@@ -938,13 +938,18 @@ namespace
            << "const char* o = s.peek ();";
 
         if (sep)
+        {
           os << endl
              << "if (std::strcmp (o, \"" << opt_sep << "\") == 0)"
              << "{"
-             << "s.skip ();" // We don't want to remove the separator.
-             << "opt = false;"
-             << "continue;"
-             << "}";
+             << "opt = false;";
+          if (!options.keep_separator ())
+          {
+            os << "s.skip ();" // We don't want to erase the separator.
+               << "continue;";
+          }
+          os << "}";
+        }
 
         os << "if (" << (sep ? "opt && " : "") << "_parse (o, s));";
 
