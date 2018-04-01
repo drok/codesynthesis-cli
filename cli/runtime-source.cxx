@@ -355,6 +355,9 @@ generate_runtime_source (context& ctx, bool complete)
     {
       bool sep (!ctx.opt_sep.empty ());
 
+      const string& pfx (ctx.opt_prefix);
+      bool comb_values (!pfx.empty () && !ctx.options.no_combined_values ());
+
       os << "// argv_file_scanner" << endl
          << "//" << endl
 
@@ -369,24 +372,60 @@ generate_runtime_source (context& ctx, bool complete)
          << "// See if the next argument is the file option." << endl
          << "//" << endl
          << "const char* a (base::peek ());"
-         << "const option_info* oi;"
-         << endl
-         << "if (" << (sep ? "!skip_ && " : "") << "(oi = find (a)))"
+         << "const option_info* oi = 0;"
+         << "const char* ov = 0;"
+         << endl;
+
+      if (sep)
+        os << "if (!skip_)"
+           << "{";
+
+      os << "if ((oi = find (a)) != 0)"
          << "{"
          << "base::next ();"
          << endl
          << "if (!base::more ())" << endl
-         << "throw missing_value (oi->option);"
+         << "throw missing_value (a);"
          << endl
+         << "ov = base::next ();"
+         << "}";
+
+      // Handle the combined option/value (--foo=bar). See the option parsing
+      // implementation for details.
+      //
+      if (comb_values)
+      {
+        size_t n (pfx.size ());
+
+        os << "else if (std::strncmp (a, \"" << pfx << "\", " <<
+          n << ") == 0)" // It looks like an option.
+           << "{"
+           <<   "if ((ov = std::strchr (a, '=')) != 0)" // Has '='.
+           <<   "{"
+           <<     "std::string o (a, 0, ov - a);"
+           <<     "if ((oi = find (o.c_str ())) != 0)"
+           <<     "{"
+           <<       "base::next ();"
+           <<       "++ov;" // That's the value.
+           <<     "}"
+           <<   "}"
+           << "}";
+      }
+
+      if (sep)
+        os << "}";
+
+      os << "if (oi != 0)"
+         << "{"
          << "if (oi->search_func != 0)"
          << "{"
-         << "std::string f (oi->search_func (base::next (), oi->arg));"
+         << "std::string f (oi->search_func (ov, oi->arg));"
          << endl
          << "if (!f.empty ())" << endl
          << "load (f);"
          << "}"
          << "else" << endl
-         << "load (base::next ());"
+         << "load (ov);"
          << endl
          << "if (!args_.empty ())" << endl
          << "return true;"

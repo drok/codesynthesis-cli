@@ -1,0 +1,84 @@
+# file      : tests/combined/testscript
+# copyright : Copyright (c) 2009-2017 Code Synthesis Tools CC
+# license   : MIT; see accompanying LICENSE file
+
+: values
+:
+{
+  : long
+  :
+  $* --foo=123 >'--foo=123'
+
+  : short
+  :
+  $* -f=123 >'--foo=123'
+
+  : empty
+  :
+  $* --foo= >'--foo='
+
+  : unknown-option-long
+  :
+  $* --bar=123 2>>EOE != 0
+  unknown option '--bar'
+  EOE
+
+  : unknown-option-short
+  :
+  $* -b=123 2>>EOE != 0
+  unknown option '-b'
+  EOE
+
+  : unknown-value
+  :
+  $* --xyz=123 2>>EOE != 0
+  invalid value '123' for option '--xyz'
+  EOE
+
+  : options-file
+  :
+  cat <<EOI >=options;
+  --foo=123
+  EOI
+  $* --file=options >'--foo=123'
+}
+
+: flags
+:
+{
+  : basic
+  :
+  $* -zyx >'-xyz'
+
+  : separate
+  :
+  $* -zx -y >'-xyz'
+
+  : long
+  :
+  $* --xyz >'--xyz'
+
+  : unknown-option
+  :
+  $* -xYz 2>>EOE != 0
+  unknown option '-Y'
+  EOE
+
+  : alnum-only
+  :
+  $* -xy+ 2>>EOE != 0
+  unknown option '-xy+'
+  EOE
+
+  : flags-only
+  :
+  $* -xyf 123 2>>EOE != 0
+  missing value for option '-f'
+  EOE
+
+  : flags-only-combined
+  :
+  $* -xyf=123 2>>EOE != 0
+  missing value for option '-f'
+  EOE
+}

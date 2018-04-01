@@ -934,12 +934,22 @@ namespace
         bool pfx (!opt_prefix.empty ());
         bool sep (!opt_sep.empty ());
 
+        bool comb_flags (pfx && !options.no_combined_flags ());
+        bool comb_values (pfx && !options.no_combined_values ());
+
         os << "bool " << name << "::" << endl
            << "_parse (" << cli << "::scanner& s," << endl
            << um << (pfx ? " opt_mode" : "") << "," << endl
            << um << " arg_mode)"
-           << "{"
-           << "bool r = false;";
+           << "{";
+
+        if (comb_flags)
+          os << "// Can't skip combined flags (--no-combined-flags)." << endl
+             << "//" << endl
+             << "assert (opt_mode != " << cli << "::unknown_mode::skip);"
+             << endl;
+
+        os << "bool r = false;";
 
         if (sep)
           os << "bool opt = true;" // Still recognizing options.
@@ -964,24 +974,114 @@ namespace
           os << "}";
         }
 
-        os << "if (" << (sep ? "opt && " : "") << "_parse (o, s))" << endl
-           << "r = true;";
+        if (sep)
+          os << "if (opt)"
+             << "{";
 
-        // Unknown option.
+        // First try the argument as is.
         //
+        os << "if (_parse (o, s))"
+           << "{"
+           << "r = true;"
+           << "continue;"
+           << "}";
+
         if (pfx)
         {
           size_t n (opt_prefix.size ());
 
-          os << "else if (";
-
-          if (sep)
-            os << "opt && ";
-
-          os << "std::strncmp (o, \"" << opt_prefix << "\", " <<
+          os << "if (std::strncmp (o, \"" << opt_prefix << "\", " <<
             n << ") == 0 && o[" << n << "] != '\\0')"
-             << "{"
-             << "switch (opt_mode)"
+             << "{";
+
+          if (comb_values)
+          {
+            os << "// Handle combined option values." << endl
+               << "//" << endl
+               << "std::string co;" // Need to live until next block.
+               << "if (const char* v = std::strchr (o, '='))"
+               << "{"
+               <<   "co.assign (o, 0, v - o);"
+               <<   "++v;"
+               <<                                                          endl
+               <<   "int ac (2);"
+               <<   "char* av[] ="
+               <<   "{"
+               <<   "const_cast<char*> (co.c_str ())," << endl
+               <<   "const_cast<char*> (v)"
+               <<   "};"
+               <<   cli << "::argv_scanner ns (0, ac, av);"
+               <<                                                          endl
+               <<   "if (_parse (co.c_str (), ns))"
+               <<   "{"
+               <<     "// Parsed the option but not its value?" << endl
+               <<     "//" << endl
+               <<     "if (ns.end () != 2)" << endl
+               <<       "throw " << cli << "::invalid_value (co, v);"
+               <<                                                          endl
+               <<     "s.next ();"
+               <<     "r = true;"
+               <<     "continue;"
+               <<   "}"
+               <<   "else"
+               <<   "{"
+               <<     "// Set the unknown option and fall through." << endl
+               <<     "//" << endl
+               <<     "o = co.c_str ();"
+               <<   "}"
+               << "}";
+          }
+
+          if (comb_flags)
+          {
+            os << "// Handle combined flags." << endl
+               << "//" << endl
+               << "char cf[" << n + 2 << "];" // Need to live until next block.
+               << "{"
+               << "const char* p = o + " << n << ";"
+               << "for (; *p != '\\0'; ++p)"
+               << "{"
+               <<   "if (!((*p >= 'a' && *p <= 'z') ||" << endl
+               <<         "(*p >= 'A' && *p <= 'Z') ||" << endl
+               <<         "(*p >= '0' && *p <= '9')))" << endl
+               <<     "break;"
+               << "}"
+               << "if (*p == '\\0')"
+               << "{"
+               <<   "for (p = o + " << n << "; *p != '\\0'; ++p)"
+               <<   "{"
+               <<     "std::strcpy (cf, \"" << opt_prefix << "\");"
+               <<     "cf[" << n << "] = *p;"
+               <<     "cf[" << n + 1 << "] = '\\0';"
+               <<                                                          endl
+               <<     "int ac (1);"
+               <<     "char* av[] = {cf};"
+               <<     cli << "::argv_scanner ns (0, ac, av);"
+               <<                                                          endl
+               <<     "if (!_parse (cf, ns))" << endl
+               <<       "break;"
+               <<   "}"
+               <<   "if (*p == '\\0')"
+               <<   "{"
+               <<     "// All handled." << endl
+               <<     "//" << endl
+               <<     "s.next ();"
+               <<     "r = true;"
+               <<     "continue;"
+               <<   "}"
+               <<   "else"
+               <<   "{"
+               <<     "// Set the unknown option and fall through." << endl
+               <<     "//" << endl
+               <<     "o = cf;"
+               <<   "}"
+               << "}"
+               << "}";
+          }
+
+          // Unknown option.
+          //
+          os << "switch (opt_mode)"
              << "{"
              << "case " << cli << "::unknown_mode::skip:" << endl
              << "{"
@@ -1002,11 +1102,12 @@ namespace
              << "}";
         }
 
+        if (sep)
+          os << "}";
+
         // Unknown argument.
         //
-        os << "else"
-           << "{"
-           << "switch (arg_mode)"
+        os << "switch (arg_mode)"
            << "{"
            << "case " << cli << "::unknown_mode::skip:" << endl
            << "{"
@@ -1024,7 +1125,6 @@ namespace
            << "}"
            << "}" // switch
            << "break;" // The stop case.
-           << "}"
 
            << "}" // for
            << "return r;"

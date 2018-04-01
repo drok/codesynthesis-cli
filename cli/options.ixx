@@ -2066,6 +2066,42 @@ keep_separator(const bool& x)
 }
 
 inline const bool& options::
+no_combined_flags () const
+{
+  return this->no_combined_flags_;
+}
+
+inline bool& options::
+no_combined_flags ()
+{
+  return this->no_combined_flags_;
+}
+
+inline void options::
+no_combined_flags(const bool& x)
+{
+  this->no_combined_flags_ = x;
+}
+
+inline const bool& options::
+no_combined_values () const
+{
+  return this->no_combined_values_;
+}
+
+inline bool& options::
+no_combined_values ()
+{
+  return this->no_combined_values_;
+}
+
+inline void options::
+no_combined_values(const bool& x)
+{
+  this->no_combined_values_ = x;
+}
+
+inline const bool& options::
 include_with_brackets () const
 {
   return this->include_with_brackets_;

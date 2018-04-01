@@ -581,6 +581,24 @@ class options
      incremental option parsing."
   };
 
+  bool --no-combined-flags
+  {
+    "Disable support for combining multiple single-character flags into a
+     single argument (the \cb{-xyz} form that is equivalent to \cb{-x} \cb{-y}
+     \cb{-z}). An argument is considered a combination of flags if it starts
+     with a single option prefix (\cb{--option-prefix}) and only contains
+     letters and digits. Note that an option with a value may not be part of
+     such a combination, not even if it is specified last."
+  }
+
+  bool --no-combined-values
+  {
+    "Disable support for combining an option and its value into a single
+     argument with the assignment sign (the \c{\i{option}\b{=}\i{value}}
+     form). This functionality requires a non-empty option prefix
+     (\cb{--option-prefix})."
+  }
+
   bool --include-with-brackets
   {
     "Use angle brackets (\cb{<>}) instead of quotes (\cb{\"\"}) in the

@@ -1329,6 +1329,24 @@ class options
   keep_separator (const bool&);
 
   const bool&
+  no_combined_flags () const;
+
+  bool&
+  no_combined_flags ();
+
+  void
+  no_combined_flags (const bool&);
+
+  const bool&
+  no_combined_values () const;
+
+  bool&
+  no_combined_values ();
+
+  void
+  no_combined_values (const bool&);
+
+  const bool&
   include_with_brackets () const;
 
   bool&
@@ -1534,6 +1552,8 @@ class options
   std::string option_separator_;
   bool option_separator_specified_;
   bool keep_separator_;
+  bool no_combined_flags_;
+  bool no_combined_values_;
   bool include_with_brackets_;
   std::string include_prefix_;
   bool include_prefix_specified_;

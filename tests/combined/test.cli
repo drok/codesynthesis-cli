@@ -1,0 +1,17 @@
+// file      : tests/combined/test.cli
+// author    : Boris Kolpackov <boris@codesynthesis.com>
+// copyright : Copyright (c) 2009-2017 Code Synthesis Tools CC
+// license   : MIT; see accompanying LICENSE file
+
+include <string>;
+
+class options
+{
+  std::string --foo|-f;
+
+  bool -x;
+  bool -y;
+  bool -z;
+
+  bool --xyz;
+};

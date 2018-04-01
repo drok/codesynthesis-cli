@@ -221,24 +221,45 @@ namespace cli
       // See if the next argument is the file option.
       //
       const char* a (base::peek ());
-      const option_info* oi;
+      const option_info* oi = 0;
+      const char* ov = 0;
 
-      if (!skip_ && (oi = find (a)))
+      if (!skip_)
       {
-        base::next ();
+        if ((oi = find (a)) != 0)
+        {
+          base::next ();
 
-        if (!base::more ())
-          throw missing_value (oi->option);
+          if (!base::more ())
+            throw missing_value (a);
 
+          ov = base::next ();
+        }
+        else if (std::strncmp (a, "-", 1) == 0)
+        {
+          if ((ov = std::strchr (a, '=')) != 0)
+          {
+            std::string o (a, 0, ov - a);
+            if ((oi = find (o.c_str ())) != 0)
+            {
+              base::next ();
+              ++ov;
+            }
+          }
+        }
+      }
+
+      if (oi != 0)
+      {
         if (oi->search_func != 0)
         {
-          std::string f (oi->search_func (base::next (), oi->arg));
+          std::string f (oi->search_func (ov, oi->arg));
 
           if (!f.empty ())
             load (f);
         }
         else
-          load (base::next ());
+          load (ov);
 
         if (!args_.empty ())
           return true;
@@ -681,6 +702,8 @@ options ()
   option_separator_ ("--"),
   option_separator_specified_ (false),
   keep_separator_ (),
+  no_combined_flags_ (),
+  no_combined_values_ (),
   include_with_brackets_ (),
   include_prefix_ (),
   include_prefix_specified_ (false),
@@ -817,6 +840,8 @@ options (int& argc,
   option_separator_ ("--"),
   option_separator_specified_ (false),
   keep_separator_ (),
+  no_combined_flags_ (),
+  no_combined_values_ (),
   include_with_brackets_ (),
   include_prefix_ (),
   include_prefix_specified_ (false),
@@ -956,6 +981,8 @@ options (int start,
   option_separator_ ("--"),
   option_separator_specified_ (false),
   keep_separator_ (),
+  no_combined_flags_ (),
+  no_combined_values_ (),
   include_with_brackets_ (),
   include_prefix_ (),
   include_prefix_specified_ (false),
@@ -1095,6 +1122,8 @@ options (int& argc,
   option_separator_ ("--"),
   option_separator_specified_ (false),
   keep_separator_ (),
+  no_combined_flags_ (),
+  no_combined_values_ (),
   include_with_brackets_ (),
   include_prefix_ (),
   include_prefix_specified_ (false),
@@ -1236,6 +1265,8 @@ options (int start,
   option_separator_ ("--"),
   option_separator_specified_ (false),
   keep_separator_ (),
+  no_combined_flags_ (),
+  no_combined_values_ (),
   include_with_brackets_ (),
   include_prefix_ (),
   include_prefix_specified_ (false),
@@ -1373,6 +1404,8 @@ options (::cli::scanner& s,
   option_separator_ ("--"),
   option_separator_specified_ (false),
   keep_separator_ (),
+  no_combined_flags_ (),
+  no_combined_values_ (),
   include_with_brackets_ (),
   include_prefix_ (),
   include_prefix_specified_ (false),
@@ -1601,6 +1634,14 @@ print_usage (::std::ostream& os, ::cli::usage_para p)
      << "                             optional separator between options and arguments." << ::std::endl;
 
   os << "--keep-separator             Leave the option separator in the scanner." << ::std::endl;
+
+  os << "--no-combined-flags          Disable support for combining multiple" << ::std::endl
+     << "                             single-character flags into a single argument (the" << ::std::endl
+     << "                             -xyz form that is equivalent to -x -y -z)." << ::std::endl;
+
+  os << "--no-combined-values         Disable support for combining an option and its" << ::std::endl
+     << "                             value into a single argument with the assignment" << ::std::endl
+     << "                             sign (the option=value form)." << ::std::endl;
 
   os << "--include-with-brackets      Use angle brackets (<>) instead of quotes (\"\") in" << ::std::endl
      << "                             the generated #include directives." << ::std::endl;
@@ -1833,6 +1874,10 @@ struct _cli_options_map_init
       &options::option_separator_specified_ >;
     _cli_options_map_["--keep-separator"] = 
     &::cli::thunk< options, bool, &options::keep_separator_ >;
+    _cli_options_map_["--no-combined-flags"] = 
+    &::cli::thunk< options, bool, &options::no_combined_flags_ >;
+    _cli_options_map_["--no-combined-values"] = 
+    &::cli::thunk< options, bool, &options::no_combined_values_ >;
     _cli_options_map_["--include-with-brackets"] = 
     &::cli::thunk< options, bool, &options::include_with_brackets_ >;
     _cli_options_map_["--include-prefix"] = 
@@ -1871,6 +1916,10 @@ _parse (::cli::scanner& s,
         ::cli::unknown_mode opt_mode,
         ::cli::unknown_mode arg_mode)
 {
+  // Can't skip combined flags (--no-combined-flags).
+  //
+  assert (opt_mode != ::cli::unknown_mode::skip);
+
   bool r = false;
   bool opt = true;
 
@@ -1886,52 +1935,143 @@ _parse (::cli::scanner& s,
       continue;
     }
 
-    if (opt && _parse (o, s))
-      r = true;
-    else if (opt && std::strncmp (o, "-", 1) == 0 && o[1] != '\0')
+    if (opt)
     {
-      switch (opt_mode)
+      if (_parse (o, s))
       {
-        case ::cli::unknown_mode::skip:
-        {
-          s.skip ();
-          r = true;
-          continue;
-        }
-        case ::cli::unknown_mode::stop:
-        {
-          break;
-        }
-        case ::cli::unknown_mode::fail:
-        {
-          throw ::cli::unknown_option (o);
-        }
+        r = true;
+        continue;
       }
 
-      break;
-    }
-    else
-    {
-      switch (arg_mode)
+      if (std::strncmp (o, "-", 1) == 0 && o[1] != '\0')
       {
-        case ::cli::unknown_mode::skip:
+        // Handle combined option values.
+        //
+        std::string co;
+        if (const char* v = std::strchr (o, '='))
         {
-          s.skip ();
-          r = true;
-          continue;
-        }
-        case ::cli::unknown_mode::stop:
-        {
-          break;
-        }
-        case ::cli::unknown_mode::fail:
-        {
-          throw ::cli::unknown_argument (o);
-        }
-      }
+          co.assign (o, 0, v - o);
+          ++v;
 
-      break;
+          int ac (2);
+          char* av[] =
+          {
+            const_cast<char*> (co.c_str ()),
+            const_cast<char*> (v)
+          };
+
+          ::cli::argv_scanner ns (0, ac, av);
+
+          if (_parse (co.c_str (), ns))
+          {
+            // Parsed the option but not its value?
+            //
+            if (ns.end () != 2)
+              throw ::cli::invalid_value (co, v);
+
+            s.next ();
+            r = true;
+            continue;
+          }
+          else
+          {
+            // Set the unknown option and fall through.
+            //
+            o = co.c_str ();
+          }
+        }
+
+        // Handle combined flags.
+        //
+        char cf[3];
+        {
+          const char* p = o + 1;
+          for (; *p != '\0'; ++p)
+          {
+            if (!((*p >= 'a' && *p <= 'z') ||
+                  (*p >= 'A' && *p <= 'Z') ||
+                  (*p >= '0' && *p <= '9')))
+              break;
+          }
+
+          if (*p == '\0')
+          {
+            for (p = o + 1; *p != '\0'; ++p)
+            {
+              std::strcpy (cf, "-");
+              cf[1] = *p;
+              cf[2] = '\0';
+
+              int ac (1);
+              char* av[] = 
+              {
+                cf
+              };
+
+              ::cli::argv_scanner ns (0, ac, av);
+
+              if (!_parse (cf, ns))
+                break;
+            }
+
+            if (*p == '\0')
+            {
+              // All handled.
+              //
+              s.next ();
+              r = true;
+              continue;
+            }
+            else
+            {
+              // Set the unknown option and fall through.
+              //
+              o = cf;
+            }
+          }
+        }
+
+        switch (opt_mode)
+        {
+          case ::cli::unknown_mode::skip:
+          {
+            s.skip ();
+            r = true;
+            continue;
+          }
+          case ::cli::unknown_mode::stop:
+          {
+            break;
+          }
+          case ::cli::unknown_mode::fail:
+          {
+            throw ::cli::unknown_option (o);
+          }
+        }
+
+        break;
+      }
     }
+
+    switch (arg_mode)
+    {
+      case ::cli::unknown_mode::skip:
+      {
+        s.skip ();
+        r = true;
+        continue;
+      }
+      case ::cli::unknown_mode::stop:
+      {
+        break;
+      }
+      case ::cli::unknown_mode::fail:
+      {
+        throw ::cli::unknown_argument (o);
+      }
+    }
+
+    break;
   }
 
   return r;
