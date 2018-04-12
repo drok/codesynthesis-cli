@@ -419,6 +419,7 @@ format_line (output_type ot, string& r, const char* s, size_t n)
   const block itlc = 2;
   const block bold = 4;
   const block link = 8;
+  const block note = 16;
 
   vector<block> blocks;
 
@@ -753,6 +754,19 @@ format_line (output_type ot, string& r, const char* s, size_t n)
           r += 'l';
           break;
         }
+        case 'N':
+        {
+          if (i + 1 < n && s[i + 1] == '{')
+          {
+            ++i;
+            blocks.push_back (note);
+            new_block = true;
+            break;
+          }
+
+          r += 'N';
+          break;
+        }
       case '\\':
         {
           switch (ot)
@@ -815,6 +829,13 @@ format_line (output_type ot, string& r, const char* s, size_t n)
         {
         case ot_plain:
           {
+            if ((b & note) != 0)
+            {
+              cerr << "error: \\N{} in plain text output not yet supported"
+                   << endl;
+              throw generation_failed ();
+            }
+
             if ((b & link) == 0)
             {
               if (color)
@@ -831,7 +852,11 @@ format_line (output_type ot, string& r, const char* s, size_t n)
           }
         case ot_html:
           {
-            if (b & link)
+            if (b & note)
+            {
+              r += "<span class=\"note\">";
+            }
+            else if (b & link)
             {
               r += "<a href=\"";
 
@@ -869,6 +894,12 @@ format_line (output_type ot, string& r, const char* s, size_t n)
           }
         case ot_man:
           {
+            if ((b & note) != 0)
+            {
+              cerr << "error: \\N{} in man output not yet supported" << endl;
+              throw generation_failed ();
+            }
+
             if ((b & link) == 0)
             {
               if ((eb & itlc) && (eb & bold))
@@ -920,6 +951,8 @@ format_line (output_type ot, string& r, const char* s, size_t n)
             {
             case ot_plain:
               {
+                assert ((b & note) == 0);
+
                 if (b & link)
                 {
                   string t (link_section.empty ()
@@ -981,7 +1014,11 @@ format_line (output_type ot, string& r, const char* s, size_t n)
               }
             case ot_html:
               {
-                if (b & link)
+                if (b & note)
+                {
+                  r += "</span>";
+                }
+                else if (b & link)
                 {
                   if (link_empty)
                   {
@@ -1013,6 +1050,8 @@ format_line (output_type ot, string& r, const char* s, size_t n)
               }
             case ot_man:
               {
+                assert ((b & note) == 0);
+
                 if (b & link)
                 {
                   string t (link_section.empty ()
@@ -1094,6 +1133,8 @@ format_line (output_type ot, string& r, const char* s, size_t n)
     if (b & itlc) bs += 'i';
     if (b & bold) bs += 'b';
     if (b & link) bs  = 'l';
+    if (b & note) bs  = 'N';
+
 
     cerr << "error: unterminated formatting block '\\" << bs << "' "
          << "in documentation paragraph '" << string (s, 0, n) << "'" << endl;
@@ -1116,7 +1157,7 @@ struct block
   //
   // The specifier (0, H, 1, h, 2) is stored in header.
   //
-  enum kind_type {h, ul, ol, dl, li, text, pre};
+  enum kind_type {h, ul, ol, dl, li, note, text, pre};
 
   kind_type kind;
   bool para;     // True if first text fragment should be in own paragraph.
@@ -1131,7 +1172,7 @@ struct block
 };
 
 static const char* block_kind_str[] = {
-  "\\h", "\\ul", "\\ol", "\\dl", "\\li", "text", "preformatted text"};
+  "\\h", "\\ul", "\\ol", "\\dl", "\\li", "\\N", "text", "preformatted text"};
 
 inline ostream&
 operator<< (ostream& os, block::kind_type k)
@@ -1403,6 +1444,18 @@ format (semantics::scope& scope, string const& s, bool para)
         l += 4;
         n -= 4;
       }
+      //
+      // \N (note)
+      //
+      else if (n >= 3 &&
+               l[0] == '\\' &&
+               l[1] == 'N' &&
+               (l[2] == '|' || l[2] == '#'))
+      {
+        k = block::note;
+        l += 3;
+        n -= 3;
+      }
       else
         k = block::text;
 
@@ -1474,7 +1527,10 @@ format (semantics::scope& scope, string const& s, bool para)
       case block::ul:
       case block::ol:
       case block::dl: good = (k == block::li); break;
-      case block::li: good = (k == block::text || k == block::pre); break;
+      case block::li: good = (k == block::note ||
+                              k == block::text ||
+                              k == block::pre   ); break;
+      case block::note: good = (k == block::text || k == block::pre); break;
       case block::text: good = (k != block::li); break;
       case block::pre: assert (false);
       }
@@ -1569,6 +1625,7 @@ format (semantics::scope& scope, string const& s, bool para)
 
         break;
       }
+    case block::note:
     case block::text:
     case block::pre:
       break;
@@ -1604,6 +1661,11 @@ format (semantics::scope& scope, string const& s, bool para)
         }
 
         blocks.push (block (k, false, id, header));
+        break;
+      }
+    case block::note:
+      {
+        blocks.push (block (k, true, id, header));
         break;
       }
     case block::text: break; // No push.
@@ -2025,6 +2087,12 @@ format (semantics::scope& scope, string const& s, bool para)
 
               break;
             }
+          case block::note:
+            {
+              cerr << "error: " << pb.kind << "| in plain text output not "
+                   << "yet supported" << endl;
+              throw generation_failed ();
+            }
           case block::text:
           case block::pre: assert (false);
           }
@@ -2112,6 +2180,14 @@ format (semantics::scope& scope, string const& s, bool para)
 
               break;
             }
+          case block::note:
+            {
+              v += "<div class=\"note\">\n";
+              v += pv;
+              v += "\n</div>";
+
+              break;
+            }
           case block::text:
           case block::pre: assert (false);
           }
@@ -2164,6 +2240,12 @@ format (semantics::scope& scope, string const& s, bool para)
               }
 
               break;
+            }
+          case block::note:
+            {
+              cerr << "error: " << pb.kind << "| in man output not yet "
+                   << "supported" << endl;
+              throw generation_failed ();
             }
           case block::text:
           case block::pre: assert (false);

@@ -1,0 +1,83 @@
+# file      : tests/note/testscript
+# copyright : Copyright (c) 2009-2017 Code Synthesis Tools CC
+# license   : MIT; see accompanying LICENSE file
+
+test = $effect($cli.path)
+
+: block-basics
+:
+cat <<EOI >=test.cli;
+"
+Leading paragraph.
+
+\N|This is a note block one.|
+
+Interleaving paragraph.
+
+\N|This is a note block two.|
+
+Trailing paragraph.
+"
+EOI
+$* --generate-html --stdout test.cli >>EOO
+  <p>Leading paragraph.</p>
+
+  <div class="note">
+  <p>This is a note block one.</p>
+  </div>
+
+  <p>Interleaving paragraph.</p>
+
+  <div class="note">
+  <p>This is a note block two.</p>
+  </div>
+
+  <p>Trailing paragraph.</p>
+
+EOO
+
+: block-multi-para
+:
+cat <<EOI >=test.cli;
+"
+\N|
+This is a note para one.
+
+This is a note para two.
+|
+"
+EOI
+$* --generate-html --stdout test.cli >>EOO
+  <div class="note">
+  <p>This is a note para one.</p>
+
+  <p>This is a note para two.</p>
+  </div>
+
+EOO
+
+: span-basics
+:
+cat <<EOI >=test.cli;
+"
+This is normal text. \N{This is a note.} And this is normal text again.
+"
+EOI
+$* --generate-html --stdout test.cli >>EOO
+  <p>This is normal text. <span class="note">This is a note.</span> And this
+  is normal text again.</p>
+
+EOO
+
+: span-nested-link
+:
+cat <<EOI >=test.cli;
+"
+\N{This is a note with a \l{https://example.com link} inside.}
+"
+EOI
+$* --generate-html --stdout test.cli >>EOO
+  <p><span class="note">This is a note with a <a
+  href="https://example.com">link</a> inside.</span></p>
+
+EOO
