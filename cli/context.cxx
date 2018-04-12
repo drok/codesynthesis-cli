@@ -409,19 +409,19 @@ translate (string const& s, std::set<string> const& set)
 }
 
 void context::
-format_line (output_type ot, string& r, const char* s, size_t n)
+format_line (output_type ot, string& r, const char* l, size_t n)
 {
   bool color (options.ansi_color ());
 
-  typedef unsigned char block; // Mask.
+  typedef unsigned char span; // Mask.
 
-  const block code = 1;
-  const block itlc = 2;
-  const block bold = 4;
-  const block link = 8;
-  const block note = 16;
+  const span code = 1;
+  const span itlc = 2;
+  const span bold = 4;
+  const span link = 8;
+  const span note = 16;
 
-  vector<block> blocks;
+  vector<span> spans;
 
   string link_target;
   string link_section;     // If not empty, man section; target is man name.
@@ -430,11 +430,11 @@ format_line (output_type ot, string& r, const char* s, size_t n)
   bool escape (false);
   for (size_t i (0); i < n; ++i)
   {
-    char c (s[i]);
+    char c (l[i]);
 
     if (escape)
     {
-      bool new_block (false);
+      bool new_span (false);
 
       switch (c)
       {
@@ -522,7 +522,7 @@ format_line (output_type ot, string& r, const char* s, size_t n)
 
           // Skip following spaces.
           //
-          for (; i + 1 < n && s[i + 1] == ' '; ++i) ;
+          for (; i + 1 < n && l[i + 1] == ' '; ++i) ;
 
           switch (ot)
           {
@@ -541,40 +541,40 @@ format_line (output_type ot, string& r, const char* s, size_t n)
         }
       case 'c':
         {
-          block b (code);
+          span s (code);
           size_t j (i + 1);
 
           if (j < n)
           {
-            if (s[j] == 'i')
+            if (l[j] == 'i')
             {
-              b |= itlc;
+              s |= itlc;
               j++;
 
-              if (j < n && s[j] == 'b')
+              if (j < n && l[j] == 'b')
               {
-                b |= bold;
+                s |= bold;
                 j++;
               }
             }
-            else if (s[j] == 'b')
+            else if (l[j] == 'b')
             {
-              b |= bold;
+              s |= bold;
               j++;
 
-              if (j < n && s[j] == 'i')
+              if (j < n && l[j] == 'i')
               {
-                b |= itlc;
+                s |= itlc;
                 j++;
               }
             }
           }
 
-          if (j < n && s[j] == '{')
+          if (j < n && l[j] == '{')
           {
             i = j;
-            blocks.push_back (b);
-            new_block = true;
+            spans.push_back (s);
+            new_span = true;
             break;
           }
 
@@ -583,40 +583,40 @@ format_line (output_type ot, string& r, const char* s, size_t n)
         }
       case 'i':
         {
-          block b (itlc);
+          span s (itlc);
           size_t j (i + 1);
 
           if (j < n)
           {
-            if (s[j] == 'c')
+            if (l[j] == 'c')
             {
-              b |= code;
+              s |= code;
               j++;
 
-              if (j < n && s[j] == 'b')
+              if (j < n && l[j] == 'b')
               {
-                b |= bold;
+                s |= bold;
                 j++;
               }
             }
-            else if (s[j] == 'b')
+            else if (l[j] == 'b')
             {
-              b |= bold;
+              s |= bold;
               j++;
 
-              if (j < n && s[j] == 'c')
+              if (j < n && l[j] == 'c')
               {
-                b |= code;
+                s |= code;
                 j++;
               }
             }
           }
 
-          if (j < n && s[j] == '{')
+          if (j < n && l[j] == '{')
           {
             i = j;
-            blocks.push_back (b);
-            new_block = true;
+            spans.push_back (s);
+            new_span = true;
             break;
           }
 
@@ -625,40 +625,40 @@ format_line (output_type ot, string& r, const char* s, size_t n)
         }
       case 'b':
         {
-          block b (bold);
+          span s (bold);
           size_t j (i + 1);
 
           if (j < n)
           {
-            if (s[j] == 'c')
+            if (l[j] == 'c')
             {
-              b |= code;
+              s |= code;
               j++;
 
-              if (j < n && s[j] == 'i')
+              if (j < n && l[j] == 'i')
               {
-                b |= itlc;
+                s |= itlc;
                 j++;
               }
             }
-            else if (s[j] == 'i')
+            else if (l[j] == 'i')
             {
-              b |= itlc;
+              s |= itlc;
               j++;
 
-              if (j < n && s[j] == 'c')
+              if (j < n && l[j] == 'c')
               {
-                b |= code;
+                s |= code;
                 j++;
               }
             }
           }
 
-          if (j < n && s[j] == '{')
+          if (j < n && l[j] == '{')
           {
             i = j;
-            blocks.push_back (b);
-            new_block = true;
+            spans.push_back (s);
+            new_span = true;
             break;
           }
 
@@ -667,14 +667,14 @@ format_line (output_type ot, string& r, const char* s, size_t n)
         }
       case 'l':
         {
-          if (i + 1 < n && s[i + 1] == '{')
+          if (i + 1 < n && l[i + 1] == '{')
           {
             string& t (link_target);
 
             if (!t.empty ())
             {
               cerr << "error: nested links in documentation paragraph '"
-                   << string (s, 0, n) << "'" << endl;
+                   << string (l, 0, n) << "'" << endl;
               throw generation_failed ();
             }
 
@@ -683,14 +683,14 @@ format_line (output_type ot, string& r, const char* s, size_t n)
             size_t b (++i + 1), e (b);
             for (; i + 1 < n; ++i)
             {
-              char c (s[i + 1]);
+              char c (l[i + 1]);
 
               if (c == ' ' || c == '}')
               {
                 e = i + 1;
 
                 if (c == ' ') // Skip spaces.
-                  for (++i; i + 1 < n && s[i + 1] == ' '; ++i) ;
+                  for (++i; i + 1 < n && l[i + 1] == ' '; ++i) ;
 
                 break;
               }
@@ -699,12 +699,12 @@ format_line (output_type ot, string& r, const char* s, size_t n)
             // Run the link target through format_line(ot_plain) to handle
             // escaping (e.g., \\$).
             //
-            format_line (ot_plain, t, s + b, e - b);
+            format_line (ot_plain, t, l + b, e - b);
 
             if (t.empty ())
             {
               cerr << "error: missing link target in documentation paragraph '"
-                   << string (s, 0, n) << "'" << endl;
+                   << string (l, 0, n) << "'" << endl;
               throw generation_failed ();
             }
 
@@ -744,10 +744,10 @@ format_line (output_type ot, string& r, const char* s, size_t n)
               ref_set.insert (string (t, 1, string::npos));
             }
 
-            link_empty = i + 1 < n && s[i + 1] == '}';
+            link_empty = i + 1 < n && l[i + 1] == '}';
 
-            blocks.push_back (link);
-            new_block = true;
+            spans.push_back (link);
+            new_span = true;
             break;
           }
 
@@ -756,11 +756,11 @@ format_line (output_type ot, string& r, const char* s, size_t n)
         }
         case 'N':
         {
-          if (i + 1 < n && s[i + 1] == '{')
+          if (i + 1 < n && l[i + 1] == '{')
           {
             ++i;
-            blocks.push_back (note);
-            new_block = true;
+            spans.push_back (note);
+            new_span = true;
             break;
           }
 
@@ -807,43 +807,43 @@ format_line (output_type ot, string& r, const char* s, size_t n)
       default:
         {
           cerr << "error: unknown escape sequence '\\" << c << "' in "
-               << "documentation paragraph '" << string (s, 0, n) << "'"
+               << "documentation paragraph '" << string (l, 0, n) << "'"
                << endl;
           throw generation_failed ();
         }
       }
 
-      // If we just added a new block, add corresponding output markup.
+      // If we just added a new span, add corresponding output markup.
       //
-      if (new_block)
+      if (new_span)
       {
-        block b (blocks.back ());
+        span s (spans.back ());
 
-        block eb (0); // Effective block.
-        for (vector<block>::iterator i (blocks.begin ());
-             i != blocks.end ();
+        span es (0); // Effective span.
+        for (vector<span>::iterator i (spans.begin ());
+             i != spans.end ();
              ++i)
-          eb |= *i & (code | itlc | bold);
+          es |= *i & (code | itlc | bold);
 
         switch (ot)
         {
         case ot_plain:
           {
-            if ((b & note) != 0)
+            if ((s & note) != 0)
             {
               cerr << "error: \\N{} in plain text output not yet supported"
                    << endl;
               throw generation_failed ();
             }
 
-            if ((b & link) == 0)
+            if ((s & link) == 0)
             {
               if (color)
               {
-                if (b & bold)
+                if (s & bold)
                   r += "\033[1m";
 
-                if (b & itlc)
+                if (s & itlc)
                   r += "\033[4m";
               }
             }
@@ -852,11 +852,11 @@ format_line (output_type ot, string& r, const char* s, size_t n)
           }
         case ot_html:
           {
-            if (b & note)
+            if (s & note)
             {
               r += "<span class=\"note\">";
             }
-            else if (b & link)
+            else if (s & link)
             {
               r += "<a href=\"";
 
@@ -880,13 +880,13 @@ format_line (output_type ot, string& r, const char* s, size_t n)
             }
             else
             {
-              if (b & code)
+              if (s & code)
                 r += "<code>";
 
-              if (b & itlc)
+              if (s & itlc)
                 r += "<i>";
 
-              if (b & bold)
+              if (s & bold)
                 r += "<b>";
             }
 
@@ -894,19 +894,19 @@ format_line (output_type ot, string& r, const char* s, size_t n)
           }
         case ot_man:
           {
-            if ((b & note) != 0)
+            if ((s & note) != 0)
             {
               cerr << "error: \\N{} in man output not yet supported" << endl;
               throw generation_failed ();
             }
 
-            if ((b & link) == 0)
+            if ((s & link) == 0)
             {
-              if ((eb & itlc) && (eb & bold))
+              if ((es & itlc) && (es & bold))
                 r += "\\f(BI";
-              else if (eb & itlc)
+              else if (es & itlc)
                 r += "\\fI";
-              else if (eb & bold)
+              else if (es & bold)
                 r += "\\fB";
             }
 
@@ -936,24 +936,24 @@ format_line (output_type ot, string& r, const char* s, size_t n)
         }
       case '}':
         {
-          if (!blocks.empty ())
+          if (!spans.empty ())
           {
-            block b (blocks.back ());
-            blocks.pop_back ();
+            span s (spans.back ());
+            spans.pop_back ();
 
-            block eb (0); // New effective block.
-            for (vector<block>::iterator i (blocks.begin ());
-                 i != blocks.end ();
+            span es (0); // New effective span.
+            for (vector<span>::iterator i (spans.begin ());
+                 i != spans.end ();
                  ++i)
-              eb |= *i & (code | itlc | bold);
+              es |= *i & (code | itlc | bold);
 
             switch (ot)
             {
             case ot_plain:
               {
-                assert ((b & note) == 0);
+                assert ((s & note) == 0);
 
-                if (b & link)
+                if (s & link)
                 {
                   string t (link_section.empty ()
                             ? link_target
@@ -1002,10 +1002,10 @@ format_line (output_type ot, string& r, const char* s, size_t n)
                     //
                     r += "\033[0m"; // Clear all.
 
-                    if (eb & bold)
+                    if (es & bold)
                       r += "\033[1m";
 
-                    if (eb & itlc)
+                    if (es & itlc)
                       r += "\033[4m";
                   }
                 }
@@ -1014,11 +1014,11 @@ format_line (output_type ot, string& r, const char* s, size_t n)
               }
             case ot_html:
               {
-                if (b & note)
+                if (s & note)
                 {
                   r += "</span>";
                 }
-                else if (b & link)
+                else if (s & link)
                 {
                   if (link_empty)
                   {
@@ -1036,13 +1036,13 @@ format_line (output_type ot, string& r, const char* s, size_t n)
                 }
                 else
                 {
-                  if (b & bold)
+                  if (s & bold)
                     r += "</b>";
 
-                  if (b & itlc)
+                  if (s & itlc)
                     r += "</i>";
 
-                  if (b & code)
+                  if (s & code)
                     r += "</code>";
                 }
 
@@ -1050,9 +1050,9 @@ format_line (output_type ot, string& r, const char* s, size_t n)
               }
             case ot_man:
               {
-                assert ((b & note) == 0);
+                assert ((s & note) == 0);
 
-                if (b & link)
+                if (s & link)
                 {
                   string t (link_section.empty ()
                             ? link_target
@@ -1089,11 +1089,11 @@ format_line (output_type ot, string& r, const char* s, size_t n)
                   // exactly what we need here. However, it doesn't quite
                   // have the stack semantics that we need.
                   //
-                  if ((eb & itlc) && (eb & bold))
+                  if ((es & itlc) && (es & bold))
                     r += "\\f(BI";
-                  else if (eb & itlc)
+                  else if (es & itlc)
                     r += "\\fI";
-                  else if (eb & bold)
+                  else if (es & bold)
                     r += "\\fB";
                   else
                     r += "\\fR";
@@ -1103,7 +1103,7 @@ format_line (output_type ot, string& r, const char* s, size_t n)
               }
             }
 
-            if (b & link)
+            if (s & link)
               link_target.clear ();
 
             break;
@@ -1120,13 +1120,13 @@ format_line (output_type ot, string& r, const char* s, size_t n)
   if (escape)
   {
     cerr << "error: unterminated escape sequence in documentation "
-         << "paragraph '" << string (s, 0, n) << "'" << endl;
+         << "paragraph '" << string (l, 0, n) << "'" << endl;
     throw generation_failed ();
   }
 
-  if (!blocks.empty ())
+  if (!spans.empty ())
   {
-    unsigned char b (blocks.back ());
+    unsigned char b (spans.back ());
     string bs;
 
     if (b & code) bs += 'c';
@@ -1136,8 +1136,8 @@ format_line (output_type ot, string& r, const char* s, size_t n)
     if (b & note) bs  = 'N';
 
 
-    cerr << "error: unterminated formatting block '\\" << bs << "' "
-         << "in documentation paragraph '" << string (s, 0, n) << "'" << endl;
+    cerr << "error: unterminated formatting span '\\" << bs << "' "
+         << "in documentation paragraph '" << string (l, 0, n) << "'" << endl;
     throw generation_failed ();
   }
 }
