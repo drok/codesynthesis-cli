@@ -4,6 +4,7 @@
 // license   : MIT; see accompanying LICENSE file
 
 #include <vector>
+#include <cstring>  // strlen()
 #include <iostream>
 
 #include <cli/txt.hxx>
@@ -38,7 +39,7 @@ txt_size (const string& s, size_t p, size_t n)
 
 void
 txt_wrap_lines (ostream& os,
-                const string& d,
+                string& d,
                 size_t indent,
                 size_t first,
                 const char* line_start,
@@ -61,19 +62,33 @@ txt_wrap_lines (ostream& os,
   size_t wc (0), wi (0); // Count and count-based indentation.
   bool cws (true);       // Count flag.
 
+  // @@ TODO: while this should support notes inside lists, lists inside
+  //    notes will require splitting indentation into before/after '|'.
+  //
+  const char* ne ("");   // Note.
+  const char* np ("");   // Note prefix.
+
   size_t b (0), e (0), i (0);
   for (size_t n (d.size ()); i < n; ++i)
   {
-    char c (d[i]);
+    char& c (d[i]);
+
+    // Translate note character.
+    //
+    if (c == 0x07)
+    {
+      c = '|';
+      ne = "| ";
+    }
 
     if (c == ' ' || c == '\n')
       e = i;
 
-    if (c == '\n' || txt_size (d, b, i - b) == 79 - indent - wi)
+    if (c == '\n' || txt_size (d, b, i - b) == 79 - indent - wi - strlen (np))
     {
       if (b != 0) // Not a first line.
         os << endl
-           << line_start << string (indent + wi, ' ');
+           << line_start << string (indent + wi, ' ') << np;
 
       string s (d, b, (e != b ? e : i) - b);
 
@@ -92,14 +107,19 @@ txt_wrap_lines (ostream& os,
       }
 
       b = e = (e != b ? e : i) + 1;
-      wi = wc; // Start indent beginning with the next break.
+
+      // Start indenting/noting beginning with the next break.
+      //
+      wi = wc;
+      np = ne;
     }
 
     if (c == '\n')
     {
-      // Reset and start counting.
+      // Reset counters, clear notes, and start counting.
       //
       wc = wi = 0;
+      ne = np = "";
       cws = true;
     }
     else if (cws)
@@ -117,7 +137,7 @@ txt_wrap_lines (ostream& os,
   {
     if (b != 0)
       os << endl
-         << line_start << string (indent + wi, ' ');
+         << line_start << string (indent + wi, ' ') << np;
 
     string s (d, b, i - b);
 

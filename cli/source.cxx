@@ -207,7 +207,7 @@ namespace
 
   inline void
   wrap_lines (ostream& os,
-              const string& d,
+              string& d,
               size_t indent = 0,
               size_t first = 0)
   {

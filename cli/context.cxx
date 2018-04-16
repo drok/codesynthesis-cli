@@ -831,12 +831,9 @@ format_line (output_type ot, string& r, const char* l, size_t n)
           {
             if ((s & note) != 0)
             {
-              cerr << "error: \\N{} in plain text output not yet supported"
-                   << endl;
-              throw generation_failed ();
+              r += "[Note: ";
             }
-
-            if ((s & link) == 0)
+            else if ((s & link) == 0)
             {
               if (color)
               {
@@ -951,9 +948,11 @@ format_line (output_type ot, string& r, const char* l, size_t n)
             {
             case ot_plain:
               {
-                assert ((s & note) == 0);
-
-                if (s & link)
+                if ((s & note) != 0)
+                {
+                  r += ']';
+                }
+                else if ((s & link) != 0)
                 {
                   string t (link_section.empty ()
                             ? link_target
@@ -1014,11 +1013,11 @@ format_line (output_type ot, string& r, const char* l, size_t n)
               }
             case ot_html:
               {
-                if (s & note)
+                if ((s & note) != 0)
                 {
                   r += "</span>";
                 }
-                else if (s & link)
+                else if ((s & link) != 0)
                 {
                   if (link_empty)
                   {
@@ -1052,7 +1051,7 @@ format_line (output_type ot, string& r, const char* l, size_t n)
               {
                 assert ((s & note) == 0);
 
-                if (s & link)
+                if ((s & link) != 0)
                 {
                   string t (link_section.empty ()
                             ? link_target
@@ -2089,9 +2088,25 @@ format (semantics::scope& scope, string const& s, bool para)
             }
           case block::note:
             {
-              cerr << "error: " << pb.kind << "| in plain text output not "
-                   << "yet supported" << endl;
-              throw generation_failed ();
+              v += dn;
+
+              // Add a special character (bell) plus space in front of every
+              // line (including blanks). The bell is recognized and
+              // translated by txt_wrap_lines() to '|'.
+              //
+              char p ('\n'); // Previous character.
+              for (size_t i (0), n (pv.size ()); i != n; ++i)
+              {
+                char c (pv[i]);
+
+                if (p == '\n')
+                  v += (c != '\n' ? "\x07 " : "\x07");
+
+                v += c;
+                p = c;
+              }
+
+              break;
             }
           case block::text:
           case block::pre: assert (false);

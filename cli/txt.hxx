@@ -31,9 +31,12 @@ txt_size (const std::string&,
 // line_{start, end, blank} arguments specify optional extra text for the
 // start/end of the non-empty line as well as for the blank (empty) line.
 //
+// Note that the funtion modifies the passed string in order to translate
+// notes.
+//
 void
 txt_wrap_lines (std::ostream& os,
-                const std::string&,
+                std::string&,
                 std::size_t indent = 0,
                 std::size_t first = 0,
                 const char* line_start = "",
