@@ -10,7 +10,7 @@ libu{cli}: {hxx ixx txx cxx}{** -cli -version -options} \
            {hxx}{version} {hxx ixx cxx}{options}        \
            $libs
 
-hxx{version}: in{version} $src_root/file{manifest}
+hxx{version}: in{version} $src_root/manifest
 
 # Generated options parser.
 #
