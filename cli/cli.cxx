@@ -1,6 +1,6 @@
 // file      : cli/cli.cxx
 // author    : Boris Kolpackov <boris@codesynthesis.com>
-// copyright : Copyright (c) 2009-2017 Code Synthesis Tools CC
+// copyright : Copyright (c) 2009-2018 Code Synthesis Tools CC
 // license   : MIT; see accompanying LICENSE file
 
 #include <vector>
@@ -40,7 +40,7 @@ main (int argc, char* argv[])
       ostream& o (cout);
 
       o << "CLI (command line interface compiler) " << CLI_VERSION_ID << endl
-        << "Copyright (c) 2009-2017 Code Synthesis Tools CC" << endl;
+        << "Copyright (c) 2009-2018 Code Synthesis Tools CC" << endl;
 
       o << "This is free software; see the source for copying conditions. "
         << "There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS "
