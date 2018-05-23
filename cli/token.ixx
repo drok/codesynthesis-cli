@@ -53,24 +53,37 @@ expression () const
 
 inline token::
 token (std::size_t l, std::size_t c)
-    : l_ (l), c_ (c), type_ (t_eos)
+    : l_ (l), c_ (c),
+      type_ (t_eos),
+      keyword_ (k_invalid),
+      punctuation_ (p_invalid)
 {
 }
 
 inline token::
 token (keyword_type k, std::size_t l, std::size_t c)
-    : l_ (l), c_ (c), type_ (t_keyword), keyword_ (k)
+    : l_ (l), c_ (c),
+      type_ (t_keyword),
+      keyword_ (k),
+      punctuation_ (p_invalid)
 {
 }
 
 inline token::
 token (punctuation_type p, std::size_t l, std::size_t c)
-    : l_ (l), c_ (c), type_ (t_punctuation), punctuation_ (p)
+    : l_ (l), c_ (c),
+      type_ (t_punctuation),
+      keyword_ (k_invalid),
+      punctuation_ (p)
 {
 }
 
 inline token::
 token (token_type t, std::string const& s, std::size_t l, std::size_t c)
-    : l_ (l), c_ (c), type_ (t), str_ (s)
+    : l_ (l), c_ (c),
+      type_ (t),
+      keyword_ (k_invalid),
+      punctuation_ (p_invalid),
+      str_ (s)
 {
 }
