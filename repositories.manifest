@@ -1,0 +1,6 @@
+: 1
+summary: Command line interface (CLI) compiler repository
+
+:
+role: prerequisite
+location: https://git.codesynthesis.com/libcutl/libcutl.git##HEAD
