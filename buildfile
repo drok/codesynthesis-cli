@@ -25,7 +25,7 @@ if $cli.configured
 
 # Don't install examples, tests or the INSTALL file.
 #
-dir{examples/}:   install = false
-dir{tests/}:      install = false
-dir{unit-tests/}: install = false
-doc{INSTALL}@./:  install = false
+examples/:       install = false
+tests/:          install = false
+unit-tests/:     install = false
+doc{INSTALL}@./: install = false
