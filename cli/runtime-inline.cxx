@@ -113,9 +113,11 @@ generate_runtime_inline (context& ctx)
 
      << inl << "invalid_value::" << endl
      << "invalid_value (const std::string& option," << endl
-     << "const std::string& value)" << endl
-     << ": option_ (option),"
-     << "  value_ (value)"
+     << "const std::string& value," << endl
+     << "const std::string& message)" << endl
+     << ": option_ (option)," << endl
+     << "  value_ (value)," << endl
+     << "  message_ (message)"
      << "{"
      << "}"
 
@@ -129,6 +131,12 @@ generate_runtime_inline (context& ctx)
      << "value () const"
      << "{"
      << "return value_;"
+     << "}"
+
+     << inl << "const std::string& invalid_value::" << endl
+     << "message () const"
+     << "{"
+     << "return message_;"
      << "}";
 
   if (ctx.options.generate_file_scanner ())

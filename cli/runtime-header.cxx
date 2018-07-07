@@ -170,13 +170,17 @@ generate_runtime_header (context& ctx)
      << "~invalid_value () throw ();"
      << endl
      << "invalid_value (const std::string& option," << endl
-     << "const std::string& value);"
+     << "const std::string& value," << endl
+     << "const std::string& message = std::string ());"
      << endl
      << "const std::string&" << endl
      << "option () const;"
      << endl
      << "const std::string&" << endl
      << "value () const;"
+     << endl
+     << "const std::string&" << endl
+     << "message () const;"
      << endl
      << "virtual void" << endl
      << "print (" << os_type << "&) const;"
@@ -187,6 +191,7 @@ generate_runtime_header (context& ctx)
      << "private:" << endl
      << "std::string option_;"
      << "std::string value_;"
+     << "std::string message_;"
      << "};";
 
   os << "class eos_reached: public exception"

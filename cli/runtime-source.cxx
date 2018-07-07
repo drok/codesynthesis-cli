@@ -109,6 +109,9 @@ generate_runtime_source (context& ctx, bool complete)
        << "os << \"invalid value '\" << value ().c_str () << \"' for " <<
       "option '\"" << endl
        << "   << option ().c_str () << \"'\";"
+       << endl
+       << "if (!message ().empty ())" << endl
+       << "os << \": \" << message ().c_str ();"
        << "}"
 
        << "const char* invalid_value::" << endl
