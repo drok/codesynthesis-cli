@@ -3,7 +3,7 @@ name: cli
 version: 1.2.0-b.1.z
 summary: Command line interface (CLI) compiler
 license: MIT
-tags: command, line, cli, compiler, option, argument, parse, usage, help
+tags: command, line, compiler, option, argument, parse, usage, help
 description-file: README
 changes-file: NEWS
 url: https://www.codesynthesis.com/projects/cli/
