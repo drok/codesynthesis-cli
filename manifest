@@ -12,6 +12,6 @@ src-url: https://git.codesynthesis.com/cgit/cli/cli/
 email: cli-users@codesynthesis.com; Mailing list
 build-email: builds@codesynthesis.com
 requires: c++14
-depends: * build2 >= 0.7.0-
-depends: * bpkg >= 0.7.0-
+depends: * build2 >= 0.8.0-
+depends: * bpkg >= 0.8.0-
 depends: libcutl ^1.11.0-
