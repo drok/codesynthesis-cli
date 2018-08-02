@@ -1529,7 +1529,11 @@ format (semantics::scope& scope, string const& s, bool para)
       case block::li: good = (k == block::note ||
                               k == block::text ||
                               k == block::pre   ); break;
-      case block::note: good = (k == block::text || k == block::pre); break;
+      case block::note: good = (k == block::text ||
+                                k == block::pre  ||
+                                (ot == ot_html && (k == block::ul ||
+                                                   k == block::ol ||
+                                                   k == block::dl))); break;
       case block::text: good = (k != block::li); break;
       case block::pre: assert (false);
       }
