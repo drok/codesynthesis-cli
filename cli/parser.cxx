@@ -645,7 +645,7 @@ scope_doc (token& t)
         }
 
         // We need to keep track of \\ escapings so we don't confuse
-        // them with \", as in "\\".
+        // them with \", as in \\".
         //
         if (l[e] == '\\' && p == '\\')
           p = '\0';
@@ -1115,10 +1115,10 @@ option_def (token& t)
 string parser::
 doc_string (const char* l, size_t n)
 {
-  // Get rid of '"', convert '\"' to just '"'.
+  // Pass 1: get rid of " (as in "foo""bar"), convert \" to just ".
   //
   string t1, t2, t3;
-  char p ('\0');
+  char p ('\0'); // Previous character.
 
   for (size_t i (0); i < n; ++i)
   {
@@ -1128,14 +1128,14 @@ doc_string (const char* l, size_t n)
     {
       if (p == '\\')
       {
-        t1[t1.size () - 1] = '"'; // Replace '\' with '"'.
+        t1[t1.size () - 1] = '"'; // Replace \ with ".
         p = c;
       }
       continue;
     }
 
-    // We need to keep track of \\ escapings so we don't confuse
-    // them with \", as in "\\".
+    // We need to keep track of \\ escapings so we don't confuse them with \",
+    // as in \\".
     //
     if (c == '\\' && p == '\\')
       p = '\0';
@@ -1145,8 +1145,8 @@ doc_string (const char* l, size_t n)
     t1 += c;
   }
 
-  // Get rid of leading and trailing spaces in each line. Also handle
-  // pre-formatted fragments.
+  // Pass two: get rid of leading and trailing spaces in each line. Also
+  // handle pre-formatted fragments.
   //
   if (t1.size () != 0)
   {
@@ -1201,7 +1201,7 @@ doc_string (const char* l, size_t n)
             t2 += (pre ? 0x02 : 0x03);
           }
           else
-            t2 += '\\'; // Unescape.
+            t2 += "\\\\"; // Keep escaped.
         }
         else if (b <= e)
           t2.append (t1, b, e - b + 1);
@@ -1222,11 +1222,12 @@ doc_string (const char* l, size_t n)
     }
   }
 
-  // Replace every single newlines with single space and all multiple new
-  // lines (paragraph marker) with a single newline, unless we are in a
-  // pre-formatted fragment.
+  // Pass 3: replace every single newline with single space and all multiple
+  // newlines (paragraph marker) with a single newline, unless we are in a
+  // pre-formatted fragment. Also process escapes in pre-formatted fragmens.
   //
   bool pre (false);
+  p = '\0'; // Previous character in pre-formatted fragment.
   for (size_t i (0), n (t2.size ()); i < n; ++i)
   {
     char c (t2[i]);
@@ -1264,7 +1265,7 @@ doc_string (const char* l, size_t n)
         }
         else
         {
-          if (t3[k - 1] == '\n') // Could be the same as opnening if empty.
+          if (t3[k - 1] == '\n') // Could be the same as opening if empty.
             t3.resize (k - 1); // Pop inner.
 
           if (i + 2 < n && (t2[i + 1] != '\n' || t2[i + 2] != '\n')) // Outer.
@@ -1275,6 +1276,24 @@ doc_string (const char* l, size_t n)
             throw error ();
           }
         }
+
+        t3 += c;
+        continue;
+      }
+
+      if (pre)
+      {
+        // In the pre-formatted fragments the only two escapes that we
+        // recognize are \" which was handled on pass 1 above and \\ which we
+        // handle here.
+        //
+        if (c == '\\' && p == '\\')
+        {
+          p = '\0'; // Keep the already added and clear.
+          continue;
+        }
+
+        p = c;
       }
 
       t3 += c;
