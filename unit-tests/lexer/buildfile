@@ -3,4 +3,4 @@
 # license   : MIT; see accompanying LICENSE file
 
 include ../../cli/
-exe{driver}: {hxx cxx}{*} ../../cli/libu{cli} testscript
+exe{driver}: {hxx cxx}{*} ../../cli/libue{cli} testscript
