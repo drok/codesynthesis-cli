@@ -12,15 +12,24 @@ using namespace std;
 
 namespace
 {
+  // According to groff_mdoc(7), groff may have issues with any of the
+  // following characters at the beginning of the line:
+  //
+  // {}+-/*%<>=,&`'"
+  //
+  // Plus, escaping leading '.' with '\' is not sufficient.
+  //
+  static const string escape ("{}+-/*%<>=,&`'\"");
+
   static string
   escape_line (const string& s, size_t b, size_t e)
   {
     string r;
     size_t n (e - b);
 
-    // Escaping leading '.' with '\' is not sufficient.
-    //
-    if (n > 1 && s[b] == '\\' && s[b + 1] == '.')
+
+    if (escape.find (s[b]) != string::npos       ||
+        (n > 1 && s[b] == '\\' && s[b + 1] == '.'))
       r = "\\&";
 
     r.append (s, b, n);
