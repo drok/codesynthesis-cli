@@ -1,6 +1,6 @@
 // file      : cli/parser.cxx
 // author    : Boris Kolpackov <boris@codesynthesis.com>
-// copyright : Copyright (c) 2009-2018 Code Synthesis Tools CC
+// copyright : Copyright (c) 2009-2019 Code Synthesis Tools CC
 // license   : MIT; see accompanying LICENSE file
 
 #ifndef _WIN32
