@@ -22,15 +22,18 @@ if $cli.configured
 --guard-prefix CLI --generate-file-scanner --generate-specifier \
 --generate-modifier --reserved-name stdout
 
-  # Include the generated cli files into the distribution and don't remove
-  # them when cleaning in src (so that clean results in a state identical to
-  # distributed).
-  #
-  cli.cxx{*}: dist  = true
-  cli.cxx{*}: clean = ($src_root != $out_root)
+  cli.cxx{*}:
+  {
+    # Include the generated cli files into the distribution and don't remove
+    # them when cleaning in src (so that clean results in a state identical to
+    # distributed).
+    #
+    dist  = true
+    clean = ($src_root != $out_root)
 
-  # We keep the generated code in the repository so copy it back to src
-  # in case of a forwarded configuration.
-  #
-  cli.cxx{*}: backlink = overwrite
+    # We keep the generated code in the repository so copy it back to src
+    # in case of a forwarded configuration.
+    #
+    backlink = overwrite
+  }
 }
