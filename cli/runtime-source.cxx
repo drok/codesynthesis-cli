@@ -359,7 +359,8 @@ generate_runtime_source (context& ctx, bool complete)
       bool sep (!ctx.opt_sep.empty ());
 
       const string& pfx (ctx.opt_prefix);
-      bool comb_values (!pfx.empty () && !ctx.options.no_combined_values ());
+      size_t pfx_n (pfx.size ());
+      bool comb_values (pfx_n != 0 && !ctx.options.no_combined_values ());
 
       os << "// argv_file_scanner" << endl
          << "//" << endl
@@ -398,10 +399,8 @@ generate_runtime_source (context& ctx, bool complete)
       //
       if (comb_values)
       {
-        size_t n (pfx.size ());
-
         os << "else if (std::strncmp (a, \"" << pfx << "\", " <<
-          n << ") == 0)" // It looks like an option.
+          pfx_n << ") == 0)" // It looks like an option.
            << "{"
            <<   "if ((ov = std::strchr (a, '=')) != 0)" // Has '='.
            <<   "{"
@@ -537,67 +536,104 @@ generate_runtime_source (context& ctx, bool complete)
          << "if (line.empty () || line[0] == '#')" << endl
          << "continue;"
          << endl
-         << "string::size_type p (line.find (' '));"
-         << endl
-         << "if (p == string::npos)"
-         << "{";
-      if (sep)
-        os << "if (!skip_)" << endl
-           << "skip_ = (line == \"" << ctx.opt_sep << "\");"
-           << endl;
-      os << "args_.push_back (line);"
-         << "}"
-         << "else"
+         << "string::size_type p (string::npos);";
+
+      // If we have the option prefix, then only consider lines that start
+      // with that as options.
+      //
+      if (pfx_n != 0)
+        os << "if (line.compare (0, " << pfx_n << ", \"" << pfx << "\") == 0)"
+           << "{";
+
+      os << "p = line.find (' ');";
+
+      // Handle the combined option/value (--foo=bar). This is a bit tricky
+      // since the equal sign can be part of the value (--foo bar=baz).
+      //
+      // Note that we cannot just pass it along as combined because of
+      // quoting (--foo="'bar baz'").
+      //
+      if (comb_values)
+      {
+        os << endl
+           << "string::size_type q (line.find ('='));"
+           << "if (q != string::npos && q < p)" << endl
+           <<   "p = q;";
+      }
+
+      if (pfx_n != 0)
+        os << "}";
+      else
+        os << endl;
+
+      os << "string s1;"
+         << "if (p != string::npos)"
          << "{"
-         << "string s1 (line, 0, p);"
+         <<   "s1.assign (line, 0, p);"
          << endl
          << "// Skip leading whitespaces in the argument." << endl
-         << "//" << endl
-         << "n = line.size ();"
-         << "for (++p; p < n; ++p)"
-         << "{"
-         << "char c (line[p]);"
+         << "//" << endl;
+      if (comb_values)
+        os << "if (line[p] == '=')" << endl // Keep whitespaces after '='.
+           <<   "++p;"
+           << "else"
+           << "{";
+      os <<     "n = line.size ();"
+         <<     "for (++p; p < n; ++p)"
+         <<     "{"
+         <<       "char c (line[p]);"
+         <<       "if (c != ' ' && c != '\\t' && c != '\\r')" << endl
+         <<         "break;"
+         <<     "}";
+      if (comb_values)
+        os << "}";
+      os << "}";
+      if (sep)
+        os << "else if (!skip_)" << endl
+           <<   "skip_ = (line == \"" << ctx.opt_sep << "\");"
+           << endl;
+
+      os << "string s2 (line, p != string::npos ? p : 0);"
          << endl
-         << "if (c != ' ' && c != '\\t' && c != '\\r')" << endl
-         << "break;"
-         << "}"
-         << "string s2 (line, p);"
-         << endl
-         << "// If the string is wrapped in quotes, remove them." << endl
+         << "// If the string (which is an option value or argument) is" << endl
+         << "// wrapped in quotes, remove them." << endl
          << "//" << endl
          << "n = s2.size ();"
          << "char cf (s2[0]), cl (s2[n - 1]);"
          << endl
          << "if (cf == '\"' || cf == '\\'' || cl == '\"' || cl == '\\'')"
          << "{"
-         << "if (n == 1 || cf != cl)" << endl
-         << "throw unmatched_quote (s2);"
+         <<   "if (n == 1 || cf != cl)" << endl
+         <<     "throw unmatched_quote (s2);"
          << endl
-         << "s2 = string (s2, 1, n - 2);"
-         << "}"
-         << "const option_info* oi;"
-         << "if (" << (sep ? "!skip_ && " : "") <<
+         <<   "s2 = string (s2, 1, n - 2);"
+         << "}";
+
+      os << "if (!s1.empty ())"
+         << "{"
+         <<   "// See if this is another file option." << endl
+         <<   "//" << endl
+         <<   "const option_info* oi;"
+         <<   "if (" << (sep ? "!skip_ && " : "") <<
         "(oi = find (s1.c_str ())))" << endl
-         << "{"
-         << "if (s2.empty ())" << endl
-         << "throw missing_value (oi->option);"
+         <<   "{"
+         <<     "if (s2.empty ())" << endl
+         <<       "throw missing_value (oi->option);"
          << endl
-         << "if (oi->search_func != 0)"
-         << "{"
-         << "std::string f (oi->search_func (s2.c_str (), oi->arg));"
+         <<     "if (oi->search_func != 0)"
+         <<     "{"
+         <<       "std::string f (oi->search_func (s2.c_str (), oi->arg));"
+         <<       "if (!f.empty ())" << endl
+         <<         "load (f);"
+         <<     "}"
+         <<     "else" << endl
+         <<       "load (s2);"
          << endl
-         << "if (!f.empty ())" << endl
-         << "load (f);"
+         <<     "continue;"
+         <<   "}"
+         <<   "args_.push_back (s1);"
          << "}"
-         << "else" << endl
-         << "load (s2);"
-         << "}"
-         << "else"
-         << "{"
-         << "args_.push_back (s1);"
          << "args_.push_back (s2);"
-         << "}"
-         << "}"
          << "}" // while
          << "}";
     }

@@ -37,10 +37,35 @@
 
   : options-file
   :
-  cat <<EOI >=options;
-  --foo=123
-  EOI
-  $* --file=options >'--foo=123'
+  {
+    : basics
+    :
+    cat <<EOI >=options;
+    --foo=123
+    EOI
+    $* --file=options >'--foo=123'
+
+    : equal-in-value
+    :
+    cat <<EOI >=options;
+    --foo bar=123
+    EOI
+    $* --file=options >'--foo=bar=123'
+
+    : space-in-value
+    :
+    cat <<EOI >=options;
+    --foo=  123
+    EOI
+    $* --file=options >'--foo=  123'
+
+    : quoted-value
+    :
+    cat <<EOI >=options;
+    --foo="'bar 123'"
+    EOI
+    $* --file=options >"--foo='bar 123'"
+  }
 }
 
 : flags

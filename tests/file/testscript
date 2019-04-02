@@ -239,3 +239,14 @@ EOI
 $* --file test.cli 2>>EOE
 unmatched quote in argument ''abc"'
 EOE
+
+: quoted-argument
+:
+cat <<EOI >=test.cli;
+"'foo  bar'"
+'"foo  bar"'
+EOI
+$* --file test.cli >>EOO
+'foo  bar'
+"foo  bar"
+EOO
