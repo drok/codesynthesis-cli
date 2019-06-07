@@ -1,6 +1,6 @@
 : 1
 name: cli
-version: 1.2.0-b.4.z
+version: 1.2.0-b.5
 summary: Command line interface (CLI) compiler
 license: MIT
 tags: command, line, compiler, option, argument, parse, usage, help
