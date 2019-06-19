@@ -1,9 +1,10 @@
 : 1
 name: cli
 version: 1.2.0-b.5.z
-summary: Command line interface (CLI) compiler
+summary: Command line interface (CLI) compiler for C++
 license: MIT
-tags: command, line, compiler, option, argument, parse, usage, help
+topics: C++, command line interface, source code generation, \
+  documentation generation
 description-file: README
 changes-file: NEWS
 url: https://www.codesynthesis.com/projects/cli/
@@ -13,6 +14,6 @@ email: cli-users@codesynthesis.com ; Mailing list
 build-email: builds@codesynthesis.com
 builds: all
 requires: c++14
-depends: * build2 >= 0.9.0
-depends: * bpkg >= 0.9.0
+depends: * build2 >= 0.11.0
+depends: * bpkg >= 0.11.0
 depends: libcutl ^1.11.0-
