@@ -14,6 +14,6 @@ email: cli-users@codesynthesis.com ; Mailing list
 build-email: builds@codesynthesis.com
 builds: all
 requires: c++14
-depends: * build2 >= 0.11.0
-depends: * bpkg >= 0.11.0
+depends: * build2 >= 0.12.0-
+depends: * bpkg >= 0.12.0-
 depends: libcutl ^1.11.0-
