@@ -31,7 +31,7 @@ using? cli
 # by default there.
 #
 unit-tests/exe{*}: test = true
-unit-tests/libu{*}: bin.whole = false
+unit-tests/{libue libul}{*}: bin.whole = false
 
 # Specify the test target for cross-testing.
 #
