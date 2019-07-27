@@ -415,6 +415,9 @@ generate_runtime_header (context& ctx)
        << "const std::string& option," << endl
        << "bool erase = false);"
        << endl
+       << "argv_file_scanner (const std::string& file," << endl
+       << "const std::string& option);"
+       << endl
        << "struct option_info"
        << "{"
        << "// If search_func is not NULL, it is called, with the arg" << endl
@@ -437,6 +440,10 @@ generate_runtime_header (context& ctx)
        << "const option_info* options," << endl
        << "std::size_t options_count," << endl
        << "bool erase = false);"
+       << endl
+       << "argv_file_scanner (const std::string& file," << endl
+       << "const option_info* options = 0," << endl
+       << "std::size_t options_count = 0);"
        << endl
        << "virtual bool" << endl
        << "more ();"
@@ -475,7 +482,9 @@ generate_runtime_header (context& ctx)
       os << endl
          << "bool skip_;";
 
-    os << "};";
+    os << endl
+       << "static int zero_argc_;"
+       << "};";
   }
 
   // group_scanner

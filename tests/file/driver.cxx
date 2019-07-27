@@ -5,7 +5,8 @@
 
 // Test argv_file_scanner.
 //
-
+#include <memory>
+#include <string>
 #include <iostream>
 
 #include "test.hxx"
@@ -17,10 +18,20 @@ main (int argc, char* argv[])
 {
   try
   {
-    cli::argv_file_scanner s (argc, argv, "--file");
+    string a (argc > 1 ? argv[1] : "");
 
-    while (s.more ())
-      cout << s.next () << endl;
+    // Special modes.
+    //
+    // ---- <file>
+    // --- <file>
+    //
+    unique_ptr<cli::scanner> s (
+      a == "----" ? new cli::argv_file_scanner (argv[2], "--file") :
+      a == "---"  ? new cli::argv_file_scanner (argv[2])           :
+      new cli::argv_file_scanner (argc, argv, "--file"));
+
+    while (s->more ())
+      cout << s->next () << endl;
   }
   catch (const cli::exception& e)
   {

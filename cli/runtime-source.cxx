@@ -365,6 +365,9 @@ generate_runtime_source (context& ctx, bool complete)
       os << "// argv_file_scanner" << endl
          << "//" << endl
 
+         << "int argv_file_scanner::zero_argc_ = 0;"
+         << endl
+
          << "bool argv_file_scanner::" << endl
          << "more ()"
          << "{"

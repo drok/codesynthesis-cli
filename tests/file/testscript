@@ -8,12 +8,12 @@
 #
 eol = ""
 
-+cat <<EOI >=empty.cli
++cat <<EOI >=empty.ops
 # Empty options file.
 #
 
 EOI
-+cat <<EOI >=base.cli
++cat <<EOI >=base.ops
 -a 21
 -b 21
 EOI
@@ -23,7 +23,7 @@ EOI
 
 : 000
 :
-cat <<EOI >=test.cli;
+cat <<EOI >=test.ops;
 -a 	11
 -b  11
   -a 12
@@ -31,7 +31,7 @@ cat <<EOI >=test.cli;
 	-b 12
 a
 EOI
-$* -a 1 --file ../empty.cli -b 1 --file ../base.cli --file test.cli b >>EOO
+$* -a 1 --file ../empty.ops -b 1 --file ../base.ops --file test.ops b >>EOO
 -a
 1
 -b
@@ -54,32 +54,32 @@ EOO
 
 : 001
 :
-cat <<EOI >=test.cli;
+cat <<EOI >=test.ops;
 # Empty options file.
 #
 
 EOI
-$* -a 1 -- --file test.cli b >>EOO
+$* -a 1 -- --file test.ops b >>EOO
 -a
 1
 --
 --file
-test.cli
+test.ops
 b
 EOO
 
 : 002
 :
-cat <<EOI >=test.cli;
+cat <<EOI >=test.ops;
 -a 11
 -b 11
 --
---file ../base.cli
+--file ../base.ops
 -a 12
 -b 12
 a
 EOI
-$* -a 1 --file test.cli --file ../empty.cli b >>EOO
+$* -a 1 --file test.ops --file ../empty.ops b >>EOO
 -a
 1
 -a
@@ -88,20 +88,20 @@ $* -a 1 --file test.cli --file ../empty.cli b >>EOO
 11
 --
 --file
-../base.cli
+../base.ops
 -a
 12
 -b
 12
 a
 --file
-../empty.cli
+../empty.ops
 b
 EOO
 
 : 003
 :
-$* -a 1 --file ../base.cli --file test.cli b >>EOO 2>>EOE
+$* -a 1 --file ../base.ops --file test.ops b >>EOO 2>>EOE
 -a
 1
 -a
@@ -109,12 +109,12 @@ $* -a 1 --file ../base.cli --file test.cli b >>EOO 2>>EOE
 -b
 21
 EOO
-unable to open file 'test.cli' or read failure
+unable to open file 'test.ops' or read failure
 EOE
 
 : 004
 :
-cat <<EOI >=test.cli;
+cat <<EOI >=test.ops;
 -a a"b"c
 -a "abc"
 -a "a"b"
@@ -133,7 +133,7 @@ cat <<EOI >=test.cli;
 -a '''
 -a '"'
 EOI
-$* --file test.cli >>"EOO"
+$* --file test.ops >>"EOO"
 -a
 a"b"c
 -a
@@ -170,83 +170,118 @@ EOO
 
 : 005
 :
-cat <<EOI >=test.cli;
+cat <<EOI >=test.ops;
 -a "
 EOI
-$* --file test.cli 2>>EOE
+$* --file test.ops 2>>EOE
 unmatched quote in argument '"'
 EOE
 
 : 006
 :
-cat <<EOI >=test.cli;
+cat <<EOI >=test.ops;
 -a "abc
 EOI
-$* --file test.cli 2>>EOE
+$* --file test.ops 2>>EOE
 unmatched quote in argument '"abc'
 EOE
 
 : 007
 :
-cat <<EOI >=test.cli;
+cat <<EOI >=test.ops;
 -a abc"
 EOI
-$* --file test.cli 2>>EOE
+$* --file test.ops 2>>EOE
 unmatched quote in argument 'abc"'
 EOE
 
 : 008
 :
-cat <<EOI >=test.cli;
+cat <<EOI >=test.ops;
 -a '
 EOI
-$* --file test.cli 2>>EOE
+$* --file test.ops 2>>EOE
 unmatched quote in argument '''
 EOE
 
 : 009
 :
-cat <<EOI >=test.cli;
+cat <<EOI >=test.ops;
 -a 'abc
 EOI
-$* --file test.cli 2>>EOE
+$* --file test.ops 2>>EOE
 unmatched quote in argument ''abc'
 EOE
 
 : 010
 :
-cat <<EOI >=test.cli;
+cat <<EOI >=test.ops;
 -a abc'
 EOI
-$* --file test.cli 2>>EOE
+$* --file test.ops 2>>EOE
 unmatched quote in argument 'abc''
 EOE
 
 : 011
 :
-cat <<EOI >=test.cli;
+cat <<EOI >=test.ops;
 -a "abc'
 EOI
-$* --file test.cli 2>>EOE
+$* --file test.ops 2>>EOE
 unmatched quote in argument '"abc''
 EOE
 
 : 012
 :
-cat <<EOI >=test.cli;
+cat <<EOI >=test.ops;
 -a 'abc"
 EOI
-$* --file test.cli 2>>EOE
+$* --file test.ops 2>>EOE
 unmatched quote in argument ''abc"'
 EOE
 
 : quoted-argument
 :
-cat <<EOI >=test.cli;
+cat <<EOI >=test.ops;
 "'foo  bar'"
 '"foo  bar"'
 EOI
-$* --file test.cli >>EOO
+$* --file test.ops >>EOO
 'foo  bar'
 "foo  bar"
+EOO
+
+: direct-file-load
+:
+cat <<EOI >=test.ops;
+-f
+-a 123
+EOI
+$* --- test.ops >>EOO
+-f
+-a
+123
+EOO
+
+: direct-file-empty
+:
+cat <<EOI >=test.ops;
+EOI
+$* --- test.ops
+
+: direct-file-load-nested
+:
+cat <<EOI >=test.ops;
+-f
+--file ../base.ops
+-a 123
+EOI
+$* ---- test.ops >>EOO
+-f
+-a
+21
+-b
+21
+-a
+123
 EOO

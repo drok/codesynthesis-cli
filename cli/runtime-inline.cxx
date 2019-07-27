@@ -324,6 +324,24 @@ generate_runtime_inline (context& ctx)
        << "}";
 
     os << inl << "argv_file_scanner::" << endl
+       << "argv_file_scanner (const std::string& file," << endl
+       << "const std::string& option)" << endl
+       << ": argv_scanner (0, zero_argc_, 0)," << endl
+       << "  option_ (option)," << endl
+       << "  options_ (&option_info_)," << endl
+       << "  options_count_ (1)," << endl
+       << "  i_ (1)";
+    if (sep)
+      os << "," << endl
+         << "  skip_ (false)";
+    os << "{"
+       << "option_info_.option = option_.c_str ();"
+       << "option_info_.search_func = 0;"
+       << endl
+       << "load (file);"
+       << "}";
+
+    os << inl << "argv_file_scanner::" << endl
        << "argv_file_scanner (int& argc," << endl
        << "char** argv," << endl
        << "const option_info* options," << endl
@@ -354,6 +372,21 @@ generate_runtime_inline (context& ctx)
       os << "," << endl
          << "  skip_ (false)";
     os << "{"
+       << "}";
+
+    os << inl << "argv_file_scanner::" << endl
+       << "argv_file_scanner (const std::string& file," << endl
+       << "const option_info* options," << endl
+       << "std::size_t options_count)" << endl
+       << ": argv_scanner (0, zero_argc_, 0)," << endl
+       << "  options_ (options)," << endl
+       << "  options_count_ (options_count)," << endl
+       << "  i_ (1)";
+    if (sep)
+      os << "," << endl
+         << "  skip_ (false)";
+    os << "{"
+       << "load (file);"
        << "}";
   }
 
