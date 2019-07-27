@@ -51,9 +51,18 @@ class options
 
   bool --generate-parse
   {
-    "Generate \cb{parse()} functions instead of parsing constructors. This
-     is primarily useful for being able to parse into an already initialized
-     options class instance, for example, to implement merging/overriding."
+    "Generate \cb{parse()} functions instead of parsing constructors. This is
+     primarily useful for being able to parse into an already initialized
+     options class instance, for example, to implement option
+     appending/overriding."
+  };
+
+  bool --generate-merge
+  {
+    "Generate \cb{merge()} functions. This is primarily useful for being able
+     to merge several already parsed options class instances, for example, to
+     implement option appending/overriding. Note that this option forces
+     \cb{--generate-specifier}."
   };
 
   bool --generate-description
@@ -63,20 +72,20 @@ class options
 
   bool --generate-file-scanner
   {
-    "Generate the \c{argv_file_scanner} implementation. This scanner is
-     capable of reading command line arguments from the \c{argv} array as
+    "Generate the \cb{argv_file_scanner} implementation. This scanner is
+     capable of reading command line arguments from the \cb{argv} array as
      well as files specified with command line options."
   };
 
   bool --generate-vector-scanner
   {
-    "Generate the \c{vector_scanner} implementation. This scanner is capable
+    "Generate the \cb{vector_scanner} implementation. This scanner is capable
      of reading command line arguments from \cb{vector<string>}."
   };
 
   bool --generate-group-scanner
   {
-    "Generate the \c{group_scanner} implementation. This scanner supports
+    "Generate the \cb{group_scanner} implementation. This scanner supports
      grouping of arguments (usually options) to apply only to a certain
      argument.
 

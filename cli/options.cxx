@@ -612,6 +612,7 @@ options ()
   generate_modifier_ (),
   generate_specifier_ (),
   generate_parse_ (),
+  generate_merge_ (),
   generate_description_ (),
   generate_file_scanner_ (),
   generate_vector_scanner_ (),
@@ -750,6 +751,7 @@ options (int& argc,
   generate_modifier_ (),
   generate_specifier_ (),
   generate_parse_ (),
+  generate_merge_ (),
   generate_description_ (),
   generate_file_scanner_ (),
   generate_vector_scanner_ (),
@@ -891,6 +893,7 @@ options (int start,
   generate_modifier_ (),
   generate_specifier_ (),
   generate_parse_ (),
+  generate_merge_ (),
   generate_description_ (),
   generate_file_scanner_ (),
   generate_vector_scanner_ (),
@@ -1032,6 +1035,7 @@ options (int& argc,
   generate_modifier_ (),
   generate_specifier_ (),
   generate_parse_ (),
+  generate_merge_ (),
   generate_description_ (),
   generate_file_scanner_ (),
   generate_vector_scanner_ (),
@@ -1175,6 +1179,7 @@ options (int start,
   generate_modifier_ (),
   generate_specifier_ (),
   generate_parse_ (),
+  generate_merge_ (),
   generate_description_ (),
   generate_file_scanner_ (),
   generate_vector_scanner_ (),
@@ -1314,6 +1319,7 @@ options (::cli::scanner& s,
   generate_modifier_ (),
   generate_specifier_ (),
   generate_parse_ (),
+  generate_merge_ (),
   generate_description_ (),
   generate_file_scanner_ (),
   generate_vector_scanner_ (),
@@ -1465,6 +1471,8 @@ print_usage (::std::ostream& os, ::cli::usage_para p)
 
   os << "--generate-parse             Generate parse() functions instead of parsing" << ::std::endl
      << "                             constructors." << ::std::endl;
+
+  os << "--generate-merge             Generate merge() functions." << ::std::endl;
 
   os << "--generate-description       Generate the option description list that can be" << ::std::endl
      << "                             examined at runtime." << ::std::endl;
@@ -1715,6 +1723,8 @@ struct _cli_options_map_init
     &::cli::thunk< options, bool, &options::generate_specifier_ >;
     _cli_options_map_["--generate-parse"] = 
     &::cli::thunk< options, bool, &options::generate_parse_ >;
+    _cli_options_map_["--generate-merge"] = 
+    &::cli::thunk< options, bool, &options::generate_merge_ >;
     _cli_options_map_["--generate-description"] = 
     &::cli::thunk< options, bool, &options::generate_description_ >;
     _cli_options_map_["--generate-file-scanner"] = 

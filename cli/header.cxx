@@ -25,7 +25,7 @@ namespace
          << name << " () const;"
          << endl;
 
-      if (modifier)
+      if (gen_modifier)
       {
         os << type << "&" << endl
            << name << " ();"
@@ -36,7 +36,7 @@ namespace
            << endl;
       }
 
-      if (specifier && type != "bool")
+      if (gen_specifier && type != "bool")
       {
         string spec (especifier (o));
 
@@ -44,7 +44,7 @@ namespace
            << spec << " () const;"
            << endl;
 
-        if (modifier)
+        if (gen_modifier)
           os << "void" << endl
              << spec << " (bool);"
              << endl;
@@ -66,7 +66,7 @@ namespace
 
       os << type << " " << member << ";";
 
-      if (specifier && type != "bool")
+      if (gen_specifier && type != "bool")
         os << "bool " << especifier_member (o) << ";";
     }
   };
@@ -137,7 +137,7 @@ namespace
         // Are we generating parsing constructors or parse() functions?
         //
         string n;
-        if (options.generate_parse ())
+        if (gen_parse)
         {
           os << "// Return true if anything has been parsed." << endl
              << "//" << endl;
@@ -185,16 +185,30 @@ namespace
            << endl;
       }
 
+
+      // Note that we are generating public merge() function even for abstract
+      // classes; theoretically, one may want to merge options only starting
+      // form a specific point in the inheritance hierarchy (e.g., only common
+      // options or some such).
+      //
+      if (gen_merge)
+        os << "// Merge options from the specified instance appending/overriding" << endl
+           << "// them as if they appeared after options in this instance." << endl
+           << "//" << endl
+           << "void" << endl
+           << "merge (const " << name << "&);"
+           << endl;
+
       //
       //
-      os << "// Option accessors" << (modifier ? " and modifiers." : ".") << endl
+      os << "// Option accessors" << (gen_modifier ? " and modifiers." : ".") << endl
          << "//" << endl;
 
       names (c, names_option_);
 
       // Usage.
       //
-      if (usage != ut_none)
+      if (gen_usage != ut_none)
       {
         string up (cli + "::usage_para");
         string const& ost (options.ostream_type ());
@@ -207,7 +221,7 @@ namespace
            << up << " = " << up << "::none);"
            << endl;
 
-        if (usage == ut_both)
+        if (gen_usage == ut_both)
           os << "static " << up << endl
              << "print_long_usage (" << ost << "&," << endl
              << up << " = " << up << "::none);"
@@ -343,7 +357,7 @@ generate_header (context& ctx)
 
   // Entire page usage.
   //
-  if (ctx.usage != ut_none && ctx.options.page_usage_specified ())
+  if (ctx.gen_usage != ut_none && ctx.options.page_usage_specified ())
   {
     os << "// Print page usage information." << endl
        << "//" << endl;
@@ -359,7 +373,7 @@ generate_header (context& ctx)
        << up << " = " << up << "::none);"
        << endl;
 
-    if (ctx.usage == ut_both)
+    if (ctx.gen_usage == ut_both)
       os << up << endl
          << n << "long_usage (" << ost << "&," << endl
          << up << " = " << up << "::none);"

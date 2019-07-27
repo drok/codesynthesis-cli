@@ -500,6 +500,15 @@ class options
   generate_parse (const bool&);
 
   const bool&
+  generate_merge () const;
+
+  bool&
+  generate_merge ();
+
+  void
+  generate_merge (const bool&);
+
+  const bool&
   generate_description () const;
 
   bool&
@@ -1450,6 +1459,7 @@ class options
   bool generate_modifier_;
   bool generate_specifier_;
   bool generate_parse_;
+  bool generate_merge_;
   bool generate_description_;
   bool generate_file_scanner_;
   bool generate_vector_scanner_;

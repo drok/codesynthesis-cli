@@ -1,5 +1,9 @@
 Version 1.2.0
 
+  * New option, --generate-merge, triggers the generation of the merge()
+    function which can be used to merge several already parsed options class
+    instances, for example, to implement option appending/overriding.
+
   * New option, --generate-specifier, triggers the generation of functions
     for determining whether the option was specified on the command line.
 
@@ -18,11 +22,11 @@ Version 1.2.0
 
 Version 1.1.0
 
-  * Support for option documentation. Option documentation is used to print 
+  * Support for option documentation. Option documentation is used to print
     the usage information as well as to generate the program documentation in
     the HTML and man page formats. For details, see Sections 2.5, "Adding
-    Documentation" and 3.3, "Option Documentation" in the Getting Started 
-    Guide. New CLI compiler command line options related to this feature: 
+    Documentation" and 3.3, "Option Documentation" in the Getting Started
+    Guide. New CLI compiler command line options related to this feature:
 
     --suppress-usage
     --long-usage
@@ -36,7 +40,7 @@ Version 1.1.0
     --html-epilogue
     --man-suffix
     --html-suffix
-    --class 
+    --class
     --stdout
 
     The CLI compiler usage, HTML documentation, and man page are auto-generated
@@ -49,15 +53,15 @@ Version 1.1.0
     Section 3.1, "Option Class Definition" in the Getting Started Guide for
     more information.
 
-  * New scanner interface. Starting with this version, the option class has 
+  * New scanner interface. Starting with this version, the option class has
     a new constructor which accepts an abstract scanner interface. See Section
-    3.1, "Option Class Definition" in the Getting Started Guide for more 
+    3.1, "Option Class Definition" in the Getting Started Guide for more
     information.
 
-  * New option, --generate-file-scanner, triggers the generation of the 
-    argv_file_scanner scanner implementation which provides support for 
+  * New option, --generate-file-scanner, triggers the generation of the
+    argv_file_scanner scanner implementation which provides support for
     reading command line arguments from the argv array as well as files
-    specified with command line options. For more information see Section 
+    specified with command line options. For more information see Section
     3.1, "Option Class Definition" in the Getting Started Guide as well as
     the 'file' example.
 

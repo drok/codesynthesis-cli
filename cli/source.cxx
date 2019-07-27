@@ -58,13 +58,36 @@ namespace
       else
         os << " ()";
 
-      if (specifier && o.type ().name () != "bool")
+      if (gen_specifier && o.type ().name () != "bool")
         os << "," << endl
            << "  " << especifier_member (o) << " (false)";
     }
 
   private:
     bool comma_;
+  };
+
+  struct option_merge: traversal::option, context
+  {
+    option_merge (context& c) : context (c) {}
+
+    virtual void
+    traverse (type& o)
+    {
+      string type (o.type ().name ());
+      bool b (type == "bool");
+
+      string member (emember (o));
+      string spec_member (b ? member : especifier_member (o));
+
+      os << "if (a." << spec_member << ")"
+         << "{"
+         <<   cli << "::parser< " << type << ">::merge (" << endl
+         <<     "this->" << member << ", a." << member << ");";
+      if (!b)
+        os << "this->" << spec_member << " = true;";
+      os << "}";
+    }
   };
 
   //
@@ -91,7 +114,7 @@ namespace
            << "&" << cli << "::thunk< " << scope << ", " << type << ", " <<
           "&" << scope << "::" << member;
 
-        if (specifier && type != "bool")
+        if (gen_specifier && type != "bool")
           os << "," << endl
              << "  &" << scope << "::" << especifier_member (o);
 
@@ -243,7 +266,7 @@ namespace
       size_t n (ds.size ());
       string d;
 
-      if (usage == ut_both && usage_ == ut_long)
+      if (gen_usage == ut_both && usage_ == ut_long)
       {
         d = n > 2                     // Have both short and long?
           ? ds[2]                     // Then use long.
@@ -436,7 +459,7 @@ namespace
 
         if (doc.size () > i) // Have at least one.
         {
-          if (usage == ut_both && usage_ == ut_long)
+          if (gen_usage == ut_both && usage_ == ut_long)
           {
             d = doc.size () > i + 1 // Have both short and long?
               ? doc[i + 1]          // Then use long.
@@ -444,10 +467,10 @@ namespace
           }
           else // Short or long.
           {
-            d = doc.size () > i + 1 // Have both short and long?
-              ? doc[i]              // Then use short,
-              : (usage == ut_long   // Otherwise, if asked for long,
-                 ? doc[i]           // Then use long,
+            d = doc.size () > i + 1     // Have both short and long?
+              ? doc[i]                  // Then use short,
+              : (gen_usage == ut_long   // Otherwise, if asked for long,
+                 ? doc[i]               // Then use long,
                  : first_sentence (doc[i])); // Else first sentence of long.
           }
         }
@@ -496,6 +519,22 @@ namespace
 
   //
   //
+  struct base_merge: traversal::class_, context
+  {
+    base_merge (context& c): context (c) {}
+
+    virtual void
+    traverse (type& c)
+    {
+      os << "// " << escape (c.name ()) << " base" << endl
+         << "//" << endl
+         << fq_name (c) << "::merge (a);"
+         << endl;
+    }
+  };
+
+  //
+  //
   struct base_desc: traversal::class_, context
   {
     base_desc (context& c): context (c) {}
@@ -524,7 +563,7 @@ namespace
 
       const char* t (
         (cd == cd_default
-         ? usage != ut_both || usage_ == ut_short
+         ? gen_usage != ut_both || usage_ == ut_short
          : cd == cd_short) ? "" : "long_");
 
       os << "// " << escape (c.name ()) << " base" << endl
@@ -544,12 +583,16 @@ namespace
     class_ (context& c)
         : context (c),
           base_parse_ (c),
+          base_merge_ (c),
           base_desc_ (c),
+          option_merge_ (c),
           option_map_ (c),
           option_desc_ (c)
     {
       inherits_base_parse_ >> base_parse_;
+      inherits_base_merge_ >> base_merge_;
       inherits_base_desc_ >> base_desc_;
+      names_option_merge_ >> option_merge_;
       names_option_map_ >> option_map_;
       names_option_desc_ >> option_desc_;
     }
@@ -583,7 +626,7 @@ namespace
 
       if (!abst)
       {
-        bool p (options.generate_parse ());
+        bool p (gen_parse);
 
         string n, res, ret;
         if (p)
@@ -684,9 +727,30 @@ namespace
            << "}";
       }
 
+      // merge()
+      //
+      if (gen_merge)
+      {
+        os << "void " << name << "::" << endl
+           << "merge (const " << name << "& a)"
+           << "{"
+           <<   "CLI_POTENTIALLY_UNUSED (a);"
+           << endl;
+
+        // First merge all our bases.
+        //
+        inherits (c, inherits_base_merge_);
+
+        // Then our options.
+        //
+        names (c, names_option_merge_);
+
+        os << "}";
+      }
+
       // Usage.
       //
-      if (usage != ut_none)
+      if (gen_usage != ut_none)
       {
         bool b (hb && !options.exclude_base ());
 
@@ -775,7 +839,7 @@ namespace
            << "CLI_POTENTIALLY_UNUSED (os);"
            << endl;
         {
-          usage_type u (usage == ut_both ? ut_short : usage);
+          usage_type u (gen_usage == ut_both ? ut_short : gen_usage);
 
           base_usage bu (*this, u);
           traversal::inherits i (bu);
@@ -808,7 +872,7 @@ namespace
 
         // Long version.
         //
-        if (usage == ut_both)
+        if (gen_usage == ut_both)
         {
           os << up << " " << name << "::" << endl
              << "print_long_usage (" << ost << "& os, " << up << " p)"
@@ -1136,8 +1200,14 @@ namespace
     base_parse base_parse_;
     traversal::inherits inherits_base_parse_;
 
+    base_merge base_merge_;
+    traversal::inherits inherits_base_merge_;
+
     base_desc base_desc_;
     traversal::inherits inherits_base_desc_;
+
+    option_merge option_merge_;
+    traversal::names names_option_merge_;
 
     option_map option_map_;
     traversal::names names_option_map_;
@@ -1163,7 +1233,7 @@ namespace
 
       const char* t (
         (cd == cd_default || cd == cd_exclude_base
-         ? usage != ut_both || usage_ == ut_short
+         ? gen_usage != ut_both || usage_ == ut_short
          : cd == cd_short) ? "" : "long_");
 
       string p (
@@ -1210,12 +1280,12 @@ generate_source (context& ctx)
 
   // Entire page usage.
   //
-  if (ctx.usage != ut_none && ctx.options.page_usage_specified ())
+  if (ctx.gen_usage != ut_none && ctx.options.page_usage_specified ())
   {
     const string& qn (ctx.options.page_usage ());
     string n (ctx.escape (ctx.substitute (ctx.ns_open (qn, false))));
 
-    usage u (ctx.usage);
+    usage u (ctx.gen_usage);
     string up (ctx.cli + "::usage_para");
     string const& ost (ctx.options.ostream_type ());
 

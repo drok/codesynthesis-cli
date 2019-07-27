@@ -83,9 +83,11 @@ public:
 
   output_type ot;
 
-  bool modifier;
-  bool specifier;
-  usage_type usage;
+  bool       gen_modifier;
+  bool       gen_specifier;
+  bool       gen_parse;
+  bool       gen_merge;
+  usage_type gen_usage;
 
   string const& inl;
   string const& opt_prefix;

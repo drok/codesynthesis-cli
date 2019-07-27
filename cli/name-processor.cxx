@@ -85,7 +85,7 @@ namespace
     virtual void
     traverse (type& o)
     {
-      if (specifier && o.type ().name () != "bool")
+      if (gen_specifier && o.type ().name () != "bool")
       {
         semantics::context& oc (o.context ());
         string const& base (oc.get<string> ("name"));
@@ -111,7 +111,7 @@ namespace
       string const& base (oc.get<string> ("name"));
       oc.set ("member", find_name (base + "_", set_));
 
-      if (specifier && o.type ().name () != "bool")
+      if (gen_specifier && o.type ().name () != "bool")
       {
         string const& base (oc.get<string> ("specifier"));
         oc.set ("specifier-member", find_name (base + "_", set_));

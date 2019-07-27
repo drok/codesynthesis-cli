@@ -106,8 +106,11 @@ context (ostream& os_,
       unit (unit_),
       options (ops),
       ot (ot_),
-      modifier (options.generate_modifier ()),
-      specifier (options.generate_specifier ()),
+      gen_modifier (options.generate_modifier ()),
+      gen_specifier (options.generate_specifier () ||
+                     options.generate_merge ()),
+      gen_parse (options.generate_parse ()),
+      gen_merge (options.generate_merge ()),
       inl (data_->inl_),
       opt_prefix (options.option_prefix ()),
       opt_sep (options.option_separator ()),
@@ -122,13 +125,13 @@ context (ostream& os_,
       tocs (data_->tocs_)
 {
   if (options.suppress_usage ())
-    usage = ut_none;
+    gen_usage = ut_none;
   else
   {
     if (options.long_usage ())
-      usage = options.short_usage () ? ut_both : ut_long;
+      gen_usage = options.short_usage () ? ut_both : ut_long;
     else
-      usage = ut_short;
+      gen_usage = ut_short;
   }
 
   if (!options.suppress_inline ())
@@ -168,9 +171,11 @@ context (context& c)
       unit (c.unit),
       options (c.options),
       ot (c.ot),
-      modifier (c.modifier),
-      specifier (c.specifier),
-      usage (c.usage),
+      gen_modifier (c.gen_modifier),
+      gen_specifier (c.gen_specifier),
+      gen_parse (c.gen_parse),
+      gen_merge (c.gen_merge),
+      gen_usage (c.gen_usage),
       inl (c.inl),
       opt_prefix (c.opt_prefix),
       opt_sep (c.opt_sep),

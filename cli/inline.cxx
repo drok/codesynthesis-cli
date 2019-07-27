@@ -26,7 +26,7 @@ namespace
          << "return this->" << emember (o) << ";"
          << "}";
 
-      if (modifier)
+      if (gen_modifier)
       {
         os << inl << type << "& " << scope << "::" << endl
            << name << " ()"
@@ -41,7 +41,7 @@ namespace
            << "}";
       }
 
-      if (specifier && type != "bool")
+      if (gen_specifier && type != "bool")
       {
         string spec (especifier (o));
 
@@ -51,7 +51,7 @@ namespace
            << "return this->" << especifier_member (o) << ";"
            << "}";
 
-        if (modifier)
+        if (gen_modifier)
           os << inl << "void " << scope << "::" << endl
              << spec << "(bool x)"
              << "{"

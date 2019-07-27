@@ -802,166 +802,203 @@ generate_runtime_source (context& ctx, bool complete)
   // generated header file, we always generate the following templates
   // in the source file.
   //
-  bool sp (ctx.specifier);
+  bool sp (ctx.gen_specifier);
+  bool gen_merge (ctx.gen_merge);
 
   // parser class template & its specializations
   //
   os << "template <typename X>" << endl
      << "struct parser"
-     << "{"
-     << "static void" << endl
-     << "parse (X& x, " << (sp ? "bool& xs, " : "") << "scanner& s)"
-     << "{"
-     << "using namespace std;"
-     << endl
-     << "const char* o (s.next ());"
-     << endl
-     << "if (s.more ())"
-     << "{"
-     << "string v (s.next ());"
-     << "istringstream is (v);"
-     << "if (!(is >> x && " <<
-    "is.peek () == istringstream::traits_type::eof ()))" << endl
-     << "throw invalid_value (o, v);"
-     << "}"
-     << "else" << endl
-     << "throw missing_value (o);";
+     << "{";
 
+  os <<   "static void" << endl
+     <<   "parse (X& x, " << (sp ? "bool& xs, " : "") << "scanner& s)"
+     <<   "{"
+     <<     "using namespace std;"
+     <<                                                                    endl
+     <<     "const char* o (s.next ());"
+     <<     "if (s.more ())"
+     <<     "{"
+     <<       "string v (s.next ());"
+     <<       "istringstream is (v);"
+     <<       "if (!(is >> x && is.peek () == istringstream::traits_type::eof ()))" << endl
+     <<         "throw invalid_value (o, v);"
+     <<     "}"
+     <<     "else" << endl
+     <<       "throw missing_value (o);";
   if (sp)
     os << endl
-       << "xs = true;";
+       <<   "xs = true;";
+  os <<   "}";
 
-  os << "}"
-     << "};";
+  if (gen_merge)
+    os << "static void" << endl
+       << "merge (X& b, const X& a)"
+       << "{"
+       <<   "b = a;"
+       << "}";
+
+  os << "};";
 
   // parser<bool>
   //
   os << "template <>" << endl
      << "struct parser<bool>"
-     << "{"
-     << "static void" << endl
-     << "parse (bool& x, scanner& s)"
-     << "{"
-     << "s.next ();"
-     << "x = true;"
-     << "}"
-     << "};";
+     << "{";
+
+  os <<   "static void" << endl
+     <<   "parse (bool& x, scanner& s)"
+     <<   "{"
+     <<     "s.next ();"
+     <<     "x = true;"
+     <<   "}";
+
+  if (gen_merge)
+    os << "static void" << endl
+       << "merge (bool& b, const bool&)"
+       << "{"
+       <<   "b = true;" // We wouldn't be here if a is false.
+       << "}";
+
+  os << "};";
 
   // parser<string>
   //
   os << "template <>" << endl
      << "struct parser<std::string>"
-     << "{"
-     << "static void" << endl
-     << "parse (std::string& x, " << (sp ? "bool& xs, " : "") << "scanner& s)"
-     << "{"
-     << "const char* o (s.next ());"
-     << endl
-     << "if (s.more ())" << endl
-     << "x = s.next ();"
-     << "else" << endl
-     << "throw missing_value (o);";
+     << "{";
 
+  os <<   "static void" << endl
+     <<   "parse (std::string& x, " << (sp ? "bool& xs, " : "") << "scanner& s)"
+     <<   "{"
+     <<   "const char* o (s.next ());"
+     <<                                                                    endl
+     <<   "if (s.more ())" << endl
+     <<     "x = s.next ();"
+     <<   "else" << endl
+     <<     "throw missing_value (o);";
   if (sp)
-    os << endl
+    os <<                                                                  endl
        << "xs = true;";
+  os << "}";
 
-  os << "}"
-     << "};";
+  if (gen_merge)
+    os << "static void" << endl
+       << "merge (std::string& b, const std::string& a)"
+       << "{"
+       <<   "b = a;"
+       << "}";
+
+    os << "};";
 
   // parser<std::vector<X>>
   //
   os << "template <typename X>" << endl
      << "struct parser<std::vector<X> >"
-     << "{"
-     << "static void" << endl
-     << "parse (std::vector<X>& c, " << (sp ? "bool& xs, " : "") <<
-    "scanner& s)"
-     << "{"
-     << "X x;";
+     << "{";
 
+  os <<   "static void" << endl
+     <<   "parse (std::vector<X>& c, " << (sp ? "bool& xs, " : "") << "scanner& s)"
+     <<   "{"
+     <<     "X x;";
   if (sp)
-    os << "bool dummy;";
-
-  os << "parser<X>::parse (x, " << (sp ? "dummy, " : "") << "s);"
-     << "c.push_back (x);";
-
+    os <<   "bool dummy;";
+  os <<     "parser<X>::parse (x, " << (sp ? "dummy, " : "") << "s);"
+     <<     "c.push_back (x);";
   if (sp)
-    os << "xs = true;";
+    os <<   "xs = true;";
+  os <<   "}";
 
-  os << "}"
-     << "};";
+  if (gen_merge)
+    os << "static void" << endl
+       << "merge (std::vector<X>& b, const std::vector<X>& a)"
+       << "{"
+       <<   "b.insert (b.end (), a.begin (), a.end ());"
+       << "}";
+
+  os << "};";
 
   // parser<std::set<X>>
   //
   os << "template <typename X>" << endl
      << "struct parser<std::set<X> >"
-     << "{"
-     << "static void" << endl
-     << "parse (std::set<X>& c, " << (sp ? "bool& xs, " : "") << "scanner& s)"
-     << "{"
-     << "X x;";
+     << "{";
 
+  os <<  "static void" << endl
+     <<  "parse (std::set<X>& c, " << (sp ? "bool& xs, " : "") << "scanner& s)"
+     <<  "{"
+     <<    "X x;";
   if (sp)
-    os << "bool dummy;";
-
-  os << "parser<X>::parse (x, " << (sp ? "dummy, " : "") << "s);"
-     << "c.insert (x);";
-
+    os <<  "bool dummy;";
+  os <<    "parser<X>::parse (x, " << (sp ? "dummy, " : "") << "s);"
+     <<    "c.insert (x);";
   if (sp)
-    os << "xs = true;";
+    os <<  "xs = true;";
+  os <<  "}";
 
-  os << "}"
-     << "};";
+  if (gen_merge)
+    os << "static void" << endl
+       << "merge (std::set<X>& b, const std::set<X>& a)"
+       << "{"
+       <<   "b.insert (a.begin (), a.end ());"
+       << "}";
+
+  os << "};";
 
   // parser<std::map<K,V>>
   //
   os << "template <typename K, typename V>" << endl
      << "struct parser<std::map<K, V> >"
-     << "{"
-     << "static void" << endl
-     << "parse (std::map<K, V>& m, " << (sp ? "bool& xs, " : "") <<
-    "scanner& s)"
-     << "{"
-     << "const char* o (s.next ());"
-     << endl
-     << "if (s.more ())"
-     << "{"
-     << "std::string ov (s.next ());"
-     << "std::string::size_type p = ov.find ('=');"
-     << endl
-     << "K k = K ();"
-     << "V v = V ();"
-     << "std::string kstr (ov, 0, p);"
-     << "std::string vstr (ov, (p != std::string::npos ? p + 1 : ov.size ()));"
-     << endl
-     << "int ac (2);"
-     << "char* av[] = {const_cast<char*> (o), 0};";
-  if (sp)
-    os << "bool dummy;";
-  os << "if (!kstr.empty ())"
-     << "{"
-     << "av[1] = const_cast<char*> (kstr.c_str ());"
-     << "argv_scanner s (0, ac, av);"
-     << "parser<K>::parse (k, " << (sp ? "dummy, " : "") << "s);"
-     << "}"
-     << "if (!vstr.empty ())"
-     << "{"
-     << "av[1] = const_cast<char*> (vstr.c_str ());"
-     << "argv_scanner s (0, ac, av);"
-     << "parser<V>::parse (v, " << (sp ? "dummy, " : "") << "s);"
-     << "}"
-     << "m[k] = v;"
-     << "}"
-     << "else" << endl
-     << "throw missing_value (o);";
+     << "{";
 
+  os <<   "static void" << endl
+     <<   "parse (std::map<K, V>& m, " << (sp ? "bool& xs, " : "") << "scanner& s)"
+     <<   "{"
+     <<     "const char* o (s.next ());"
+     <<                                                                    endl
+     <<     "if (s.more ())"
+     <<     "{"
+     <<       "std::string ov (s.next ());"
+     <<       "std::string::size_type p = ov.find ('=');"
+     <<                                                                    endl
+     <<       "K k = K ();"
+     <<       "V v = V ();"
+     <<       "std::string kstr (ov, 0, p);"
+     <<       "std::string vstr (ov, (p != std::string::npos ? p + 1 : ov.size ()));"
+     <<                                                                    endl
+     <<       "int ac (2);"
+     <<       "char* av[] = {const_cast<char*> (o), 0};";
+  if (sp)
+    os <<     "bool dummy;";
+  os <<       "if (!kstr.empty ())"
+     <<       "{"
+     <<         "av[1] = const_cast<char*> (kstr.c_str ());"
+     <<         "argv_scanner s (0, ac, av);"
+     <<         "parser<K>::parse (k, " << (sp ? "dummy, " : "") << "s);"
+     <<       "}"
+     <<       "if (!vstr.empty ())"
+     <<       "{"
+     <<         "av[1] = const_cast<char*> (vstr.c_str ());"
+     <<         "argv_scanner s (0, ac, av);"
+     <<         "parser<V>::parse (v, " << (sp ? "dummy, " : "") << "s);"
+     <<       "}"
+     <<       "m[k] = v;"
+     <<     "}"
+     <<     "else" << endl
+     <<       "throw missing_value (o);";
   if (sp)
     os << endl
-       << "xs = true;";
+       <<   "xs = true;";
+  os <<   "}";
 
-  os << "}"
-     << "};";
+  if (gen_merge)
+    os << "static void" << endl
+       << "merge (std::map<K, V>& b, const std::map<K, V>& a)"
+       << "{"
+       <<   "b.insert (a.begin (), a.end ());"
+       << "}";
+
+  os << "};";
 
   // Parser thunk.
   //
@@ -972,7 +1009,7 @@ generate_runtime_source (context& ctx, bool complete)
      << "parser<T>::parse (x.*M, s);"
      << "}";
 
-  if (ctx.specifier)
+  if (ctx.gen_specifier)
     os << "template <typename X, typename T, T X::*M, bool X::*S>" << endl
        << "void" << endl
        << "thunk (X& x, scanner& s)"

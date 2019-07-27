@@ -407,6 +407,24 @@ generate_parse(const bool& x)
 }
 
 inline const bool& options::
+generate_merge () const
+{
+  return this->generate_merge_;
+}
+
+inline bool& options::
+generate_merge ()
+{
+  return this->generate_merge_;
+}
+
+inline void options::
+generate_merge(const bool& x)
+{
+  this->generate_merge_ = x;
+}
+
+inline const bool& options::
 generate_description () const
 {
   return this->generate_description_;

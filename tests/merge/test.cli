@@ -1,0 +1,19 @@
+// file      : tests/merge/test.cli
+// author    : Boris Kolpackov <boris@codesynthesis.com>
+// copyright : Copyright (c) 2009-2019 Code Synthesis Tools CC
+// license   : MIT; see accompanying LICENSE file
+
+include <string>;
+include <vector>;
+
+class base
+{
+  bool -b;
+  int -i = -1;
+  std::string -s;
+};
+
+class derived: base
+{
+  std::vector<int> -v;
+};
