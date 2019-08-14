@@ -998,7 +998,10 @@ generate_runtime_source (context& ctx, bool complete)
     os << "static void" << endl
        << "merge (std::map<K, V>& b, const std::map<K, V>& a)"
        << "{"
-       <<   "b.insert (a.begin (), a.end ());"
+       <<   "for (typename std::map<K, V>::const_iterator i (a.begin ()); " << endl
+       <<         "i != a.end (); "                                         << endl
+       <<         "++i)"                                                    << endl
+       <<     "b[i->first] = i->second;"
        << "}";
 
   os << "};";
