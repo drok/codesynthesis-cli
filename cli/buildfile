@@ -11,6 +11,16 @@ libue{cli}: {hxx ixx txx cxx}{** -cli -version -options} \
 
 hxx{version}: in{version} $src_root/manifest
 
+# Build options.
+#
+# Pass the copyright notice extracted from the LICENSE file.
+#
+copyright = $process.run_regex(cat $src_root/LICENSE,    \
+                               'Copyright \(c\) (.+)\.', \
+                               '\1')
+
+obj{cli}: cxx.poptions += -DCLI_COPYRIGHT=\"$copyright\"
+
 # Generated options parser.
 #
 if $cli.configured

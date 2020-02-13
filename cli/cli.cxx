@@ -39,7 +39,7 @@ main (int argc, char* argv[])
       ostream& o (cout);
 
       o << "CLI (command line interface compiler) " << CLI_VERSION_ID << endl
-        << "Copyright (c) 2009-2019 Code Synthesis Tools CC" << endl;
+        << "Copyright (c) " << CLI_COPYRIGHT << "." << endl;
 
       o << "This is free software; see the source for copying conditions. "
         << "There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS "
