@@ -1,6 +1,5 @@
 // file      : cli/semantics/doc.cxx
 // author    : Boris Kolpackov <boris@codesynthesis.com>
-// copyright : Copyright (c) 2009-2019 Code Synthesis Tools CC
 // license   : MIT; see accompanying LICENSE file
 
 #include <cutl/compiler/type-info.hxx>

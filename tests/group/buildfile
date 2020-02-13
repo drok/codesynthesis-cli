@@ -1,5 +1,4 @@
 # file      : tests/group/buildfile
-# copyright : Copyright (c) 2009-2019 Code Synthesis Tools CC
 # license   : MIT; see accompanying LICENSE file
 
 exe{driver}: {hxx cxx}{* -test} cli.cxx{test} testscript
