@@ -12,7 +12,8 @@ generate_runtime_header (context& ctx)
   ostream& os (ctx.os);
 
   if (ctx.options.generate_file_scanner ())
-    os << "#include <deque>" << endl;
+    os << "#include <list>" << endl
+       << "#include <deque>" << endl;
 
   if (ctx.options.generate_description ())
     os << "#include <map>" << endl;
@@ -456,6 +457,19 @@ generate_runtime_header (context& ctx)
        << "virtual void" << endl
        << "skip ();"
        << endl
+       << "// Return the file path if the peeked at argument came from a file and" << endl
+       << "// the empty string otherwise. The reference is guaranteed to be valid" << endl
+       << "// till the end of the scanner lifetime." << endl
+       << "//" << endl
+       << "const std::string&" << endl
+       << "peek_file ();"
+       << endl
+       << "// Return the 1-based line number if the peeked at argument came from" << endl
+       << "// a file and zero otherwise." << endl
+       << "//" << endl
+       << "std::size_t" << endl
+       << "peek_line ();"
+       << endl
        << "private:" << endl
        << "const option_info*" << endl
        << "find (const char*) const;"
@@ -470,7 +484,14 @@ generate_runtime_header (context& ctx)
        << "const option_info* options_;"
        << "std::size_t options_count_;"
        << endl
-       << "std::deque<std::string> args_;"
+       << "struct arg"
+       << "{"
+       << "std::string value;"
+       << "const std::string* file;"
+       << "std::size_t line;"
+       << "};"
+       << "std::deque<arg> args_;"
+       << "std::list<std::string> files_;"
        << endl
        << "// Circular buffer of two arguments." << endl
        << "//" << endl
@@ -483,6 +504,7 @@ generate_runtime_header (context& ctx)
 
     os << endl
        << "static int zero_argc_;"
+       << "static std::string empty_string_;"
        << "};";
   }
 
