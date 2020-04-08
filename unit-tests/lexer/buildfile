@@ -1,5 +1,0 @@
-# file      : unit-tests/lexer/buildfile
-# license   : MIT; see accompanying LICENSE file
-
-include ../../cli/
-exe{driver}: {hxx cxx}{*} ../../cli/libue{cli} testscript

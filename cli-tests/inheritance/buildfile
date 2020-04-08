@@ -1,0 +1,11 @@
+# file      : inheritance/buildfile
+# license   : MIT; see accompanying LICENSE file
+
+exe{driver}: {hxx cxx}{* -test} cli.cxx{test}
+exe{driver}: file{test.std}: test.stdout = true
+exe{driver}: test.arguments = --very-long-flag -s short -i 123 --string long
+
+cxx.poptions =+ "-I$out_base"
+
+cli.cxx{test}: cli{test}
+cli.options = --generate-description --option-length 17

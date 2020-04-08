@@ -1,0 +1,6 @@
+: 1
+location: cli/
+:
+location: cli-tests/
+:
+location: cli-examples/

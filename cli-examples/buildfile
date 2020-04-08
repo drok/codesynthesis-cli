@@ -1,0 +1,4 @@
+# file      : buildfile
+# license   : MIT; see accompanying LICENSE file
+
+./: {*/ -build/} doc{LICENSE README} manifest

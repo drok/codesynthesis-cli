@@ -1,0 +1,9 @@
+# file      : hello/buildfile
+# license   : MIT; see accompanying LICENSE file
+
+exe{driver}: {hxx cxx}{* -hello} cli.cxx{hello} doc{README}
+exe{driver}: test.arguments = --greeting Hi John Jane
+
+cxx.poptions =+ "-I$out_base"
+
+cli.cxx{hello}: cli{hello}

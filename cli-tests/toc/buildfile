@@ -1,0 +1,6 @@
+# file      : toc/buildfile
+# license   : MIT; see accompanying LICENSE file
+
+./: testscript $cli
+
+testscript{*}: test = $cli

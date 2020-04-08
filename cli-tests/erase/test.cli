@@ -1,0 +1,9 @@
+// file      : erase/test.cli
+// author    : Boris Kolpackov <boris@codesynthesis.com>
+// license   : MIT; see accompanying LICENSE file
+
+class options
+{
+  bool -a;
+  int -b;
+};

@@ -1,0 +1,197 @@
+# file      : note/testscript
+# license   : MIT; see accompanying LICENSE file
+
+: block-basics
+:
+cat <<EOI >=test.cli;
+"
+Leading paragraph.
+
+\N|This is a note block one.|
+
+Interleaving paragraph that is quite long and therefore it may span many
+lines in order to make text easy to read.
+
+\N|This is a note block two that is quite long and therefore it may span many
+lines in order to make text easy to read.|
+
+Trailing paragraph.
+"
+EOI
+$* --generate-html --stdout test.cli >>EOO;
+  <p>Leading paragraph.</p>
+
+  <div class="note">
+  <p>This is a note block one.</p>
+  </div>
+
+  <p>Interleaving paragraph that is quite long and therefore it may span many
+  lines in order to make text easy to read.</p>
+
+  <div class="note">
+  <p>This is a note block two that is quite long and therefore it may span
+  many lines in order to make text easy to read.</p>
+  </div>
+
+  <p>Trailing paragraph.</p>
+
+EOO
+  $* --generate-txt --stdout test.cli >>EOO
+Leading paragraph.
+
+| This is a note block one.
+
+Interleaving paragraph that is quite long and therefore it may span many lines
+in order to make text easy to read.
+
+| This is a note block two that is quite long and therefore it may span many
+| lines in order to make text easy to read.
+
+Trailing paragraph.
+EOO
+
+
+: block-multi-para
+:
+cat <<EOI >=test.cli;
+"
+\N|
+This is a note para one that is quite long and therefore it may span many
+lines in order to make text easy to read.
+
+This is a note para two.
+|
+"
+EOI
+$* --generate-html --stdout test.cli >>EOO;
+  <div class="note">
+  <p>This is a note para one that is quite long and therefore it may span many
+  lines in order to make text easy to read.</p>
+
+  <p>This is a note para two.</p>
+  </div>
+
+EOO
+$* --generate-txt --stdout test.cli >>EOO
+| This is a note para one that is quite long and therefore it may span many
+| lines in order to make text easy to read.
+|
+| This is a note para two.
+EOO
+
+: block-pre
+:
+cat <<EOI >=test.cli;
+"
+
+\N|
+This is a note para one.
+
+\
+And this is a
+pre-formatter text fragment.
+\
+
+|
+"
+EOI
+$* --generate-html --stdout test.cli >>EOO;
+  <div class="note">
+  <p>This is a note para one.</p>
+
+  <pre>And this is a
+pre-formatter text fragment.</pre>
+  </div>
+
+EOO
+$* --generate-txt --stdout test.cli >>EOO
+| This is a note para one.
+|
+| And this is a
+| pre-formatter text fragment.
+EOO
+
+# This is not yet supported (see txt_wrap_lines()).
+#
+#\
+: block-list
+:
+cat <<EOI >=test.cli;
+"
+\N|This is a note para one followed by a list.
+
+\ul|
+
+\li|This is a list item that is quite long and therefore it may span many
+lines in order to make text easy to read.|||
+"
+EOI
+$* --generate-html --stdout test.cli >>EOO;
+EOO
+$* --generate-txt --stdout test.cli >>EOO
+EOO
+#\
+
+: block-in-list
+:
+cat <<EOI >=test.cli;
+"
+\ul|
+
+\li|Normal text para.
+
+\N|This is a note para one that is quite long and therefore it may span many
+lines in order to make text easy to read.|||
+"
+EOI
+$* --generate-html --stdout test.cli >>EOO;
+  <ul>
+  <li>Normal text para.
+
+  <div class="note">
+  <p>This is a note para one that is quite long and therefore it may span many
+  lines in order to make text easy to read.</p>
+  </div></li>
+  </ul>
+
+EOO
+$* --generate-txt --stdout test.cli >>EOO
+* Normal text para.
+
+  | This is a note para one that is quite long and therefore it may span many
+  | lines in order to make text easy to read.
+EOO
+
+
+: span-basics
+:
+cat <<EOI >=test.cli;
+"
+This is normal text. \N{This is a note.} And this is normal text again.
+"
+EOI
+$* --generate-html --stdout test.cli >>EOO;
+  <p>This is normal text. <span class="note">This is a note.</span> And this
+  is normal text again.</p>
+
+EOO
+  $* --generate-txt --stdout test.cli >>EOO
+This is normal text. [Note: This is a note.] And this is normal text again.
+EOO
+
+
+: span-nested-link
+:
+cat <<EOI >=test.cli;
+"
+\N{This is a note with a \l{https://example.com link} inside.}
+"
+EOI
+$* --generate-html --stdout test.cli >>EOO;
+  <p><span class="note">This is a note with a <a
+  href="https://example.com">link</a> inside.</span></p>
+
+EOO
+$* --generate-txt --stdout test.cli >>EOO
+[Note: This is a note with a link (https://example.com) inside.]
+EOO

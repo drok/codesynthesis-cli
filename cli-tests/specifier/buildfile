@@ -1,0 +1,10 @@
+# file      : specifier/buildfile
+# license   : MIT; see accompanying LICENSE file
+
+exe{driver}: {hxx cxx}{* -test} cli.cxx{test}
+exe{driver}: test.arguments = -a -c foo
+
+cxx.poptions =+ "-I$out_base"
+
+cli.cxx{test}: cli{test}
+cli.options = --generate-specifier --generate-modifier

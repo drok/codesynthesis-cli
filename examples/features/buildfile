@@ -1,8 +1,0 @@
-# file      : examples/features/buildfile
-# license   : MIT; see accompanying LICENSE file
-
-exe{driver}: {hxx cxx}{* -options} cli.cxx{options} doc{README}
-
-cxx.poptions =+ "-I$out_base"
-
-cli.cxx{options}: cli{options}

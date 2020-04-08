@@ -1,0 +1,15 @@
+This package contains a number of examples that show how to use the CLI
+language and compiler to implement command line interface parsing in C++.
+The following list gives an overview of each example. See the README files
+in example directories for more information on each example.
+
+hello
+  A simple "Hello, world!" example that shows how to implement a very basic
+  command line interface using CLI.
+
+features
+  Shows how to use various features of the CLI language.
+
+file
+  Shows how to allow the users of your application to supply options in 
+  files in addition to the command line.

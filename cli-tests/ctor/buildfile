@@ -1,0 +1,8 @@
+# file      : ctor/buildfile
+# license   : MIT; see accompanying LICENSE file
+
+exe{driver}: {hxx cxx}{* -test} cli.cxx{test}
+
+cxx.poptions =+ "-I$out_base"
+
+cli.cxx{test}: cli{test}

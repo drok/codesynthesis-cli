@@ -1,0 +1,7 @@
+// file      : group/test.cli
+// author    : Boris Kolpackov <boris@codesynthesis.com>
+// license   : MIT; see accompanying LICENSE file
+
+class options
+{
+};

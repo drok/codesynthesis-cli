@@ -1,0 +1,20 @@
+# file      : doc/buildfile
+# license   : MIT; see accompanying LICENSE file
+
+define css: doc
+css{*}: extension = css
+
+define xhtml: doc
+xhtml{*}: extension = xhtml
+
+./: {man1 xhtml}{cli} \
+    css{default}      \
+    file{cli-*}
+
+./: guide/doc{cli-guide*} \
+    guide/xhtml{index}    \
+    guide/file{*.html2ps}
+
+doc{*}: install.subdirs = true
+
+./: file{doc.sh}

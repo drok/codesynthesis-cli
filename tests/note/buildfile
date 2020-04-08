@@ -1,4 +1,0 @@
-# file      : tests/note/buildfile
-# license   : MIT; see accompanying LICENSE file
-
-./: testscript

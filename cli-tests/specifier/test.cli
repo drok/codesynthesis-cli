@@ -1,0 +1,12 @@
+// file      : specifier/test.cli
+// author    : Boris Kolpackov <boris@codesynthesis.com>
+// license   : MIT; see accompanying LICENSE file
+
+include <string>;
+
+class options
+{
+  bool -a;
+  int -b = 1;
+  std::string -c;
+};

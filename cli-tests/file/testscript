@@ -1,0 +1,286 @@
+# file      : file/testscript
+# license   : MIT; see accompanying LICENSE file
+
+# End-of-line marker. Place its expansion in here-documents after the trailing
+# spaces to prevent them from being stripped by editors and to improve
+# readability.
+#
+eol = ""
+
++cat <<EOI >=empty.ops
+# Empty options file.
+#
+
+EOI
++cat <<EOI >=base.ops
+-a 21
+-b 21
+EOI
+
+# @@ Give tests some meaningfull descriptions.
+#
+
+: 000
+:
+cat <<EOI >=test.ops;
+-a 	11
+-b  11
+  -a 12
+
+	-b 12
+a
+EOI
+$* -a 1 --file ../empty.ops -b 1 --file ../base.ops --file test.ops b >>EOO
+-a
+1
+-b
+1
+-a
+21
+-b
+21
+-a
+11
+-b
+11
+-a
+12
+-b
+12
+a
+b
+EOO
+
+: 001
+:
+cat <<EOI >=test.ops;
+# Empty options file.
+#
+
+EOI
+$* -a 1 -- --file test.ops b >>EOO
+-a
+1
+--
+--file
+test.ops
+b
+EOO
+
+: 002
+:
+cat <<EOI >=test.ops;
+-a 11
+-b 11
+--
+--file ../base.ops
+-a 12
+-b 12
+a
+EOI
+$* -a 1 --file test.ops --file ../empty.ops b >>EOO
+-a
+1
+-a
+11
+-b
+11
+--
+--file
+../base.ops
+-a
+12
+-b
+12
+a
+--file
+../empty.ops
+b
+EOO
+
+: 003
+:
+$* -a 1 --file ../base.ops --file test.ops b >>EOO 2>>EOE
+-a
+1
+-a
+21
+-b
+21
+EOO
+unable to open file 'test.ops' or read failure
+EOE
+
+: 004
+:
+cat <<EOI >=test.ops;
+-a a"b"c
+-a "abc"
+-a "a"b"
+-a ""
+-a " abc "
+-a " "
+-a """
+-a "'"
+
+-a a'b'c
+-a 'abc'
+-a 'a'b'
+-a ''
+-a ' abc '
+-a ' '
+-a '''
+-a '"'
+EOI
+$* --file test.ops >>"EOO"
+-a
+a"b"c
+-a
+abc
+-a
+a"b
+-a
+
+-a
+ abc $eol
+-a
+ $eol
+-a
+"
+-a
+'
+-a
+a'b'c
+-a
+abc
+-a
+a'b
+-a
+
+-a
+ abc $eol
+-a
+ $eol
+-a
+'
+-a
+"
+EOO
+
+: 005
+:
+cat <<EOI >=test.ops;
+-a "
+EOI
+$* --file test.ops 2>>EOE
+unmatched quote in argument '"'
+EOE
+
+: 006
+:
+cat <<EOI >=test.ops;
+-a "abc
+EOI
+$* --file test.ops 2>>EOE
+unmatched quote in argument '"abc'
+EOE
+
+: 007
+:
+cat <<EOI >=test.ops;
+-a abc"
+EOI
+$* --file test.ops 2>>EOE
+unmatched quote in argument 'abc"'
+EOE
+
+: 008
+:
+cat <<EOI >=test.ops;
+-a '
+EOI
+$* --file test.ops 2>>EOE
+unmatched quote in argument '''
+EOE
+
+: 009
+:
+cat <<EOI >=test.ops;
+-a 'abc
+EOI
+$* --file test.ops 2>>EOE
+unmatched quote in argument ''abc'
+EOE
+
+: 010
+:
+cat <<EOI >=test.ops;
+-a abc'
+EOI
+$* --file test.ops 2>>EOE
+unmatched quote in argument 'abc''
+EOE
+
+: 011
+:
+cat <<EOI >=test.ops;
+-a "abc'
+EOI
+$* --file test.ops 2>>EOE
+unmatched quote in argument '"abc''
+EOE
+
+: 012
+:
+cat <<EOI >=test.ops;
+-a 'abc"
+EOI
+$* --file test.ops 2>>EOE
+unmatched quote in argument ''abc"'
+EOE
+
+: quoted-argument
+:
+cat <<EOI >=test.ops;
+"'foo  bar'"
+'"foo  bar"'
+EOI
+$* --file test.ops >>EOO
+'foo  bar'
+"foo  bar"
+EOO
+
+: direct-file-load
+:
+cat <<EOI >=test.ops;
+-f
+-a 123
+EOI
+$* --- test.ops >>EOO
+-f
+-a
+123
+EOO
+
+: direct-file-empty
+:
+cat <<EOI >=test.ops;
+EOI
+$* --- test.ops
+
+: direct-file-load-nested
+:
+cat <<EOI >=test.ops;
+-f
+--file ../base.ops
+-a 123
+EOI
+$* ---- test.ops >>EOO
+-f
+-a
+21
+-b
+21
+-a
+123
+EOO

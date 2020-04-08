@@ -1,62 +1,30 @@
-General
--------
+CLI uses itself for command line options parsing which makes it a bit tricky
+to develop. Below is one way to setup the development environment:
 
-Unless you are using the cli+dep package, you will also need to install
-the following dependencies:
+$ git clone .../cli.git
+$ cd cli
+$ bdep init -C ../builds/main @main cc          # Main build.
+$ bdep update                                   # Using pre-geneared code.
+$ bdep init -d cli/ -C ../builds/save @save cc  # "Saved" build.
+$ bdep update @save
 
-  libcutl >= 1.1.0 http://www.codesynthesis.com/projects/libcutl/
+# @@ This does not currently work because bdep (bpkg) will drop it on next
+#    sync (reconfigure).
+#
+#$ b configure: ../builds/main/cli/ \
+#  config.cli="$(realpath ../builds/save/cli/cli/cli)"
 
-Additionally, for UNIX-like operating systems:
+$ echo >>../builds/main/build/config.build \
+  "cli/ config.cli=$(realpath ../builds/save/cli/cli/cli)"
 
-  build   >= 0.3.5 http://www.codesynthesis.com/projects/build/
+$ bdep update                                   # Regenerate code.
 
-The cli+dep package comes with the necessary dependencies bundled.
+Then, when making changes that affect the generated code, perform the
+following sequence of steps (the key thing to keep in mind is that the saved
+configuration will use generated code from source directory that is
+backlinked during the main build):
 
-
-UNIX
-----
-
-Building on UNIX-like operating systems requires GNU make 3.81 or later.
-Most recent GNU/Linux distributions should already have this version
-installed. To check the GNU make version run make (or gmake) with the
---version option.
-
-To build the compiler, tests, and examples simply run make in the root
-directory of the package. To run the automated test suite, run 'make test'.
-To clean the object files, executables, etc., run 'make clean'. To de-
-configure the package (that is, remove configuration files in addition
-to objects, executables, etc.), run 'make disfigure'.
-
-To install the CLI compiler, examples, and documentation use the install
-target, for example:
-
-$ make install_prefix=/usr install
-
-You can fine-tune the installation locations with the following make
-variables:
-
-install_prefix       default is /usr/local
-install_data_prefix  default is install_prefix
-install_exec_prefix  default is install_prefix
-
-install_bin_dir      default is install_exec_prefix/bin
-install_sbin_dir     default is install_exec_prefix/sbin
-install_lib_dir      default is install_exec_prefix/lib
-
-install_data_dir     default is install_data_prefix/share
-install_inc_dir      default is install_data_prefix/include
-
-install_doc_dir      default is install_data_dir/doc
-install_man_dir      default is install_data_dir/man
-install_info_dir     default is install_data_dir/info
-
-
-Windows
--------
-
-Project and solution files are provided for Visual C++ 8.0 (2005) and 
-9.0 (2008). To build the CLI compiler, open and build the corresponding
-solution file in the cli\ directory. After the build is complete, the
-compiler executable can be found in the cli\ directory. You can also
-build examples by opening and building one of the solution files in the
-examples\ directory.
+$ b cli/                                        # Regenerate using old saved.
+$ bdep update @save                             # Update saved.
+$ b cli/                                        # Regenerate using new saved.
+$ bdep update @save                             # Update saved.

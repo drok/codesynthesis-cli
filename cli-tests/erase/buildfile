@@ -1,0 +1,10 @@
+# file      : erase/buildfile
+# license   : MIT; see accompanying LICENSE file
+
+exe{driver}: {hxx cxx}{* -test} cli.cxx{test}
+exe{driver}: test.arguments = foo -a bar -b 123 --arg -- -b 234
+
+cxx.poptions =+ "-I$out_base"
+
+cli.cxx{test}: cli{test}
+cli.options = --no-combined-flags # Can't be used with the skip unknown mode.

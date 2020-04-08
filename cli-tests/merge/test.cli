@@ -1,0 +1,18 @@
+// file      : merge/test.cli
+// author    : Boris Kolpackov <boris@codesynthesis.com>
+// license   : MIT; see accompanying LICENSE file
+
+include <string>;
+include <vector>;
+
+class base
+{
+  bool -b;
+  int -i = -1;
+  std::string -s;
+};
+
+class derived: base
+{
+  std::vector<int> -v;
+};

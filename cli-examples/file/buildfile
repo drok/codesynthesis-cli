@@ -1,0 +1,11 @@
+# file      : file/buildfile
+# license   : MIT; see accompanying LICENSE file
+
+exe{driver}: {hxx cxx}{* -options} cli.cxx{options} doc{README}
+exe{driver}: test.arguments = --options-file
+exe{driver}: file{test.ops}: test.input = true # Added after test.arguments.
+
+cxx.poptions =+ "-I$out_base"
+
+cli.cxx{options}: cli{options}
+cli.options = --generate-file-scanner
