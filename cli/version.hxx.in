@@ -36,6 +36,8 @@
 #define CLI_SNAPSHOT      $cli.version.snapshot_sn$ULL
 #define CLI_SNAPSHOT_ID   "$cli.version.snapshot_id$"
 
+#define CLI_CHECKSUM      "$cli.version$"
+
 #include <cutl/version.hxx>
 
 $libcutl.check(LIBCUTL_VERSION, LIBCUTL_SNAPSHOT)$

@@ -256,6 +256,24 @@ namespace cli
 //
 
 inline const bool& options::
+build2_metadata () const
+{
+  return this->build2_metadata_;
+}
+
+inline bool& options::
+build2_metadata ()
+{
+  return this->build2_metadata_;
+}
+
+inline void options::
+build2_metadata(const bool& x)
+{
+  this->build2_metadata_ = x;
+}
+
+inline const bool& options::
 help () const
 {
   return this->help_;

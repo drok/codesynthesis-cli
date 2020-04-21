@@ -628,7 +628,8 @@ namespace cli
 
 options::
 options ()
-: help_ (),
+: build2_metadata_ (),
+  help_ (),
   version_ (),
   include_path_ (),
   include_path_specified_ (false),
@@ -767,7 +768,8 @@ options (int& argc,
          bool erase,
          ::cli::unknown_mode opt,
          ::cli::unknown_mode arg)
-: help_ (),
+: build2_metadata_ (),
+  help_ (),
   version_ (),
   include_path_ (),
   include_path_specified_ (false),
@@ -909,7 +911,8 @@ options (int start,
          bool erase,
          ::cli::unknown_mode opt,
          ::cli::unknown_mode arg)
-: help_ (),
+: build2_metadata_ (),
+  help_ (),
   version_ (),
   include_path_ (),
   include_path_specified_ (false),
@@ -1051,7 +1054,8 @@ options (int& argc,
          bool erase,
          ::cli::unknown_mode opt,
          ::cli::unknown_mode arg)
-: help_ (),
+: build2_metadata_ (),
+  help_ (),
   version_ (),
   include_path_ (),
   include_path_specified_ (false),
@@ -1195,7 +1199,8 @@ options (int start,
          bool erase,
          ::cli::unknown_mode opt,
          ::cli::unknown_mode arg)
-: help_ (),
+: build2_metadata_ (),
+  help_ (),
   version_ (),
   include_path_ (),
   include_path_specified_ (false),
@@ -1335,7 +1340,8 @@ options::
 options (::cli::scanner& s,
          ::cli::unknown_mode opt,
          ::cli::unknown_mode arg)
-: help_ (),
+: build2_metadata_ (),
+  help_ (),
   version_ (),
   include_path_ (),
   include_path_specified_ (false),
@@ -1476,6 +1482,8 @@ print_usage (::std::ostream& os, ::cli::usage_para p)
 
   if (p == ::cli::usage_para::text)
     os << ::std::endl;
+
+  os << "--build2-metadata" << std::endl;
 
   os << "--help                       Print usage information and exit." << ::std::endl;
 
@@ -1725,6 +1733,8 @@ struct _cli_options_map_init
 {
   _cli_options_map_init ()
   {
+    _cli_options_map_["--build2-metadata"] = 
+    &::cli::thunk< options, bool, &options::build2_metadata_ >;
     _cli_options_map_["--help"] = 
     &::cli::thunk< options, bool, &options::help_ >;
     _cli_options_map_["--version"] = 

@@ -4,6 +4,12 @@
 import libs = libcutl%lib{cutl}
 
 exe{cli}: cxx{cli} libue{cli}
+{
+  # Target metadata, see also --build2-metadata in cli.cxx.
+  #
+  cli.version  = $version.project_id
+  cli.checksum = $version
+}
 
 libue{cli}: {hxx ixx txx cxx}{** -cli -version -options} \
             {hxx}{version} {hxx ixx cxx}{options}        \

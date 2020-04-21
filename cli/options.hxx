@@ -442,6 +442,15 @@ class options
   // Option accessors and modifiers.
   //
   const bool&
+  build2_metadata () const;
+
+  bool&
+  build2_metadata ();
+
+  void
+  build2_metadata (const bool&);
+
+  const bool&
   help () const;
 
   bool&
@@ -1480,6 +1489,7 @@ class options
           ::cli::unknown_mode argument);
 
   public:
+  bool build2_metadata_;
   bool help_;
   bool version_;
   std::vector<std::string> include_path_;

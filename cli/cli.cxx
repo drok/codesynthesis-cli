@@ -32,6 +32,19 @@ main (int argc, char* argv[])
     cli::argv_file_scanner scan (argc, argv, "--options-file");
     options ops (scan);
 
+    // Handle --build2-metadata (see also buildfile).
+    //
+    if (ops.build2_metadata ())
+    {
+      ostream& o (cout);
+
+      o << "# build2 buildfile cli" << endl
+        << "cli.version = '" << CLI_VERSION_ID << '\'' << endl
+        << "cli.checksum = '" << CLI_CHECKSUM << '\'' << endl;
+
+      return 0;
+    }
+
     // Handle --version
     //
     if (ops.version ())
