@@ -255,22 +255,34 @@ namespace cli
 // options
 //
 
-inline const bool& options::
+inline const std::uint64_t& options::
 build2_metadata () const
 {
   return this->build2_metadata_;
 }
 
-inline bool& options::
+inline std::uint64_t& options::
 build2_metadata ()
 {
   return this->build2_metadata_;
 }
 
 inline void options::
-build2_metadata(const bool& x)
+build2_metadata(const std::uint64_t& x)
 {
   this->build2_metadata_ = x;
+}
+
+inline bool options::
+build2_metadata_specified () const
+{
+  return this->build2_metadata_specified_;
+}
+
+inline void options::
+build2_metadata_specified(bool x)
+{
+  this->build2_metadata_specified_ = x;
 }
 
 inline const bool& options::

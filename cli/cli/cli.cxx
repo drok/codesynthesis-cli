@@ -34,13 +34,17 @@ main (int argc, char* argv[])
 
     // Handle --build2-metadata (see also buildfile).
     //
-    if (ops.build2_metadata ())
+    if (ops.build2_metadata_specified ())
     {
       ostream& o (cout);
 
+      // Note that the export.metadata variable should be the first non-
+      // blank/comment line.
+      //
       o << "# build2 buildfile cli" << endl
-        << "cli.version = '" << CLI_VERSION_ID << '\'' << endl
-        << "cli.checksum = '" << CLI_CHECKSUM << '\'' << endl;
+        << "export.metadata = 1" << endl
+        << "cli.version = [string] '" << CLI_VERSION_FULL << '\'' << endl
+        << "cli.checksum = [string] '" << CLI_VERSION_FULL << '\'' << endl;
 
       return 0;
     }
