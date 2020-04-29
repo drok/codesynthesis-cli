@@ -57,7 +57,7 @@ if ($config.cli != [null] && $config.cli != false)
 
   cli.options += --include-with-brackets --include-prefix cli \
 --guard-prefix CLI --generate-file-scanner --generate-specifier \
---generate-modifier --reserved-name stdout
+--generate-modifier --suppress-undocumented --reserved-name stdout
 
   cli.cxx{*}:
   {

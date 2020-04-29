@@ -1489,8 +1489,6 @@ print_usage (::std::ostream& os, ::cli::usage_para p)
   if (p == ::cli::usage_para::text)
     os << ::std::endl;
 
-  os << "--build2-metadata <arg>" << std::endl;
-
   os << "--help                       Print usage information and exit." << ::std::endl;
 
   os << "--version                    Print version and exit." << ::std::endl;
