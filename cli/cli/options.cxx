@@ -576,9 +576,10 @@ namespace cli
         std::string vstr (ov, (p != std::string::npos ? p + 1 : ov.size ()));
 
         int ac (2);
-        char* av[] = 
+        char* av[] =
         {
-          const_cast<char*> (o), 0
+          const_cast<char*> (o),
+          0
         };
 
         bool dummy;
@@ -1737,226 +1738,226 @@ struct _cli_options_map_init
 {
   _cli_options_map_init ()
   {
-    _cli_options_map_["--build2-metadata"] = 
+    _cli_options_map_["--build2-metadata"] =
     &::cli::thunk< options, std::uint64_t, &options::build2_metadata_,
       &options::build2_metadata_specified_ >;
-    _cli_options_map_["--help"] = 
+    _cli_options_map_["--help"] =
     &::cli::thunk< options, bool, &options::help_ >;
-    _cli_options_map_["--version"] = 
+    _cli_options_map_["--version"] =
     &::cli::thunk< options, bool, &options::version_ >;
-    _cli_options_map_["--include-path"] = 
+    _cli_options_map_["--include-path"] =
     &::cli::thunk< options, std::vector<std::string>, &options::include_path_,
       &options::include_path_specified_ >;
-    _cli_options_map_["-I"] = 
+    _cli_options_map_["-I"] =
     &::cli::thunk< options, std::vector<std::string>, &options::include_path_,
       &options::include_path_specified_ >;
-    _cli_options_map_["--output-dir"] = 
+    _cli_options_map_["--output-dir"] =
     &::cli::thunk< options, std::string, &options::output_dir_,
       &options::output_dir_specified_ >;
-    _cli_options_map_["-o"] = 
+    _cli_options_map_["-o"] =
     &::cli::thunk< options, std::string, &options::output_dir_,
       &options::output_dir_specified_ >;
-    _cli_options_map_["--std"] = 
+    _cli_options_map_["--std"] =
     &::cli::thunk< options, cxx_version, &options::std_,
       &options::std_specified_ >;
-    _cli_options_map_["--generate-modifier"] = 
+    _cli_options_map_["--generate-modifier"] =
     &::cli::thunk< options, bool, &options::generate_modifier_ >;
-    _cli_options_map_["--generate-specifier"] = 
+    _cli_options_map_["--generate-specifier"] =
     &::cli::thunk< options, bool, &options::generate_specifier_ >;
-    _cli_options_map_["--generate-parse"] = 
+    _cli_options_map_["--generate-parse"] =
     &::cli::thunk< options, bool, &options::generate_parse_ >;
-    _cli_options_map_["--generate-merge"] = 
+    _cli_options_map_["--generate-merge"] =
     &::cli::thunk< options, bool, &options::generate_merge_ >;
-    _cli_options_map_["--generate-description"] = 
+    _cli_options_map_["--generate-description"] =
     &::cli::thunk< options, bool, &options::generate_description_ >;
-    _cli_options_map_["--generate-file-scanner"] = 
+    _cli_options_map_["--generate-file-scanner"] =
     &::cli::thunk< options, bool, &options::generate_file_scanner_ >;
-    _cli_options_map_["--generate-vector-scanner"] = 
+    _cli_options_map_["--generate-vector-scanner"] =
     &::cli::thunk< options, bool, &options::generate_vector_scanner_ >;
-    _cli_options_map_["--generate-group-scanner"] = 
+    _cli_options_map_["--generate-group-scanner"] =
     &::cli::thunk< options, bool, &options::generate_group_scanner_ >;
-    _cli_options_map_["--suppress-inline"] = 
+    _cli_options_map_["--suppress-inline"] =
     &::cli::thunk< options, bool, &options::suppress_inline_ >;
-    _cli_options_map_["--suppress-cli"] = 
+    _cli_options_map_["--suppress-cli"] =
     &::cli::thunk< options, bool, &options::suppress_cli_ >;
-    _cli_options_map_["--cli-namespace"] = 
+    _cli_options_map_["--cli-namespace"] =
     &::cli::thunk< options, std::string, &options::cli_namespace_,
       &options::cli_namespace_specified_ >;
-    _cli_options_map_["--ostream-type"] = 
+    _cli_options_map_["--ostream-type"] =
     &::cli::thunk< options, std::string, &options::ostream_type_,
       &options::ostream_type_specified_ >;
-    _cli_options_map_["--generate-cxx"] = 
+    _cli_options_map_["--generate-cxx"] =
     &::cli::thunk< options, bool, &options::generate_cxx_ >;
-    _cli_options_map_["--generate-man"] = 
+    _cli_options_map_["--generate-man"] =
     &::cli::thunk< options, bool, &options::generate_man_ >;
-    _cli_options_map_["--generate-html"] = 
+    _cli_options_map_["--generate-html"] =
     &::cli::thunk< options, bool, &options::generate_html_ >;
-    _cli_options_map_["--generate-txt"] = 
+    _cli_options_map_["--generate-txt"] =
     &::cli::thunk< options, bool, &options::generate_txt_ >;
-    _cli_options_map_["--stdout"] = 
+    _cli_options_map_["--stdout"] =
     &::cli::thunk< options, bool, &options::stdout__ >;
-    _cli_options_map_["--suppress-undocumented"] = 
+    _cli_options_map_["--suppress-undocumented"] =
     &::cli::thunk< options, bool, &options::suppress_undocumented_ >;
-    _cli_options_map_["--suppress-usage"] = 
+    _cli_options_map_["--suppress-usage"] =
     &::cli::thunk< options, bool, &options::suppress_usage_ >;
-    _cli_options_map_["--long-usage"] = 
+    _cli_options_map_["--long-usage"] =
     &::cli::thunk< options, bool, &options::long_usage_ >;
-    _cli_options_map_["--short-usage"] = 
+    _cli_options_map_["--short-usage"] =
     &::cli::thunk< options, bool, &options::short_usage_ >;
-    _cli_options_map_["--page-usage"] = 
+    _cli_options_map_["--page-usage"] =
     &::cli::thunk< options, std::string, &options::page_usage_,
       &options::page_usage_specified_ >;
-    _cli_options_map_["--option-length"] = 
+    _cli_options_map_["--option-length"] =
     &::cli::thunk< options, std::size_t, &options::option_length_,
       &options::option_length_specified_ >;
-    _cli_options_map_["--ansi-color"] = 
+    _cli_options_map_["--ansi-color"] =
     &::cli::thunk< options, bool, &options::ansi_color_ >;
-    _cli_options_map_["--exclude-base"] = 
+    _cli_options_map_["--exclude-base"] =
     &::cli::thunk< options, bool, &options::exclude_base_ >;
-    _cli_options_map_["--include-base-last"] = 
+    _cli_options_map_["--include-base-last"] =
     &::cli::thunk< options, bool, &options::include_base_last_ >;
-    _cli_options_map_["--class-doc"] = 
+    _cli_options_map_["--class-doc"] =
     &::cli::thunk< options, std::map<std::string, std::string>, &options::class_doc_,
       &options::class_doc_specified_ >;
-    _cli_options_map_["--class"] = 
+    _cli_options_map_["--class"] =
     &::cli::thunk< options, std::vector<std::string>, &options::class__,
       &options::class__specified_ >;
-    _cli_options_map_["--docvar"] = 
+    _cli_options_map_["--docvar"] =
     &::cli::thunk< options, std::map<std::string, std::string>, &options::docvar_,
       &options::docvar_specified_ >;
-    _cli_options_map_["-v"] = 
+    _cli_options_map_["-v"] =
     &::cli::thunk< options, std::map<std::string, std::string>, &options::docvar_,
       &options::docvar_specified_ >;
-    _cli_options_map_["--link-regex"] = 
+    _cli_options_map_["--link-regex"] =
     &::cli::thunk< options, std::vector<std::string>, &options::link_regex_,
       &options::link_regex_specified_ >;
-    _cli_options_map_["--link-regex-trace"] = 
+    _cli_options_map_["--link-regex-trace"] =
     &::cli::thunk< options, bool, &options::link_regex_trace_ >;
-    _cli_options_map_["--html-heading-map"] = 
+    _cli_options_map_["--html-heading-map"] =
     &::cli::thunk< options, std::map<char, std::string>, &options::html_heading_map_,
       &options::html_heading_map_specified_ >;
-    _cli_options_map_["--omit-link-check"] = 
+    _cli_options_map_["--omit-link-check"] =
     &::cli::thunk< options, bool, &options::omit_link_check_ >;
-    _cli_options_map_["--hxx-prologue"] = 
+    _cli_options_map_["--hxx-prologue"] =
     &::cli::thunk< options, std::vector<std::string>, &options::hxx_prologue_,
       &options::hxx_prologue_specified_ >;
-    _cli_options_map_["--ixx-prologue"] = 
+    _cli_options_map_["--ixx-prologue"] =
     &::cli::thunk< options, std::vector<std::string>, &options::ixx_prologue_,
       &options::ixx_prologue_specified_ >;
-    _cli_options_map_["--cxx-prologue"] = 
+    _cli_options_map_["--cxx-prologue"] =
     &::cli::thunk< options, std::vector<std::string>, &options::cxx_prologue_,
       &options::cxx_prologue_specified_ >;
-    _cli_options_map_["--man-prologue"] = 
+    _cli_options_map_["--man-prologue"] =
     &::cli::thunk< options, std::vector<std::string>, &options::man_prologue_,
       &options::man_prologue_specified_ >;
-    _cli_options_map_["--html-prologue"] = 
+    _cli_options_map_["--html-prologue"] =
     &::cli::thunk< options, std::vector<std::string>, &options::html_prologue_,
       &options::html_prologue_specified_ >;
-    _cli_options_map_["--txt-prologue"] = 
+    _cli_options_map_["--txt-prologue"] =
     &::cli::thunk< options, std::vector<std::string>, &options::txt_prologue_,
       &options::txt_prologue_specified_ >;
-    _cli_options_map_["--hxx-epilogue"] = 
+    _cli_options_map_["--hxx-epilogue"] =
     &::cli::thunk< options, std::vector<std::string>, &options::hxx_epilogue_,
       &options::hxx_epilogue_specified_ >;
-    _cli_options_map_["--ixx-epilogue"] = 
+    _cli_options_map_["--ixx-epilogue"] =
     &::cli::thunk< options, std::vector<std::string>, &options::ixx_epilogue_,
       &options::ixx_epilogue_specified_ >;
-    _cli_options_map_["--cxx-epilogue"] = 
+    _cli_options_map_["--cxx-epilogue"] =
     &::cli::thunk< options, std::vector<std::string>, &options::cxx_epilogue_,
       &options::cxx_epilogue_specified_ >;
-    _cli_options_map_["--man-epilogue"] = 
+    _cli_options_map_["--man-epilogue"] =
     &::cli::thunk< options, std::vector<std::string>, &options::man_epilogue_,
       &options::man_epilogue_specified_ >;
-    _cli_options_map_["--html-epilogue"] = 
+    _cli_options_map_["--html-epilogue"] =
     &::cli::thunk< options, std::vector<std::string>, &options::html_epilogue_,
       &options::html_epilogue_specified_ >;
-    _cli_options_map_["--txt-epilogue"] = 
+    _cli_options_map_["--txt-epilogue"] =
     &::cli::thunk< options, std::vector<std::string>, &options::txt_epilogue_,
       &options::txt_epilogue_specified_ >;
-    _cli_options_map_["--hxx-prologue-file"] = 
+    _cli_options_map_["--hxx-prologue-file"] =
     &::cli::thunk< options, std::string, &options::hxx_prologue_file_,
       &options::hxx_prologue_file_specified_ >;
-    _cli_options_map_["--ixx-prologue-file"] = 
+    _cli_options_map_["--ixx-prologue-file"] =
     &::cli::thunk< options, std::string, &options::ixx_prologue_file_,
       &options::ixx_prologue_file_specified_ >;
-    _cli_options_map_["--cxx-prologue-file"] = 
+    _cli_options_map_["--cxx-prologue-file"] =
     &::cli::thunk< options, std::string, &options::cxx_prologue_file_,
       &options::cxx_prologue_file_specified_ >;
-    _cli_options_map_["--man-prologue-file"] = 
+    _cli_options_map_["--man-prologue-file"] =
     &::cli::thunk< options, std::string, &options::man_prologue_file_,
       &options::man_prologue_file_specified_ >;
-    _cli_options_map_["--html-prologue-file"] = 
+    _cli_options_map_["--html-prologue-file"] =
     &::cli::thunk< options, std::string, &options::html_prologue_file_,
       &options::html_prologue_file_specified_ >;
-    _cli_options_map_["--txt-prologue-file"] = 
+    _cli_options_map_["--txt-prologue-file"] =
     &::cli::thunk< options, std::string, &options::txt_prologue_file_,
       &options::txt_prologue_file_specified_ >;
-    _cli_options_map_["--hxx-epilogue-file"] = 
+    _cli_options_map_["--hxx-epilogue-file"] =
     &::cli::thunk< options, std::string, &options::hxx_epilogue_file_,
       &options::hxx_epilogue_file_specified_ >;
-    _cli_options_map_["--ixx-epilogue-file"] = 
+    _cli_options_map_["--ixx-epilogue-file"] =
     &::cli::thunk< options, std::string, &options::ixx_epilogue_file_,
       &options::ixx_epilogue_file_specified_ >;
-    _cli_options_map_["--cxx-epilogue-file"] = 
+    _cli_options_map_["--cxx-epilogue-file"] =
     &::cli::thunk< options, std::string, &options::cxx_epilogue_file_,
       &options::cxx_epilogue_file_specified_ >;
-    _cli_options_map_["--man-epilogue-file"] = 
+    _cli_options_map_["--man-epilogue-file"] =
     &::cli::thunk< options, std::string, &options::man_epilogue_file_,
       &options::man_epilogue_file_specified_ >;
-    _cli_options_map_["--html-epilogue-file"] = 
+    _cli_options_map_["--html-epilogue-file"] =
     &::cli::thunk< options, std::string, &options::html_epilogue_file_,
       &options::html_epilogue_file_specified_ >;
-    _cli_options_map_["--txt-epilogue-file"] = 
+    _cli_options_map_["--txt-epilogue-file"] =
     &::cli::thunk< options, std::string, &options::txt_epilogue_file_,
       &options::txt_epilogue_file_specified_ >;
-    _cli_options_map_["--output-prefix"] = 
+    _cli_options_map_["--output-prefix"] =
     &::cli::thunk< options, std::string, &options::output_prefix_,
       &options::output_prefix_specified_ >;
-    _cli_options_map_["--output-suffix"] = 
+    _cli_options_map_["--output-suffix"] =
     &::cli::thunk< options, std::string, &options::output_suffix_,
       &options::output_suffix_specified_ >;
-    _cli_options_map_["--hxx-suffix"] = 
+    _cli_options_map_["--hxx-suffix"] =
     &::cli::thunk< options, std::string, &options::hxx_suffix_,
       &options::hxx_suffix_specified_ >;
-    _cli_options_map_["--ixx-suffix"] = 
+    _cli_options_map_["--ixx-suffix"] =
     &::cli::thunk< options, std::string, &options::ixx_suffix_,
       &options::ixx_suffix_specified_ >;
-    _cli_options_map_["--cxx-suffix"] = 
+    _cli_options_map_["--cxx-suffix"] =
     &::cli::thunk< options, std::string, &options::cxx_suffix_,
       &options::cxx_suffix_specified_ >;
-    _cli_options_map_["--man-suffix"] = 
+    _cli_options_map_["--man-suffix"] =
     &::cli::thunk< options, std::string, &options::man_suffix_,
       &options::man_suffix_specified_ >;
-    _cli_options_map_["--html-suffix"] = 
+    _cli_options_map_["--html-suffix"] =
     &::cli::thunk< options, std::string, &options::html_suffix_,
       &options::html_suffix_specified_ >;
-    _cli_options_map_["--txt-suffix"] = 
+    _cli_options_map_["--txt-suffix"] =
     &::cli::thunk< options, std::string, &options::txt_suffix_,
       &options::txt_suffix_specified_ >;
-    _cli_options_map_["--option-prefix"] = 
+    _cli_options_map_["--option-prefix"] =
     &::cli::thunk< options, std::string, &options::option_prefix_,
       &options::option_prefix_specified_ >;
-    _cli_options_map_["--option-separator"] = 
+    _cli_options_map_["--option-separator"] =
     &::cli::thunk< options, std::string, &options::option_separator_,
       &options::option_separator_specified_ >;
-    _cli_options_map_["--keep-separator"] = 
+    _cli_options_map_["--keep-separator"] =
     &::cli::thunk< options, bool, &options::keep_separator_ >;
-    _cli_options_map_["--no-combined-flags"] = 
+    _cli_options_map_["--no-combined-flags"] =
     &::cli::thunk< options, bool, &options::no_combined_flags_ >;
-    _cli_options_map_["--no-combined-values"] = 
+    _cli_options_map_["--no-combined-values"] =
     &::cli::thunk< options, bool, &options::no_combined_values_ >;
-    _cli_options_map_["--include-with-brackets"] = 
+    _cli_options_map_["--include-with-brackets"] =
     &::cli::thunk< options, bool, &options::include_with_brackets_ >;
-    _cli_options_map_["--include-prefix"] = 
+    _cli_options_map_["--include-prefix"] =
     &::cli::thunk< options, std::string, &options::include_prefix_,
       &options::include_prefix_specified_ >;
-    _cli_options_map_["--guard-prefix"] = 
+    _cli_options_map_["--guard-prefix"] =
     &::cli::thunk< options, std::string, &options::guard_prefix_,
       &options::guard_prefix_specified_ >;
-    _cli_options_map_["--reserved-name"] = 
+    _cli_options_map_["--reserved-name"] =
     &::cli::thunk< options, std::map<std::string, std::string>, &options::reserved_name_,
       &options::reserved_name_specified_ >;
-    _cli_options_map_["--options-file"] = 
+    _cli_options_map_["--options-file"] =
     &::cli::thunk< options, std::string, &options::options_file_,
       &options::options_file_specified_ >;
   }
@@ -2070,7 +2071,7 @@ _parse (::cli::scanner& s,
               cf[2] = '\0';
 
               int ac (1);
-              char* av[] = 
+              char* av[] =
               {
                 cf
               };

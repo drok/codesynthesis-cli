@@ -995,7 +995,11 @@ generate_runtime_source (context& ctx, bool complete)
      <<       "std::string vstr (ov, (p != std::string::npos ? p + 1 : ov.size ()));"
      <<                                                                    endl
      <<       "int ac (2);"
-     <<       "char* av[] = {const_cast<char*> (o), 0};";
+     <<       "char* av[] ="
+     <<       "{"
+     <<       "const_cast<char*> (o)," << endl
+     <<       "0"
+     <<       "};";
   if (sp)
     os <<     "bool dummy;";
   os <<       "if (!kstr.empty ())"

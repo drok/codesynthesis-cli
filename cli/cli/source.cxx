@@ -109,7 +109,7 @@ namespace
 
       for (names::name_iterator i (n.name_begin ()); i != n.name_end (); ++i)
       {
-        os << "_cli_" << scope << "_map_[\"" << *i << "\"] = " << endl
+        os << "_cli_" << scope << "_map_[\"" << *i << "\"] =" << endl
            << "&" << cli << "::thunk< " << scope << ", " << type << ", " <<
           "&" << scope << "::" << member;
 
@@ -1118,7 +1118,10 @@ namespace
                <<     "cf[" << n + 1 << "] = '\\0';"
                <<                                                          endl
                <<     "int ac (1);"
-               <<     "char* av[] = {cf};"
+               <<     "char* av[] ="
+               <<     "{"
+               <<     "cf"
+               <<     "};"
                <<     cli << "::argv_scanner ns (0, ac, av);"
                <<                                                          endl
                <<     "if (!_parse (cf, ns))" << endl
