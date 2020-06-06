@@ -7,14 +7,128 @@ css{*}: extension = css
 define xhtml: doc
 xhtml{*}: extension = xhtml
 
-./: {man1 xhtml}{cli} \
-    css{default}      \
-    file{cli-*}
+define ps: doc
+ps{*}: extension = ps
 
-./: guide/doc{cli-guide*} \
-    guide/xhtml{index}    \
-    guide/file{*.html2ps}
+define pdf: doc
+pdf{*}: extension = pdf
+
+define html2ps: file
+html2ps{*}: extension = html2ps
+
+# Import the cli program only if explicitly requested. This way a distribution
+# that includes pre-generated files can be built without installing cli.
+#
+if ($config.cli != [null] && $config.cli != false)
+  import! [metadata] cli = cli%exe{cli}
+
+# Import the html2ps and ps2pdf14 programs only if present in the system. This
+# way a distribution that includes pre-generated files can be built without
+# installing these programs.
+#
+import? html2ps  = html2ps%exe{html2ps}
+import? ps2pdf14 = ps2pdf14%exe{ps2pdf14}
+
+./: css{default}
+
+# Note that we include all the generated files into the distribution and don't
+# remove them when cleaning in src (so that clean results in a state identical
+# to distributed).
+#
+
+# Generate the manual files if the cli program is imported and handle
+# (install, distribute, etc) the pre-generated files otherwise, if present.
+#
+if ($cli != [null])
+{
+  ./: {man1 xhtml}{cli}
+
+  options = -v project="CLI" -v version="$version.project_id" \
+            -v copyright="$copyright" --suppress-undocumented --stdout
+
+  man1{cli}: $src_root/cli/cli{options}          \
+             file{cli-prologue.1 cli-epilogue.1} \
+             $cli
+  {
+    dist  = true
+    clean = ($src_root != $out_root)
+  }
+  % [diag=cli]
+  {{
+    # Note that the date change doesn't change the script semantics, thus the
+    # variable is defined locally.
+    #
+    date +"%B %Y" | set date
+
+    $cli --generate-man -v date="$date" $options \
+         --man-prologue-file $path($<[1])        \
+         --man-epilogue-file $path($<[2])        \
+         $path($<[0]) >$path($>)
+  }}
+
+  xhtml{cli}: $src_root/cli/cli{options}                  \
+              file{cli-prologue.xhtml cli-epilogue.xhtml} \
+              $cli
+  {
+    dist  = true
+    clean = ($src_root != $out_root)
+  }
+  % [diag=cli]
+  {{
+    $cli --generate-html $options          \
+         --html-prologue-file $path($<[1]) \
+         --html-epilogue-file $path($<[2]) \
+         $path($<[0]) >$path($>)
+  }}
+}
+else
+  ./: {man1 xhtml}{+cli} file{cli-prologue* cli-epilogue*}
+
+guide/
+{
+  ../: xhtml{index}
+
+  # Generate the user guide ps/pdf files if the html2ps and ps2pdf14 programs
+  # are imported and handle (install, distribute, etc) the pre-generated files
+  # otherwise, if present.
+  #
+  if ($html2ps != [null])
+  {
+    ../: ps{cli-guide}
+
+    ps{cli-guide}: html2ps{guide} xhtml{index} $html2ps
+    {
+      options =
+
+      dist  = true
+      clean = ($src_root != $out_root)
+    }
+    % [diag=html2ps]
+    {{
+      $html2ps $options -f $path($<[0]) -o $path($>) $path($<[1])
+    }}
+
+    if ($ps2pdf14 != [null])
+    {
+      ../: pdf{cli-guide}
+
+      pdf{cli-guide}: ps{cli-guide} $ps2pdf14
+      {
+        options = -dOptimize=true -dEmbedAllFonts=true
+
+        dist  = true
+        clean = ($src_root != $out_root)
+      }
+      % [diag=ps2pdf14]
+      {{
+        $ps2pdf14 $options $path($<[0]) $path($>)
+      }}
+    }
+    else
+      ../: pdf{+cli-guide}
+  }
+  else
+    ../: {ps pdf}{+cli-guide}
+}
 
 doc{*}: install.subdirs = true
-
-./: file{doc.sh}

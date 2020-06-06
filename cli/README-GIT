@@ -1,0 +1,7 @@
+If you plan to prepare the package distribution, then configure the project to
+import cli, html2ps, and ps2pdf14 programs. This makes sure that the presence
+of these programs is not optional anymore and thus the package distribution is
+guaranteed to contain all the documentation files. For example:
+
+$ b configure: config.cli=.../cli config.html2ps=html2ps \
+  config.ps2pdf14=ps2pdf14

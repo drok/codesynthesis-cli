@@ -12,13 +12,10 @@
 # cli package configuration to point to its own binary (or a binary in another
 # build configuration if you want to play it safe).
 #
-# Note, though, that currently referring to the cli target in the project
-# itself ends up with the 'dependency cycle detected' error. In the future we
-# will fix that by using an ad hoc recipe instead of the cli module. But for
-# now you can workaround this issue by pointing to a binary in another
-# configuration.
-#
 config [path] config.cli
+
+define cli: file
+cli{*}: extension = cli
 
 cxx.std = latest
 
@@ -52,3 +49,9 @@ if ($config.cli != [null] && $config.cli != false)
 # Specify the test target for cross-testing.
 #
 test.target = $cxx.target
+
+# Extract the copyright notice from the LICENSE file.
+#
+copyright = $process.run_regex(cat $src_root/LICENSE,    \
+                               'Copyright \(c\) (.+)\.', \
+                               '\1')

@@ -3,6 +3,12 @@
 
 import libs = libcutl%lib{cutl}
 
+# Import the cli program only if explicitly requested. This way a distribution
+# that includes pre-generated files can be built without installing cli.
+#
+if ($config.cli != [null] && $config.cli != false)
+  import! [metadata] cli = cli%exe{cli}
+
 ./: exe{cli}: cxx{cli} libue{cli}
 
 # Target metadata, see also --build2-metadata in cli.cxx.
@@ -20,6 +26,45 @@ libue{cli}: {hxx ixx txx cxx}{** -cli -version -options -**.test...} \
             $libs
 
 hxx{version}: in{version} $src_root/manifest
+
+# Regenerate the options parsing code if the cli program is imported.
+#
+if ($cli != [null])
+{
+  <{hxx ixx cxx}{options}>: cli{options} $cli
+  {
+    options = --include-with-brackets --include-prefix cli   \
+              --guard-prefix CLI --generate-file-scanner     \
+              --generate-specifier --generate-modifier       \
+              --suppress-undocumented --reserved-name stdout
+
+    # Include the generated cli files into the distribution and don't remove
+    # them when cleaning in src (so that clean results in a state identical to
+    # distributed).
+    #
+    dist  = true
+    clean = ($src_root != $out_root)
+
+    # We keep the generated code in the repository so copy it back to src
+    # in case of a forwarded configuration.
+    #
+    backlink = overwrite
+
+    # @@ The headers are installed by default. Needs to be fixed in build2.
+    #    Another workaround is making options.cxx a primary ad hoc group
+    #    member.
+    #
+    install = false
+  }
+  {{
+    # @@ Change this to `diag cli ($<[0])` if/when it results with the same
+    #    diagnostics.
+    #
+    diag cli $directory($<[0])/cli{options}
+
+    $cli $options -o $out_base $path($<)
+  }}
+}
 
 # Unit tests.
 #
@@ -42,36 +87,4 @@ for t: cxx{**.test...}
 #
 # Pass the copyright notice extracted from the LICENSE file.
 #
-copyright = $process.run_regex(cat $src_root/LICENSE,    \
-                               'Copyright \(c\) (.+)\.', \
-                               '\1')
-
 obj{cli}: cxx.poptions += -DCLI_COPYRIGHT=\"$copyright\"
-
-# Generated options parsing code.
-#
-# @@ This will eventually be replaced with an ah hoc recipe.
-#
-if ($config.cli != [null] && $config.cli != false)
-{
-  cli.cxx{options}: cli{options}
-
-  cli.options += --include-with-brackets --include-prefix cli \
---guard-prefix CLI --generate-file-scanner --generate-specifier \
---generate-modifier --suppress-undocumented --reserved-name stdout
-
-  cli.cxx{*}:
-  {
-    # Include the generated cli files into the distribution and don't remove
-    # them when cleaning in src (so that clean results in a state identical to
-    # distributed).
-    #
-    dist  = true
-    clean = ($src_root != $out_root)
-
-    # We keep the generated code in the repository so copy it back to src
-    # in case of a forwarded configuration.
-    #
-    backlink = overwrite
-  }
-}
