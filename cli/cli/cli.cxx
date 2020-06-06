@@ -16,7 +16,13 @@
 #include <cli/parser.hxx>
 #include <cli/generator.hxx>
 
-#include <cli/version.hxx>
+#ifndef CLI_BOOTSTRAP
+#  include <cli/version.hxx>
+#else
+#  define CLI_VERSION_ID 0
+#  define CLI_VERSION_FULL 0
+#  define CLI_COPYRIGHT ""
+#endif
 
 using namespace std;
 using namespace cutl;

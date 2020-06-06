@@ -1,5 +1,7 @@
-cli
-version.hxx
+/cli
+/bootstrap/cli/cli
+/version.hxx
+/options.?xx
 
 # Unit test executables and Testscript output directories (can be symlinks).
 #

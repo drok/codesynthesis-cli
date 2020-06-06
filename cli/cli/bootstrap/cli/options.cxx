@@ -15,6 +15,7 @@
 #include <set>
 #include <string>
 #include <vector>
+#include <utility>
 #include <ostream>
 #include <sstream>
 #include <cstring>
@@ -196,6 +197,7 @@ namespace cli
       else
         ++i_;
 
+      ++start_position_;
       return r;
     }
     else
@@ -206,9 +208,18 @@ namespace cli
   skip ()
   {
     if (i_ < argc_)
+    {
       ++i_;
+      ++start_position_;
+    }
     else
       throw eos_reached ();
+  }
+
+  std::size_t argv_scanner::
+  position ()
+  {
+    return start_position_;
   }
 
   // argv_file_scanner
@@ -321,6 +332,7 @@ namespace cli
     {
       hold_[i_ == 0 ? ++i_ : --i_].swap (args_.front ().value);
       args_.pop_front ();
+      ++start_position_;
       return hold_[i_].c_str ();
     }
   }
@@ -334,7 +346,10 @@ namespace cli
     if (args_.empty ())
       return base::skip ();
     else
+    {
       args_.pop_front ();
+      ++start_position_;
+    }
   }
 
   const argv_file_scanner::option_info* argv_file_scanner::
@@ -345,6 +360,12 @@ namespace cli
         return &options_[i];
 
     return 0;
+  }
+
+  std::size_t argv_file_scanner::
+  position ()
+  {
+    return start_position_;
   }
 
   void argv_file_scanner::
@@ -546,6 +567,17 @@ namespace cli
   };
 
   template <typename X>
+  struct parser<std::pair<X, std::size_t> >
+  {
+    static void
+    parse (std::pair<X, std::size_t>& x, bool& xs, scanner& s)
+    {
+      x.second = s.position ();
+      parser<X>::parse (x.first, xs, s);
+    }
+  };
+
+  template <typename X>
   struct parser<std::vector<X> >
   {
     static void
@@ -583,6 +615,7 @@ namespace cli
 
       if (s.more ())
       {
+        std::size_t pos (s.position ());
         std::string ov (s.next ());
         std::string::size_type p = ov.find ('=');
 
@@ -602,14 +635,14 @@ namespace cli
         if (!kstr.empty ())
         {
           av[1] = const_cast<char*> (kstr.c_str ());
-          argv_scanner s (0, ac, av);
+          argv_scanner s (0, ac, av, false, pos);
           parser<K>::parse (k, dummy, s);
         }
 
         if (!vstr.empty ())
         {
           av[1] = const_cast<char*> (vstr.c_str ());
-          argv_scanner s (0, ac, av);
+          argv_scanner s (0, ac, av, false, pos);
           parser<V>::parse (v, dummy, s);
         }
 

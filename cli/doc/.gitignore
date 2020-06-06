@@ -1,2 +1,5 @@
-cli.xhtml
-cli.1
+*.ps
+*.pdf
+
+/cli.xhtml
+/cli.1

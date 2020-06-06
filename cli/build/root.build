@@ -1,24 +1,15 @@
 # file      : build/root.build
 # license   : MIT; see accompanying LICENSE file
 
-# Regenerate the options parsing code (included into the repository).
+# Note that we cannot install the development build. This is due to both the
+# bootstrap cli (which we need to run) and the final cli (which we need to
+# install) depending on libcutl (so we need it to be both "for-install" and
+# "for-run"). Nor can we run the final cli to generate the man pages.
 #
-# Note that this is the same variable as what's used by the import machinery
-# when we import cli%exe{cli}. Here, however, we require it to be explicitly
-# specified (i.e., no default search in PATH) in order for the regeneration
-# to be enabled.
-#
-# Normally, in the development build, this variable will be set only in the
-# cli package configuration to point to its own binary (or a binary in another
-# build configuration if you want to play it safe).
-#
-# Note, though, that currently referring to the cli target in the project
-# itself ends up with the 'dependency cycle detected' error. In the future we
-# will fix that by using an ad hoc recipe instead of the cli module. But for
-# now you can workaround this issue by pointing to a binary in another
-# configuration.
-#
-config [path] config.cli
+config [bool] config.cli.develop ?= false
+
+define cli: file
+cli{*}: extension = cli
 
 cxx.std = latest
 
@@ -35,20 +26,14 @@ if ($cxx.target.system == 'win32-msvc')
 if ($cxx.class == 'msvc')
   cxx.coptions += /wd4251 /wd4275 /wd4800
 
-cxx.poptions =+ "-I$out_root" "-I$src_root"
-
-# Load the cli module only if explicitly requested. This way a distribution
-# that includes pre-generated files can be built without installing cli. This
-# is also the reason why we need to explicitly spell out individual source
-# file prerequisites instead of using the cli.cxx{} group (it won't be there
-# unless the module is configured).
-#
-# @@ Replace with import when the parsing code regenerating is implemented
-#    via an ad hoc recipe.
-#
-if ($config.cli != [null] && $config.cli != false)
-  using cli
-
 # Specify the test target for cross-testing.
 #
 test.target = $cxx.target
+
+# Extract the copyright notice from the LICENSE file.
+#
+# Note that cat is a builtin which means this is both portable and fast.
+#
+copyright = $process.run_regex(cat $src_root/LICENSE,    \
+                               'Copyright \(c\) (.+)\.', \
+                               '\1')

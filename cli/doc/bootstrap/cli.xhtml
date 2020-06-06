@@ -1,0 +1,573 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+
+<head>
+  <title>CLI 1.2.0-b.7 Compiler Command Line Manual</title>
+
+  <meta name="copyright" content="&#169; 2009-2021 Code Synthesis Tools CC"/>
+  <meta name="keywords" content="cli,command,line,interface,compiler,c++"/>
+  <meta name="description" content="CLI Compiler Command Line Manual"/>
+
+  <link rel="stylesheet" type="text/css" href="default.css" />
+
+<style type="text/css">
+
+  #synopsis {
+    list-style-type:  none;
+  }
+
+  #synopsis li {
+    padding-top      : 0.0em;
+    padding-bottom   : 0.0em;
+  }
+
+  .options {
+    margin: 1em 0 1em 0;
+  }
+
+  .options dt {
+    margin: 1em 0 0 0;
+  }
+
+  .options dd {
+    margin: .1em 0 0 4.5em;
+  }
+
+</style>
+</head>
+
+<body>
+<div id="container">
+  <div id="content">
+
+  <h1>NAME</h1>
+
+  <p>cli - command line interface compiler for C++</p>
+
+  <h1>SYNOPSIS</h1>
+
+  <dl id="synopsis">
+    <dt><code><b>cli</b> [<i>options</i>] <i>file</i></code></dt>
+  </dl>
+
+  <h1>DESCRIPTION</h1>
+
+  <p><code><b>cli</b></code> generates C++ implementation and
+  documentation in various formats for a command line interface
+  defined in the CLI language. For an input file in the form
+  <code><b>name.cli</b></code> the following is generated. By
+  default or if the <code><b>--generate-cxx</b></code> option is
+  specified, the following C++ files are generated:
+  <code><b>name.hxx</b></code> (header file), <code><b>name.ixx</b></code>
+  (inline file, generated unless the <code><b>--suppress-inline</b></code>
+  option is specified), and <code><b>name.cxx</b></code> (source file).
+  If the <code><b>--generate-html</b></code> option is specified, then
+  the <code><b>name.html</b></code> HTML documentation file is generated.
+  If the <code><b>--generate-man</b></code> option is specified, then
+  the <code><b>name.1</b></code> man page file is generated. When
+  <code><b>--generate-html</b></code> or <code><b>--generate-man</b></code>
+  is specified, the <code><b>--stdout</b></code> option can be used to
+  redirect the output to STDOUT instead of a file.</p>
+
+  <h1>OPTIONS</h1>
+  <dl class="options">
+    <dt><code><b>--help</b></code></dt>
+    <dd>Print usage information and exit.</dd>
+
+    <dt><code><b>--version</b></code></dt>
+    <dd>Print version and exit.</dd>
+
+    <dt><code><b>--include-path</b></code>|<code><b>-I</b></code> <code><i>dir</i></code></dt>
+    <dd>Search <code><i>dir</i></code> for bracket-included
+    (<code><b>&lt;></b></code>) options files.</dd>
+
+    <dt><code><b>--output-dir</b></code>|<code><b>-o</b></code> <code><i>dir</i></code></dt>
+    <dd>Write the generated files to <code><i>dir</i></code> instead of the
+    current directory.</dd>
+
+    <dt><code><b>--std</b></code> <code><i>version</i></code></dt>
+    <dd>Specify the C++ standard that should be used during compilation. Valid
+    values are <code><b>c++98</b></code> (default), <code><b>c++11</b></code>,
+    and <code><b>c++14</b></code>.</dd>
+
+    <dt><code><b>--generate-modifier</b></code></dt>
+    <dd>Generate option value modifiers in addition to accessors.</dd>
+
+    <dt><code><b>--generate-specifier</b></code></dt>
+    <dd>Generate functions for determining whether the option was specified on
+    the command line.</dd>
+
+    <dt><code><b>--generate-parse</b></code></dt>
+    <dd>Generate <code><b>parse()</b></code> functions instead of parsing
+    constructors. This is primarily useful for being able to parse into an
+    already initialized options class instance, for example, to implement
+    option appending/overriding.</dd>
+
+    <dt><code><b>--generate-merge</b></code></dt>
+    <dd>Generate <code><b>merge()</b></code> functions. This is primarily
+    useful for being able to merge several already parsed options class
+    instances, for example, to implement option appending/overriding. Note
+    that this option forces <code><b>--generate-specifier</b></code>.</dd>
+
+    <dt><code><b>--generate-description</b></code></dt>
+    <dd>Generate the option description list that can be examined at
+    runtime.</dd>
+
+    <dt><code><b>--generate-file-scanner</b></code></dt>
+    <dd>Generate the <code><b>argv_file_scanner</b></code> implementation.
+    This scanner is capable of reading command line arguments from the
+    <code><b>argv</b></code> array as well as files specified with command
+    line options.</dd>
+
+    <dt><code><b>--generate-vector-scanner</b></code></dt>
+    <dd>Generate the <code><b>vector_scanner</b></code> implementation. This
+    scanner is capable of reading command line arguments from
+    <code><b>vector&lt;string></b></code>.</dd>
+
+    <dt><code><b>--generate-group-scanner</b></code></dt>
+    <dd>Generate the <code><b>group_scanner</b></code> implementation. This
+    scanner supports grouping of arguments (usually options) to apply only to
+    a certain argument.
+
+    <p>Groups can be specified before (leading) and/or after (trailing) the
+    argument they apply to. A leading group starts with
+    '<code><b>{</b></code>' and ends with '<code><b>}+</b></code>' while a
+    trailing group starts with '<code><b>+{</b></code>' and ends with
+    '<code><b>}</b></code>'. For example:</p>
+
+    <pre>{ --foo --bar }+ arg   # 'arg' with '--foo' '--bar'
+arg +{ fox=1 baz=2 }   # 'arg' with 'fox=1' 'baz=2'</pre>
+
+    <p>Multiple leading and/or trailing groups can be specified for the same
+    argument. For example:</p>
+
+    <pre>{ -f }+ { -b }+ arg +{ f=1 } +{ b=2 } # 'arg' with '-f' 'b' 'f=1' 'b=2'</pre>
+
+    <p>The group applies to a single argument only unless multiple arguments
+    are themselves grouped with '<code><b>{</b></code>' and
+    '<code><b>}</b></code>'. For example:</p>
+
+    <pre>{ --foo }+ arg1  arg2 +{ --bar }      # 'arg1' with '--foo'
+                                      # 'arg2' with '--bar'
+
+{ --foo }+ { arg1  arg2 } +{ --bar }  # 'arg1' with '--foo' '--bar'
+                                      # 'arg2' with '--foo' '--bar'</pre>
+
+    <p>The group separators ('<code><b>{</b></code>',
+    '<code><b>}+'</b></code>, etc) must be separate command line arguments. In
+    particular, they must not be adjacent either to the arguments inside the
+    group nor to the argument they apply to. All such cases will be treated as
+    ordinary arguments. For example:</p>
+
+    <pre>{--foo}+ arg   # '{--foo}+' ...
+arg+{ --foo }  # 'arg+{' ...</pre>
+
+    <p>If one of the group separators needs to be specified as an argument
+    verbatim, then it must be escaped with '<code><b>\</b></code>'. For
+    example:</p>
+
+    <pre>}             # error: unexpected group separator
+}x            # '}x'
+\}            # '}'
+{ \}+ }+ arg  # 'arg' with '}+'</pre></dd>
+
+    <dt><code><b>--suppress-inline</b></code></dt>
+    <dd>Generate all functions non-inline. By default simple functions are
+    made inline. This option suppresses creation of the inline file.</dd>
+
+    <dt><code><b>--suppress-cli</b></code></dt>
+    <dd>Do not generate the CLI support types (scanners, parser, etc).
+    Normally, the support types are generated unless another
+    <code><b>.cli</b></code> was included, in which case the support types are
+    expected to be provided by its generated code.</dd>
+
+    <dt><code><b>--cli-namespace</b></code> <code><i>ns</i></code></dt>
+    <dd>Generate the CLI support types in the <code><i>ns</i></code> namespace
+    (<code><b>cli</b></code> by default). The namespace can be nested, for
+    example <code><b>details::cli</b></code>. If the namespace is empty, then
+    the support types are generated in the global namespace.</dd>
+
+    <dt><code><b>--ostream-type</b></code> <code><i>type</i></code></dt>
+    <dd>Output stream type instead of the default
+    <code><b>std::ostream</b></code> that should be used to print usage and
+    exception information.</dd>
+
+    <dt><code><b>--generate-cxx</b></code></dt>
+    <dd>Generate C++ code. If neither <code><b>--generate-man</b></code>,
+    <code><b>--generate-html</b></code>, nor
+    <code><b>--generate-txt</b></code> is specified, this mode is assumed by
+    default.</dd>
+
+    <dt><code><b>--generate-man</b></code></dt>
+    <dd>Generate documentation in the man page format.</dd>
+
+    <dt><code><b>--generate-html</b></code></dt>
+    <dd>Generate documentation in the HTML format.</dd>
+
+    <dt><code><b>--generate-txt</b></code></dt>
+    <dd>Generate documentation in the plain text format, similar to
+    usage.</dd>
+
+    <dt><code><b>--stdout</b></code></dt>
+    <dd>Write output to STDOUT instead of a file. This option is not valid
+    when generating C++ code and is normally used to combine generated
+    documentation for several option classes in a single file.</dd>
+
+    <dt><code><b>--suppress-undocumented</b></code></dt>
+    <dd>Suppress the generation of documentation entries for undocumented
+    options.</dd>
+
+    <dt><code><b>--suppress-usage</b></code></dt>
+    <dd>Suppress the generation of the usage printing code.</dd>
+
+    <dt><code><b>--long-usage</b></code></dt>
+    <dd>If no short documentation string is provided, use the complete long
+    documentation string in usage. By default, in this situation only the
+    first sentence from the long string is used.</dd>
+
+    <dt><code><b>--short-usage</b></code></dt>
+    <dd>If specified together with <code><b>--long-usage</b></code>, generate
+    both short and long usage versions. In this mode, the long usage printing
+    function is called <code><b>print_long_usage()</b></code> and in its
+    implementation the long documentation string is always used, even if the
+    short version is provided.</dd>
+
+    <dt><code><b>--page-usage</b></code> <code><i>name</i></code></dt>
+    <dd>Generate the combined usage printing code for the entire page.
+    Specifically, this will include all the namespace-level documentation as
+    well as usage for all the options classes printed in the order they are
+    defined in the main translation unit (documentation/classes from included
+    units are ignored except for base classes).
+
+    <p>The <code><i>name</i></code> argument is used as a prefix to form the
+    name of the usage printing function. It can include the namespace
+    qualification as well as documentation variable expansion, for
+    example:</p>
+
+    <pre>--page-usage print_         # print_usage() in global namespace
+--page-usage app::print_    # print_usage() in app namespace
+--page-usage print_$name$_  # print_foo_usage() if name is foo</pre>
+
+    <p>If both <code><b>--long-usage</b></code> and
+    <code><b>--short-usage</b></code> options are specified, then the long
+    usage function has the <code><b>*long_usage()</b></code> suffix.</p></dd>
+
+    <dt><code><b>--option-length</b></code> <code><i>len</i></code></dt>
+    <dd>Indent option descriptions <code><i>len</i></code> characters when
+    printing usage. This is useful when you have multiple options classes,
+    potentially in separate files, and would like their usage to have the same
+    indentation level.</dd>
+
+    <dt><code><b>--ansi-color</b></code></dt>
+    <dd>Use ANSI color escape sequences when printing usage. By "color" we
+    really only mean the bold and underline modifiers. Note that Windows
+    console does not recognize ANSI escape sequences and will display them as
+    garbage. However, if you pipe such output through
+    <code><b>less(1)</b></code>, it will display them correctly.</dd>
+
+    <dt><code><b>--exclude-base</b></code></dt>
+    <dd>Exclude base class information from usage and documentation.</dd>
+
+    <dt><code><b>--include-base-last</b></code></dt>
+    <dd>Include base class information after derived for usage and
+    documentation. By default, base classes are included first.</dd>
+
+    <dt><code><b>--class-doc</b></code> <code><i>name</i></code>=<code><i>kind</i></code></dt>
+    <dd>Specify the documentation <code><i>kind</i></code> that should be used
+    for the options class <code><i>name</i></code>. The
+    <code><i>name</i></code> value should be a fully-qualified class name, for
+    example, <code><b>app::options</b></code>. The <code><i>kind</i></code>
+    value can be <code><b>short</b></code>, <code><b>long</b></code>,
+    <code><b>exclude</b></code>, or <code><b>exclude-base</b></code>. If the
+    value is <code><b>exclude</b></code>, then the class documentation is
+    excluded from usage and man/HTML/text output. If it is
+    <code><b>exclude-base</b></code>, then it is only excluded when used as a
+    base. For usage, the <code><b>short</b></code> and
+    <code><b>long</b></code> values determine which usage function will be
+    called when the class is used as base or as part of the page usage (see
+    <code><b>--page-usage</b></code>). For man/HTML/text, these values
+    determine which documentation strings are used in the output.</dd>
+
+    <dt><code><b>--class</b></code> <code><i>name</i></code></dt>
+    <dd>Generate the man page, HTML, or text documentation only for the
+    options class <code><i>name</i></code>. The <code><i>name</i></code> value
+    should be a fully-qualified options class name, for example,
+    <code><b>app::options</b></code>. To generate documentation for multiple
+    classes, repeat this option and the documentation will be produced in the
+    order specified. This functionality is useful if you need to assemble
+    documentation from multiple classes in a specific order or to insert
+    custom documentation between options belonging to different classes.</dd>
+
+    <dt><code><b>--docvar</b></code>|<code><b>-v</b></code> <code><i>name</i></code>=<code><i>val</i></code></dt>
+    <dd>Set documentation variable <code><i>name</i></code> to the value
+    <code><i>val</i></code>. Documentation variables can be substituted in
+    prologues and epilogues (see <code><b>--*-prologue*</b></code> and
+    <code><b>--*-epilogue*</b></code> options) using the
+    <code><b>$</b></code><code><i>name</i></code><code><b>$</b></code>
+    expansion syntax (use <code><b>$$</b></code> to escape expansion). They
+    can also be defined in <code><b>.cli</b></code> files using the
+    <code>"\<code><i>name</i></code>=<code><i>val</i></code>"</code>
+    syntax.</dd>
+
+    <dt><code><b>--link-regex</b></code> <code><i>regex</i></code></dt>
+    <dd>Add <code><i>regex</i></code> to the list of regular expressions used
+    to transform link targets in the generated documentation. The argument to
+    this option is a Perl-like regular expression in the form
+    <code><b>/</b><i>pattern</i><b>/</b><i>replacement</i><b>/</b></code>. Any
+    character can be used as a delimiter instead of '<code><b>/</b></code>'
+    and the delimiter can be escaped inside <code><i>pattern</i></code> and
+    <code><i>replacement</i></code> with a backslash (<code><b>\</b></code>).
+    You can specify multiple regular expressions by repeating this option. All
+    the regular expressions are tried in the order specified and the first
+    expression that matches is used. Use the
+    <code><b>--link-regex-trace</b></code> option to debug link
+    transformation.</dd>
+
+    <dt><code><b>--link-regex-trace</b></code></dt>
+    <dd>Trace the process of applying regular expressions specified with the
+    <code><b>--link-regex</b></code> option. Use this option to find out why
+    your regular expressions don't do what you expected them to do.</dd>
+
+    <dt><code><b>--html-heading-map</b></code> <code><i>c</i></code>=<code><i>h</i></code></dt>
+    <dd>Map CLI heading <code><i>c</i></code> (valid values:
+    '<code><b>H</b></code>', '<code><b>0</b></code>', '<code><b>1</b></code>',
+    '<code><b>h</b></code>', and '<code><b>2</b></code>') to HTML heading
+    <code><i>h</i></code> (for example, '<code><b>h1</b></code>',
+    '<code><b>h2</b></code>', etc).</dd>
+
+    <dt><code><b>--omit-link-check</b></code></dt>
+    <dd>Don't check that local fragment link references (\l{#ref ...}) resolve
+    to ids.</dd>
+
+    <dt><code><b>--hxx-prologue</b></code> <code><i>text</i></code></dt>
+    <dd>Insert <code><i>text</i></code> at the beginning of the generated C++
+    header file.</dd>
+
+    <dt><code><b>--ixx-prologue</b></code> <code><i>text</i></code></dt>
+    <dd>Insert <code><i>text</i></code> at the beginning of the generated C++
+    inline file.</dd>
+
+    <dt><code><b>--cxx-prologue</b></code> <code><i>text</i></code></dt>
+    <dd>Insert <code><i>text</i></code> at the beginning of the generated C++
+    source file.</dd>
+
+    <dt><code><b>--man-prologue</b></code> <code><i>text</i></code></dt>
+    <dd>Insert <code><i>text</i></code> at the beginning of the generated man
+    page file.</dd>
+
+    <dt><code><b>--html-prologue</b></code> <code><i>text</i></code></dt>
+    <dd>Insert <code><i>text</i></code> at the beginning of the generated HTML
+    file.</dd>
+
+    <dt><code><b>--txt-prologue</b></code> <code><i>text</i></code></dt>
+    <dd>Insert <code><i>text</i></code> at the beginning of the generated text
+    file.</dd>
+
+    <dt><code><b>--hxx-epilogue</b></code> <code><i>text</i></code></dt>
+    <dd>Insert <code><i>text</i></code> at the end of the generated C++ header
+    file.</dd>
+
+    <dt><code><b>--ixx-epilogue</b></code> <code><i>text</i></code></dt>
+    <dd>Insert <code><i>text</i></code> at the end of the generated C++ inline
+    file.</dd>
+
+    <dt><code><b>--cxx-epilogue</b></code> <code><i>text</i></code></dt>
+    <dd>Insert <code><i>text</i></code> at the end of the generated C++ source
+    file.</dd>
+
+    <dt><code><b>--man-epilogue</b></code> <code><i>text</i></code></dt>
+    <dd>Insert <code><i>text</i></code> at the end of the generated man page
+    file.</dd>
+
+    <dt><code><b>--html-epilogue</b></code> <code><i>text</i></code></dt>
+    <dd>Insert <code><i>text</i></code> at the end of the generated HTML
+    file.</dd>
+
+    <dt><code><b>--txt-epilogue</b></code> <code><i>text</i></code></dt>
+    <dd>Insert <code><i>text</i></code> at the end of the generated text
+    file.</dd>
+
+    <dt><code><b>--hxx-prologue-file</b></code> <code><i>file</i></code></dt>
+    <dd>Insert the content of <code><i>file</i></code> at the beginning of the
+    generated C++ header file.</dd>
+
+    <dt><code><b>--ixx-prologue-file</b></code> <code><i>file</i></code></dt>
+    <dd>Insert the content of <code><i>file</i></code> at the beginning of the
+    generated C++ inline file.</dd>
+
+    <dt><code><b>--cxx-prologue-file</b></code> <code><i>file</i></code></dt>
+    <dd>Insert the content of <code><i>file</i></code> at the beginning of the
+    generated C++ source file.</dd>
+
+    <dt><code><b>--man-prologue-file</b></code> <code><i>file</i></code></dt>
+    <dd>Insert the content of <code><i>file</i></code> at the beginning of the
+    generated man page file.</dd>
+
+    <dt><code><b>--html-prologue-file</b></code> <code><i>file</i></code></dt>
+    <dd>Insert the content of <code><i>file</i></code> at the beginning of the
+    generated HTML file.</dd>
+
+    <dt><code><b>--txt-prologue-file</b></code> <code><i>file</i></code></dt>
+    <dd>Insert the content of <code><i>file</i></code> at the beginning of the
+    generated text file.</dd>
+
+    <dt><code><b>--hxx-epilogue-file</b></code> <code><i>file</i></code></dt>
+    <dd>Insert the content of <code><i>file</i></code> at the end of the
+    generated C++ header file.</dd>
+
+    <dt><code><b>--ixx-epilogue-file</b></code> <code><i>file</i></code></dt>
+    <dd>Insert the content of <code><i>file</i></code> at the end of the
+    generated C++ inline file.</dd>
+
+    <dt><code><b>--cxx-epilogue-file</b></code> <code><i>file</i></code></dt>
+    <dd>Insert the content of <code><i>file</i></code> at the end of the
+    generated C++ source file.</dd>
+
+    <dt><code><b>--man-epilogue-file</b></code> <code><i>file</i></code></dt>
+    <dd>Insert the content of <code><i>file</i></code> at the end of the
+    generated man page file.</dd>
+
+    <dt><code><b>--html-epilogue-file</b></code> <code><i>file</i></code></dt>
+    <dd>Insert the content of <code><i>file</i></code> at the end of the
+    generated HTML file.</dd>
+
+    <dt><code><b>--txt-epilogue-file</b></code> <code><i>file</i></code></dt>
+    <dd>Insert the content of <code><i>file</i></code> at the end of the
+    generated text file.</dd>
+
+    <dt><code><b>--output-prefix</b></code> <code><i>prefix</i></code></dt>
+    <dd>Add <code><i>prefix</i></code> at the beginning of the generated
+    output file name(s).</dd>
+
+    <dt><code><b>--output-suffix</b></code> <code><i>suffix</i></code></dt>
+    <dd>Add <code><i>suffix</i></code> at the end of the generated output file
+    name(s). Note that it is added before any file type-specific suffixes; see
+    <code><b>--*-suffix</b></code> below.</dd>
+
+    <dt><code><b>--hxx-suffix</b></code> <code><i>suffix</i></code></dt>
+    <dd>Use <code><i>suffix</i></code> instead of the default
+    <code><b>.hxx</b></code> to construct the name of the generated header
+    file.</dd>
+
+    <dt><code><b>--ixx-suffix</b></code> <code><i>suffix</i></code></dt>
+    <dd>Use <code><i>suffix</i></code> instead of the default
+    <code><b>.ixx</b></code> to construct the name of the generated inline
+    file.</dd>
+
+    <dt><code><b>--cxx-suffix</b></code> <code><i>suffix</i></code></dt>
+    <dd>Use <code><i>suffix</i></code> instead of the default
+    <code><b>.cxx</b></code> to construct the name of the generated source
+    file.</dd>
+
+    <dt><code><b>--man-suffix</b></code> <code><i>suffix</i></code></dt>
+    <dd>Use <code><i>suffix</i></code> instead of the default
+    <code><b>.1</b></code> to construct the name of the generated man page
+    file.</dd>
+
+    <dt><code><b>--html-suffix</b></code> <code><i>suffix</i></code></dt>
+    <dd>Use <code><i>suffix</i></code> instead of the default
+    <code><b>.html</b></code> to construct the name of the generated HTML
+    file.</dd>
+
+    <dt><code><b>--txt-suffix</b></code> <code><i>suffix</i></code></dt>
+    <dd>Use <code><i>suffix</i></code> instead of the default
+    <code><b>.txt</b></code> to construct the name of the generated text
+    file.</dd>
+
+    <dt><code><b>--option-prefix</b></code> <code><i>prefix</i></code></dt>
+    <dd>Use <code><i>prefix</i></code> instead of the default
+    '<code><b>-</b></code>' as an option prefix. Unknown command line
+    arguments that start with this prefix are treated as unknown options. If
+    you set the option prefix to the empty value, then all the unknown command
+    line arguments will be treated as program arguments.</dd>
+
+    <dt><code><b>--option-separator</b></code> <code><i>sep</i></code></dt>
+    <dd>Use <code><i>sep</i></code> instead of the default
+    '<code><b>--</b></code>' as an optional separator between options and
+    arguments. All the command line arguments that are parsed after this
+    separator are treated as program arguments. Set the option separator to
+    the empty value if you don't want this functionality.</dd>
+
+    <dt><code><b>--keep-separator</b></code></dt>
+    <dd>Leave the option separator in the scanner. This is primarily useful
+    for incremental option parsing.</dd>
+
+    <dt><code><b>--no-combined-flags</b></code></dt>
+    <dd>Disable support for combining multiple single-character flags into a
+    single argument (the <code><b>-xyz</b></code> form that is equivalent to
+    <code><b>-x</b></code> <code><b>-y</b></code> <code><b>-z</b></code>). An
+    argument is considered a combination of flags if it starts with a single
+    option prefix (<code><b>--option-prefix</b></code>) and only contains
+    letters and digits. Note that an option with a value may not be part of
+    such a combination, not even if it is specified last.</dd>
+
+    <dt><code><b>--no-combined-values</b></code></dt>
+    <dd>Disable support for combining an option and its value into a single
+    argument with the assignment sign (the
+    <code><i>option</i><b>=</b><i>value</i></code> form). This functionality
+    requires a non-empty option prefix
+    (<code><b>--option-prefix</b></code>).</dd>
+
+    <dt><code><b>--include-with-brackets</b></code></dt>
+    <dd>Use angle brackets (<code><b>&lt;></b></code>) instead of quotes
+    (<code><b>""</b></code>) in the generated <code><b>#include</b></code>
+    directives.</dd>
+
+    <dt><code><b>--include-prefix</b></code> <code><i>prefix</i></code></dt>
+    <dd>Add <code><i>prefix</i></code> to the generated
+    <code><b>#include</b></code> directive paths.</dd>
+
+    <dt><code><b>--guard-prefix</b></code> <code><i>prefix</i></code></dt>
+    <dd>Add <code><i>prefix</i></code> to the generated header inclusion
+    guards. The prefix is transformed to upper case and characters that are
+    illegal in a preprocessor macro name are replaced with underscores.</dd>
+
+    <dt><code><b>--reserved-name</b></code> <code><i>name</i></code>=<code><i>rep</i></code></dt>
+    <dd>Add <code><i>name</i></code> with an optional <code><i>rep</i></code>
+    replacement to the list of names that should not be used as identifiers.
+    If provided, the replacement name is used instead. All C++ keywords are
+    already in this list.</dd>
+
+    <dt><code><b>--options-file</b></code> <code><i>file</i></code></dt>
+    <dd>Read additional options from <code><i>file</i></code>. Each option
+    should appear on a separate line optionally followed by space or equal
+    sign (<code><b>=</b></code>) and an option value. Empty lines and lines
+    starting with <code><b>#</b></code> are ignored. Option values can be
+    enclosed in double (<code><b>"</b></code>) or single
+    (<code><b>'</b></code>) quotes to preserve leading and trailing
+    whitespaces as well as to specify empty values. If the value itself
+    contains trailing or leading quotes, enclose it with an extra pair of
+    quotes, for example <code><b>'"x"'</b></code>. Non-leading and
+    non-trailing quotes are interpreted as being part of the option value.
+
+    <p>The semantics of providing options in a file is equivalent to providing
+    the same set of options in the same order on the command line at the point
+    where the <code><b>--options-file</b></code> option is specified except
+    that the shell escaping and quoting is not required. Repeat this option to
+    specify more than one options file.</p></dd>
+  </dl>
+
+  <h1>DIAGNOSTICS</h1>
+
+  <p>If the input file is not a valid CLI definition, <code><b>cli</b></code>
+     will issue diagnostic messages to STDERR and exit with non-zero exit
+     code.</p>
+
+  <h1>BUGS</h1>
+
+  <p>Send bug reports to the
+     <a href="mailto:cli-users@codesynthesis.com">cli-users@codesynthesis.com</a> mailing list.</p>
+
+  </div>
+  <div id="footer">
+    Copyright &#169; 2009-2021 Code Synthesis Tools CC.
+
+    <div id="terms">
+      Permission is granted to copy, distribute and/or modify this
+      document under the terms of the
+      <a href="http://www.codesynthesis.com/licenses/mit.txt">MIT License</a>.
+    </div>
+  </div>
+</div>
+</body>
+</html>
