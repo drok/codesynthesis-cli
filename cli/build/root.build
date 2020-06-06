@@ -12,13 +12,10 @@
 # cli package configuration to point to its own binary (or a binary in another
 # build configuration if you want to play it safe).
 #
-# Note, though, that currently referring to the cli target in the project
-# itself ends up with the 'dependency cycle detected' error. In the future we
-# will fix that by using an ad hoc recipe instead of the cli module. But for
-# now you can workaround this issue by pointing to a binary in another
-# configuration.
-#
 config [path] config.cli
+
+define cli: file
+cli{*}: extension = cli
 
 cxx.std = latest
 
@@ -37,18 +34,6 @@ if ($cxx.class == 'msvc')
 
 cxx.poptions =+ "-I$out_root" "-I$src_root"
 
-# Load the cli module only if explicitly requested. This way a distribution
-# that includes pre-generated files can be built without installing cli. This
-# is also the reason why we need to explicitly spell out individual source
-# file prerequisites instead of using the cli.cxx{} group (it won't be there
-# unless the module is configured).
-#
-# @@ Replace with import when the parsing code regenerating is implemented
-#    via an ad hoc recipe.
-#
-if ($config.cli != [null] && $config.cli != false)
-  using cli
-
 # All exe{} in unit-tests/ are, well, tests. Also don't link whole archives
 # by default there.
 #
@@ -58,3 +43,9 @@ unit-tests/{libue libul}{*}: bin.whole = false
 # Specify the test target for cross-testing.
 #
 test.target = $cxx.target
+
+# Extract the copyright notice from the LICENSE file.
+#
+copyright = $process.run_regex(cat $src_root/LICENSE,    \
+                               'Copyright \(c\) (.+)\.', \
+                               '\1')
