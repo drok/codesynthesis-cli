@@ -9,7 +9,7 @@ import libs = libcutl%lib{cutl}
 #
 exe{cli}:
 {
-  export.metadata = 1
+  export.metadata = 1 cli
   cli.version  = $version
   cli.checksum = $version
 }
