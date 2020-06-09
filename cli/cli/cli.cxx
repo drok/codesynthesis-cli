@@ -43,6 +43,7 @@ main (int argc, char* argv[])
       //
       o << "# build2 buildfile cli" << endl
         << "export.metadata = 1 cli" << endl
+        << "cli.name = [string] cli" << endl
         << "cli.version = [string] '" << CLI_VERSION_FULL << '\'' << endl
         << "cli.checksum = [string] '" << CLI_VERSION_FULL << '\'' << endl;
 
