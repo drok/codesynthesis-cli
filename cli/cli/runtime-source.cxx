@@ -908,7 +908,7 @@ generate_runtime_source (context& ctx, bool complete)
   if (sp)
     os <<                                                                  endl
        << "xs = true;";
-  os << "}";
+  os <<   "}";
 
   if (gen_merge)
     os << "static void" << endl
@@ -917,7 +917,7 @@ generate_runtime_source (context& ctx, bool complete)
        <<   "b = a;"
        << "}";
 
-    os << "};";
+  os << "};";
 
   // parser<std::vector<X>>
   //
