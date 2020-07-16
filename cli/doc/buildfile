@@ -22,7 +22,7 @@ html2ps{*}: extension = html2ps
 if ($config.cli != [null] && $config.cli != false)
   import! [metadata] cli = cli%exe{cli}
 
-# Import the html2ps and ps2pdf14 programs only if present in the system. This
+# Import the html2ps and ps2pdf14 programs only if present on the system. This
 # way a distribution that includes pre-generated files can be built without
 # installing these programs.
 #
@@ -34,17 +34,16 @@ import? ps2pdf14 = ps2pdf14%exe{ps2pdf14}
 # Note that we include all the generated files into the distribution and don't
 # remove them when cleaning in src (so that clean results in a state identical
 # to distributed).
-#
 
-# Generate the manual files if the cli program is imported and handle
-# (install, distribute, etc) the pre-generated files otherwise, if present.
+# Generate the man pages if the cli program is available and handle (install,
+# distribute, etc) the pre-generated files otherwise, if present.
 #
 if ($cli != [null])
 {
   ./: {man1 xhtml}{cli}
 
-  options = -v project="CLI" -v version="$version.project_id" \
-            -v copyright="$copyright" --suppress-undocumented --stdout
+  man_options = -v project="CLI" -v version="$version.project_id" \
+                -v copyright="$copyright" --suppress-undocumented
 
   man1{cli}: $src_root/cli/cli{options}          \
              file{cli-prologue.1 cli-epilogue.1} \
@@ -53,17 +52,18 @@ if ($cli != [null])
     dist  = true
     clean = ($src_root != $out_root)
   }
-  % [diag=cli]
   {{
+    diag cli $>: ($<[0])
+
     # Note that the date change doesn't change the script semantics, thus the
     # variable is defined locally.
     #
     date +"%B %Y" | set date
 
-    $cli --generate-man -v date="$date" $options \
-         --man-prologue-file $path($<[1])        \
-         --man-epilogue-file $path($<[2])        \
-         $path($<[0]) >$path($>)
+    $cli --generate-man -v date="$date" $man_options \
+         --man-prologue-file $path($<[1])            \
+         --man-epilogue-file $path($<[2])            \
+         --stdout $path($<[0]) >$path($>)
   }}
 
   xhtml{cli}: $src_root/cli/cli{options}                  \
@@ -73,17 +73,19 @@ if ($cli != [null])
     dist  = true
     clean = ($src_root != $out_root)
   }
-  % [diag=cli]
   {{
-    $cli --generate-html $options          \
+    diag cli $>: ($<[0])
+    $cli --generate-html $man_options      \
          --html-prologue-file $path($<[1]) \
          --html-epilogue-file $path($<[2]) \
-         $path($<[0]) >$path($>)
+         --stdout $path($<[0]) >$path($>)
   }}
 }
 else
   ./: {man1 xhtml}{+cli} file{cli-prologue* cli-epilogue*}
 
+# @@ TODO: get rid of subdirectory.
+#
 guide/
 {
   ../: xhtml{index}
@@ -96,16 +98,16 @@ guide/
   {
     ../: ps{cli-guide}
 
-    ps{cli-guide}: html2ps{guide} xhtml{index} $html2ps
+    ps{cli-guide}: xhtml{index} html2ps{guide} $html2ps
     {
       options =
 
       dist  = true
       clean = ($src_root != $out_root)
     }
-    % [diag=html2ps]
     {{
-      $html2ps $options -f $path($<[0]) -o $path($>) $path($<[1])
+      diag html2ps ($<[0])
+      $html2ps $options -f $path($<[1]) -o $path($>) $path($<[0])
     }}
 
     if ($ps2pdf14 != [null])
@@ -119,8 +121,8 @@ guide/
         dist  = true
         clean = ($src_root != $out_root)
       }
-      % [diag=ps2pdf14]
       {{
+        diag ps2pdf14 ($<[0])
         $ps2pdf14 $options $path($<[0]) $path($>)
       }}
     }

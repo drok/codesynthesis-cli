@@ -27,7 +27,8 @@ libue{cli}: {hxx ixx txx cxx}{** -cli -version -options -**.test...} \
 
 hxx{version}: in{version} $src_root/manifest
 
-# Regenerate the options parsing code if the cli program is imported.
+# Provide the options parsing code generation recipe if the cli program is
+# available.
 #
 if ($cli != [null])
 {
@@ -38,8 +39,8 @@ if ($cli != [null])
               --generate-specifier --generate-modifier       \
               --suppress-undocumented --reserved-name stdout
 
-    # Include the generated cli files into the distribution and don't remove
-    # them when cleaning in src (so that clean results in a state identical to
+    # Include the generated files into the distribution and don't remove them
+    # when cleaning in src (so that clean results in a state identical to
     # distributed).
     #
     dist  = true
@@ -49,19 +50,9 @@ if ($cli != [null])
     # in case of a forwarded configuration.
     #
     backlink = overwrite
-
-    # @@ The headers are installed by default. Needs to be fixed in build2.
-    #    Another workaround is making options.cxx a primary ad hoc group
-    #    member.
-    #
-    install = false
   }
   {{
-    # @@ Change this to `diag cli ($<[0])` if/when it results with the same
-    #    diagnostics.
-    #
-    diag cli $directory($<[0])/cli{options}
-
+    diag cli ($<[0])
     $cli $options -o $out_base $path($<)
   }}
 }
