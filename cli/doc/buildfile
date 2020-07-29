@@ -53,7 +53,7 @@ if ($cli != [null])
     clean = ($src_root != $out_root)
   }
   {{
-    diag cli $>: ($<[0])
+    diag cli $> : ($<[0]) # @@ TMP
 
     # Note that the date change doesn't change the script semantics, thus the
     # variable is defined locally.
@@ -74,7 +74,7 @@ if ($cli != [null])
     clean = ($src_root != $out_root)
   }
   {{
-    diag cli $>: ($<[0])
+    diag cli $> : ($<[0]) # @@ TMP
     $cli --generate-html $man_options      \
          --html-prologue-file $path($<[1]) \
          --html-epilogue-file $path($<[2]) \
