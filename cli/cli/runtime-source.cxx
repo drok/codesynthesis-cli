@@ -946,14 +946,14 @@ generate_runtime_source (context& ctx, bool complete)
 
   os << "};";
 
-  // parser<std::set<X>>
+  // parser<std::set<X,C>>
   //
-  os << "template <typename X>" << endl
-     << "struct parser<std::set<X> >"
+  os << "template <typename X, typename C>" << endl
+     << "struct parser<std::set<X, C> >"
      << "{";
 
   os <<  "static void" << endl
-     <<  "parse (std::set<X>& c, " << (sp ? "bool& xs, " : "") << "scanner& s)"
+     <<  "parse (std::set<X, C>& c, " << (sp ? "bool& xs, " : "") << "scanner& s)"
      <<  "{"
      <<    "X x;";
   if (sp)
@@ -966,21 +966,21 @@ generate_runtime_source (context& ctx, bool complete)
 
   if (gen_merge)
     os << "static void" << endl
-       << "merge (std::set<X>& b, const std::set<X>& a)"
+       << "merge (std::set<X, C>& b, const std::set<X, C>& a)"
        << "{"
        <<   "b.insert (a.begin (), a.end ());"
        << "}";
 
   os << "};";
 
-  // parser<std::map<K,V>>
+  // parser<std::map<K,V,C>>
   //
-  os << "template <typename K, typename V>" << endl
-     << "struct parser<std::map<K, V> >"
+  os << "template <typename K, typename V, typename C>" << endl
+     << "struct parser<std::map<K, V, C> >"
      << "{";
 
   os <<   "static void" << endl
-     <<   "parse (std::map<K, V>& m, " << (sp ? "bool& xs, " : "") << "scanner& s)"
+     <<   "parse (std::map<K, V, C>& m, " << (sp ? "bool& xs, " : "") << "scanner& s)"
      <<   "{"
      <<     "const char* o (s.next ());"
      <<                                                                    endl
@@ -1025,11 +1025,11 @@ generate_runtime_source (context& ctx, bool complete)
 
   if (gen_merge)
     os << "static void" << endl
-       << "merge (std::map<K, V>& b, const std::map<K, V>& a)"
+       << "merge (std::map<K, V, C>& b, const std::map<K, V, C>& a)"
        << "{"
-       <<   "for (typename std::map<K, V>::const_iterator i (a.begin ()); " << endl
-       <<         "i != a.end (); "                                         << endl
-       <<         "++i)"                                                    << endl
+       <<   "for (typename std::map<K, V, C>::const_iterator i (a.begin ()); " << endl
+       <<         "i != a.end (); "                                            << endl
+       <<         "++i)"                                                       << endl
        <<     "b[i->first] = i->second;"
        << "}";
 
