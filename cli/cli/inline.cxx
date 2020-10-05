@@ -34,7 +34,7 @@ namespace
            << "}";
 
         os << inl << "void " << scope << "::" << endl
-           << name << "(const " << type << "& x)"
+           << name << " (const " << type << "& x)"
            << "{"
            << "this->" << emember (o) << " = x;"
            << "}";
@@ -52,7 +52,7 @@ namespace
 
         if (gen_modifier)
           os << inl << "void " << scope << "::" << endl
-             << spec << "(bool x)"
+             << spec << " (bool x)"
              << "{"
              << "this->" << especifier_member (o) << " = x;"
              << "}";
