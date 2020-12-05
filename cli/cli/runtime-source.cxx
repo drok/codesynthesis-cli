@@ -648,13 +648,28 @@ generate_runtime_source (context& ctx, bool complete)
          << endl
          <<     "if (oi->search_func != 0)"
          <<     "{"
-         <<       "std::string f (oi->search_func (s2.c_str (), oi->arg));"
+         <<       "string f (oi->search_func (s2.c_str (), oi->arg));"
          <<       "if (!f.empty ())" << endl
          <<         "load (f);"
          <<     "}"
          <<     "else" << endl
-         <<       "load (s2);"
+         <<     "{"
+         <<       "// If the path of the file being parsed is not simple and the" << endl
+         <<       "// path of the file that needs to be loaded is relative, then" << endl
+         <<       "// complete the latter using the former as a base." << endl
+         <<       "//" << endl
+         << "#ifndef _WIN32" << endl
+         <<       "string::size_type p (file.find_last_of ('/'));"
+         <<       "bool c (p != string::npos && s2[0] != '/');"
+         << "#else" << endl
+         <<       "string::size_type p (file.find_last_of (\"/\\\\\"));"
+         <<       "bool c (p != string::npos && s2[1] != ':');"
+         << "#endif" << endl
+         <<       "if (c)" << endl
+         <<         "s2.insert (0, file, 0, p + 1);"
          << endl
+         <<       "load (s2);"
+         <<     "}"
          <<     "continue;"
          <<   "}"
          <<   "a.value = s1;"

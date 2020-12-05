@@ -17,10 +17,7 @@ EOI
 -b 21
 EOI
 
-# @@ Give tests some meaningfull descriptions.
-#
-
-: 000
+: with-spaces
 :
 cat <<EOI >=test.ops;
 -a 	11
@@ -51,7 +48,7 @@ a
 b
 EOO
 
-: 001
+: empty
 :
 cat <<EOI >=test.ops;
 # Empty options file.
@@ -67,7 +64,7 @@ test.ops
 b
 EOO
 
-: 002
+: non-empty-empty
 :
 cat <<EOI >=test.ops;
 -a 11
@@ -98,7 +95,7 @@ a
 b
 EOO
 
-: 003
+: non-existent
 :
 $* -a 1 --file ../base.ops --file test.ops b >>EOO 2>>EOE
 -a
@@ -111,7 +108,7 @@ EOO
 unable to open file 'test.ops' or read failure
 EOE
 
-: 004
+: quoted
 :
 cat <<EOI >=test.ops;
 -a a"b"c
@@ -167,7 +164,7 @@ a'b
 "
 EOO
 
-: 005
+: unmatched-double-quote1
 :
 cat <<EOI >=test.ops;
 -a "
@@ -176,7 +173,7 @@ $* --file test.ops 2>>EOE
 unmatched quote in argument '"'
 EOE
 
-: 006
+: unmatched-double-quote2
 :
 cat <<EOI >=test.ops;
 -a "abc
@@ -185,7 +182,7 @@ $* --file test.ops 2>>EOE
 unmatched quote in argument '"abc'
 EOE
 
-: 007
+: unmatched-double-quote3
 :
 cat <<EOI >=test.ops;
 -a abc"
@@ -194,7 +191,7 @@ $* --file test.ops 2>>EOE
 unmatched quote in argument 'abc"'
 EOE
 
-: 008
+: unmatched-quote1
 :
 cat <<EOI >=test.ops;
 -a '
@@ -203,7 +200,7 @@ $* --file test.ops 2>>EOE
 unmatched quote in argument '''
 EOE
 
-: 009
+: unmatched-quote2
 :
 cat <<EOI >=test.ops;
 -a 'abc
@@ -212,7 +209,7 @@ $* --file test.ops 2>>EOE
 unmatched quote in argument ''abc'
 EOE
 
-: 010
+: unmatched-quote3
 :
 cat <<EOI >=test.ops;
 -a abc'
@@ -221,7 +218,7 @@ $* --file test.ops 2>>EOE
 unmatched quote in argument 'abc''
 EOE
 
-: 011
+: unmatched-quote4
 :
 cat <<EOI >=test.ops;
 -a "abc'
@@ -230,7 +227,7 @@ $* --file test.ops 2>>EOE
 unmatched quote in argument '"abc''
 EOE
 
-: 012
+: unmatched-quote5
 :
 cat <<EOI >=test.ops;
 -a 'abc"
@@ -284,3 +281,58 @@ $* ---- test.ops >>EOO
 -a
 123
 EOO
+
+: relativeness
+:
+{
+  +cat <<EOI >=test1.ops
+    -a 11
+    --file test/test.ops
+    EOI
+
+  +cat <<"EOI" >=test2.ops
+    -a 11
+    --file $~/test/test.ops
+    EOI
+
+  +mkdir test
+  +cat <<EOI >=test/test.ops
+    -b 22
+    EOI
+
+  : relative
+  :
+  $* --file ../test1.ops >>EOO
+    -a
+    11
+    -b
+    22
+    EOO
+
+  : absolute
+  :
+  $* --file ../test2.ops >>EOO
+    -a
+    11
+    -b
+    22
+    EOO
+
+  : relative-against-absolute
+  :
+  $* --file $~/../test1.ops >>EOO
+    -a
+    11
+    -b
+    22
+    EOO
+
+  : relative-against-normalized
+  :
+  $* --file $path.normalize($~/../test1).ops >>EOO
+    -a
+    11
+    -b
+    22
+    EOO
+}
