@@ -268,7 +268,7 @@ build2_metadata ()
 }
 
 inline void options::
-build2_metadata(const std::uint64_t& x)
+build2_metadata (const std::uint64_t& x)
 {
   this->build2_metadata_ = x;
 }
@@ -280,7 +280,7 @@ build2_metadata_specified () const
 }
 
 inline void options::
-build2_metadata_specified(bool x)
+build2_metadata_specified (bool x)
 {
   this->build2_metadata_specified_ = x;
 }
@@ -298,7 +298,7 @@ help ()
 }
 
 inline void options::
-help(const bool& x)
+help (const bool& x)
 {
   this->help_ = x;
 }
@@ -316,7 +316,7 @@ version ()
 }
 
 inline void options::
-version(const bool& x)
+version (const bool& x)
 {
   this->version_ = x;
 }
@@ -334,7 +334,7 @@ include_path ()
 }
 
 inline void options::
-include_path(const std::vector<std::string>& x)
+include_path (const std::vector<std::string>& x)
 {
   this->include_path_ = x;
 }
@@ -346,7 +346,7 @@ include_path_specified () const
 }
 
 inline void options::
-include_path_specified(bool x)
+include_path_specified (bool x)
 {
   this->include_path_specified_ = x;
 }
@@ -364,7 +364,7 @@ output_dir ()
 }
 
 inline void options::
-output_dir(const std::string& x)
+output_dir (const std::string& x)
 {
   this->output_dir_ = x;
 }
@@ -376,7 +376,7 @@ output_dir_specified () const
 }
 
 inline void options::
-output_dir_specified(bool x)
+output_dir_specified (bool x)
 {
   this->output_dir_specified_ = x;
 }
@@ -394,7 +394,7 @@ std ()
 }
 
 inline void options::
-std(const cxx_version& x)
+std (const cxx_version& x)
 {
   this->std_ = x;
 }
@@ -406,7 +406,7 @@ std_specified () const
 }
 
 inline void options::
-std_specified(bool x)
+std_specified (bool x)
 {
   this->std_specified_ = x;
 }
@@ -424,7 +424,7 @@ generate_modifier ()
 }
 
 inline void options::
-generate_modifier(const bool& x)
+generate_modifier (const bool& x)
 {
   this->generate_modifier_ = x;
 }
@@ -442,7 +442,7 @@ generate_specifier ()
 }
 
 inline void options::
-generate_specifier(const bool& x)
+generate_specifier (const bool& x)
 {
   this->generate_specifier_ = x;
 }
@@ -460,7 +460,7 @@ generate_parse ()
 }
 
 inline void options::
-generate_parse(const bool& x)
+generate_parse (const bool& x)
 {
   this->generate_parse_ = x;
 }
@@ -478,7 +478,7 @@ generate_merge ()
 }
 
 inline void options::
-generate_merge(const bool& x)
+generate_merge (const bool& x)
 {
   this->generate_merge_ = x;
 }
@@ -496,7 +496,7 @@ generate_description ()
 }
 
 inline void options::
-generate_description(const bool& x)
+generate_description (const bool& x)
 {
   this->generate_description_ = x;
 }
@@ -514,7 +514,7 @@ generate_file_scanner ()
 }
 
 inline void options::
-generate_file_scanner(const bool& x)
+generate_file_scanner (const bool& x)
 {
   this->generate_file_scanner_ = x;
 }
@@ -532,7 +532,7 @@ generate_vector_scanner ()
 }
 
 inline void options::
-generate_vector_scanner(const bool& x)
+generate_vector_scanner (const bool& x)
 {
   this->generate_vector_scanner_ = x;
 }
@@ -550,7 +550,7 @@ generate_group_scanner ()
 }
 
 inline void options::
-generate_group_scanner(const bool& x)
+generate_group_scanner (const bool& x)
 {
   this->generate_group_scanner_ = x;
 }
@@ -568,7 +568,7 @@ suppress_inline ()
 }
 
 inline void options::
-suppress_inline(const bool& x)
+suppress_inline (const bool& x)
 {
   this->suppress_inline_ = x;
 }
@@ -586,7 +586,7 @@ suppress_cli ()
 }
 
 inline void options::
-suppress_cli(const bool& x)
+suppress_cli (const bool& x)
 {
   this->suppress_cli_ = x;
 }
@@ -604,7 +604,7 @@ cli_namespace ()
 }
 
 inline void options::
-cli_namespace(const std::string& x)
+cli_namespace (const std::string& x)
 {
   this->cli_namespace_ = x;
 }
@@ -616,7 +616,7 @@ cli_namespace_specified () const
 }
 
 inline void options::
-cli_namespace_specified(bool x)
+cli_namespace_specified (bool x)
 {
   this->cli_namespace_specified_ = x;
 }
@@ -634,7 +634,7 @@ ostream_type ()
 }
 
 inline void options::
-ostream_type(const std::string& x)
+ostream_type (const std::string& x)
 {
   this->ostream_type_ = x;
 }
@@ -646,7 +646,7 @@ ostream_type_specified () const
 }
 
 inline void options::
-ostream_type_specified(bool x)
+ostream_type_specified (bool x)
 {
   this->ostream_type_specified_ = x;
 }
@@ -664,7 +664,7 @@ generate_cxx ()
 }
 
 inline void options::
-generate_cxx(const bool& x)
+generate_cxx (const bool& x)
 {
   this->generate_cxx_ = x;
 }
@@ -682,7 +682,7 @@ generate_man ()
 }
 
 inline void options::
-generate_man(const bool& x)
+generate_man (const bool& x)
 {
   this->generate_man_ = x;
 }
@@ -700,7 +700,7 @@ generate_html ()
 }
 
 inline void options::
-generate_html(const bool& x)
+generate_html (const bool& x)
 {
   this->generate_html_ = x;
 }
@@ -718,7 +718,7 @@ generate_txt ()
 }
 
 inline void options::
-generate_txt(const bool& x)
+generate_txt (const bool& x)
 {
   this->generate_txt_ = x;
 }
@@ -736,7 +736,7 @@ stdout_ ()
 }
 
 inline void options::
-stdout_(const bool& x)
+stdout_ (const bool& x)
 {
   this->stdout__ = x;
 }
@@ -754,7 +754,7 @@ suppress_undocumented ()
 }
 
 inline void options::
-suppress_undocumented(const bool& x)
+suppress_undocumented (const bool& x)
 {
   this->suppress_undocumented_ = x;
 }
@@ -772,7 +772,7 @@ suppress_usage ()
 }
 
 inline void options::
-suppress_usage(const bool& x)
+suppress_usage (const bool& x)
 {
   this->suppress_usage_ = x;
 }
@@ -790,7 +790,7 @@ long_usage ()
 }
 
 inline void options::
-long_usage(const bool& x)
+long_usage (const bool& x)
 {
   this->long_usage_ = x;
 }
@@ -808,7 +808,7 @@ short_usage ()
 }
 
 inline void options::
-short_usage(const bool& x)
+short_usage (const bool& x)
 {
   this->short_usage_ = x;
 }
@@ -826,7 +826,7 @@ page_usage ()
 }
 
 inline void options::
-page_usage(const std::string& x)
+page_usage (const std::string& x)
 {
   this->page_usage_ = x;
 }
@@ -838,7 +838,7 @@ page_usage_specified () const
 }
 
 inline void options::
-page_usage_specified(bool x)
+page_usage_specified (bool x)
 {
   this->page_usage_specified_ = x;
 }
@@ -856,7 +856,7 @@ option_length ()
 }
 
 inline void options::
-option_length(const std::size_t& x)
+option_length (const std::size_t& x)
 {
   this->option_length_ = x;
 }
@@ -868,7 +868,7 @@ option_length_specified () const
 }
 
 inline void options::
-option_length_specified(bool x)
+option_length_specified (bool x)
 {
   this->option_length_specified_ = x;
 }
@@ -886,7 +886,7 @@ ansi_color ()
 }
 
 inline void options::
-ansi_color(const bool& x)
+ansi_color (const bool& x)
 {
   this->ansi_color_ = x;
 }
@@ -904,7 +904,7 @@ exclude_base ()
 }
 
 inline void options::
-exclude_base(const bool& x)
+exclude_base (const bool& x)
 {
   this->exclude_base_ = x;
 }
@@ -922,7 +922,7 @@ include_base_last ()
 }
 
 inline void options::
-include_base_last(const bool& x)
+include_base_last (const bool& x)
 {
   this->include_base_last_ = x;
 }
@@ -940,7 +940,7 @@ class_doc ()
 }
 
 inline void options::
-class_doc(const std::map<std::string, std::string>& x)
+class_doc (const std::map<std::string, std::string>& x)
 {
   this->class_doc_ = x;
 }
@@ -952,7 +952,7 @@ class_doc_specified () const
 }
 
 inline void options::
-class_doc_specified(bool x)
+class_doc_specified (bool x)
 {
   this->class_doc_specified_ = x;
 }
@@ -970,7 +970,7 @@ class_ ()
 }
 
 inline void options::
-class_(const std::vector<std::string>& x)
+class_ (const std::vector<std::string>& x)
 {
   this->class__ = x;
 }
@@ -982,7 +982,7 @@ class__specified () const
 }
 
 inline void options::
-class__specified(bool x)
+class__specified (bool x)
 {
   this->class__specified_ = x;
 }
@@ -1000,7 +1000,7 @@ docvar ()
 }
 
 inline void options::
-docvar(const std::map<std::string, std::string>& x)
+docvar (const std::map<std::string, std::string>& x)
 {
   this->docvar_ = x;
 }
@@ -1012,7 +1012,7 @@ docvar_specified () const
 }
 
 inline void options::
-docvar_specified(bool x)
+docvar_specified (bool x)
 {
   this->docvar_specified_ = x;
 }
@@ -1030,7 +1030,7 @@ link_regex ()
 }
 
 inline void options::
-link_regex(const std::vector<std::string>& x)
+link_regex (const std::vector<std::string>& x)
 {
   this->link_regex_ = x;
 }
@@ -1042,7 +1042,7 @@ link_regex_specified () const
 }
 
 inline void options::
-link_regex_specified(bool x)
+link_regex_specified (bool x)
 {
   this->link_regex_specified_ = x;
 }
@@ -1060,7 +1060,7 @@ link_regex_trace ()
 }
 
 inline void options::
-link_regex_trace(const bool& x)
+link_regex_trace (const bool& x)
 {
   this->link_regex_trace_ = x;
 }
@@ -1078,7 +1078,7 @@ html_heading_map ()
 }
 
 inline void options::
-html_heading_map(const std::map<char, std::string>& x)
+html_heading_map (const std::map<char, std::string>& x)
 {
   this->html_heading_map_ = x;
 }
@@ -1090,7 +1090,7 @@ html_heading_map_specified () const
 }
 
 inline void options::
-html_heading_map_specified(bool x)
+html_heading_map_specified (bool x)
 {
   this->html_heading_map_specified_ = x;
 }
@@ -1108,7 +1108,7 @@ omit_link_check ()
 }
 
 inline void options::
-omit_link_check(const bool& x)
+omit_link_check (const bool& x)
 {
   this->omit_link_check_ = x;
 }
@@ -1126,7 +1126,7 @@ hxx_prologue ()
 }
 
 inline void options::
-hxx_prologue(const std::vector<std::string>& x)
+hxx_prologue (const std::vector<std::string>& x)
 {
   this->hxx_prologue_ = x;
 }
@@ -1138,7 +1138,7 @@ hxx_prologue_specified () const
 }
 
 inline void options::
-hxx_prologue_specified(bool x)
+hxx_prologue_specified (bool x)
 {
   this->hxx_prologue_specified_ = x;
 }
@@ -1156,7 +1156,7 @@ ixx_prologue ()
 }
 
 inline void options::
-ixx_prologue(const std::vector<std::string>& x)
+ixx_prologue (const std::vector<std::string>& x)
 {
   this->ixx_prologue_ = x;
 }
@@ -1168,7 +1168,7 @@ ixx_prologue_specified () const
 }
 
 inline void options::
-ixx_prologue_specified(bool x)
+ixx_prologue_specified (bool x)
 {
   this->ixx_prologue_specified_ = x;
 }
@@ -1186,7 +1186,7 @@ cxx_prologue ()
 }
 
 inline void options::
-cxx_prologue(const std::vector<std::string>& x)
+cxx_prologue (const std::vector<std::string>& x)
 {
   this->cxx_prologue_ = x;
 }
@@ -1198,7 +1198,7 @@ cxx_prologue_specified () const
 }
 
 inline void options::
-cxx_prologue_specified(bool x)
+cxx_prologue_specified (bool x)
 {
   this->cxx_prologue_specified_ = x;
 }
@@ -1216,7 +1216,7 @@ man_prologue ()
 }
 
 inline void options::
-man_prologue(const std::vector<std::string>& x)
+man_prologue (const std::vector<std::string>& x)
 {
   this->man_prologue_ = x;
 }
@@ -1228,7 +1228,7 @@ man_prologue_specified () const
 }
 
 inline void options::
-man_prologue_specified(bool x)
+man_prologue_specified (bool x)
 {
   this->man_prologue_specified_ = x;
 }
@@ -1246,7 +1246,7 @@ html_prologue ()
 }
 
 inline void options::
-html_prologue(const std::vector<std::string>& x)
+html_prologue (const std::vector<std::string>& x)
 {
   this->html_prologue_ = x;
 }
@@ -1258,7 +1258,7 @@ html_prologue_specified () const
 }
 
 inline void options::
-html_prologue_specified(bool x)
+html_prologue_specified (bool x)
 {
   this->html_prologue_specified_ = x;
 }
@@ -1276,7 +1276,7 @@ txt_prologue ()
 }
 
 inline void options::
-txt_prologue(const std::vector<std::string>& x)
+txt_prologue (const std::vector<std::string>& x)
 {
   this->txt_prologue_ = x;
 }
@@ -1288,7 +1288,7 @@ txt_prologue_specified () const
 }
 
 inline void options::
-txt_prologue_specified(bool x)
+txt_prologue_specified (bool x)
 {
   this->txt_prologue_specified_ = x;
 }
@@ -1306,7 +1306,7 @@ hxx_epilogue ()
 }
 
 inline void options::
-hxx_epilogue(const std::vector<std::string>& x)
+hxx_epilogue (const std::vector<std::string>& x)
 {
   this->hxx_epilogue_ = x;
 }
@@ -1318,7 +1318,7 @@ hxx_epilogue_specified () const
 }
 
 inline void options::
-hxx_epilogue_specified(bool x)
+hxx_epilogue_specified (bool x)
 {
   this->hxx_epilogue_specified_ = x;
 }
@@ -1336,7 +1336,7 @@ ixx_epilogue ()
 }
 
 inline void options::
-ixx_epilogue(const std::vector<std::string>& x)
+ixx_epilogue (const std::vector<std::string>& x)
 {
   this->ixx_epilogue_ = x;
 }
@@ -1348,7 +1348,7 @@ ixx_epilogue_specified () const
 }
 
 inline void options::
-ixx_epilogue_specified(bool x)
+ixx_epilogue_specified (bool x)
 {
   this->ixx_epilogue_specified_ = x;
 }
@@ -1366,7 +1366,7 @@ cxx_epilogue ()
 }
 
 inline void options::
-cxx_epilogue(const std::vector<std::string>& x)
+cxx_epilogue (const std::vector<std::string>& x)
 {
   this->cxx_epilogue_ = x;
 }
@@ -1378,7 +1378,7 @@ cxx_epilogue_specified () const
 }
 
 inline void options::
-cxx_epilogue_specified(bool x)
+cxx_epilogue_specified (bool x)
 {
   this->cxx_epilogue_specified_ = x;
 }
@@ -1396,7 +1396,7 @@ man_epilogue ()
 }
 
 inline void options::
-man_epilogue(const std::vector<std::string>& x)
+man_epilogue (const std::vector<std::string>& x)
 {
   this->man_epilogue_ = x;
 }
@@ -1408,7 +1408,7 @@ man_epilogue_specified () const
 }
 
 inline void options::
-man_epilogue_specified(bool x)
+man_epilogue_specified (bool x)
 {
   this->man_epilogue_specified_ = x;
 }
@@ -1426,7 +1426,7 @@ html_epilogue ()
 }
 
 inline void options::
-html_epilogue(const std::vector<std::string>& x)
+html_epilogue (const std::vector<std::string>& x)
 {
   this->html_epilogue_ = x;
 }
@@ -1438,7 +1438,7 @@ html_epilogue_specified () const
 }
 
 inline void options::
-html_epilogue_specified(bool x)
+html_epilogue_specified (bool x)
 {
   this->html_epilogue_specified_ = x;
 }
@@ -1456,7 +1456,7 @@ txt_epilogue ()
 }
 
 inline void options::
-txt_epilogue(const std::vector<std::string>& x)
+txt_epilogue (const std::vector<std::string>& x)
 {
   this->txt_epilogue_ = x;
 }
@@ -1468,7 +1468,7 @@ txt_epilogue_specified () const
 }
 
 inline void options::
-txt_epilogue_specified(bool x)
+txt_epilogue_specified (bool x)
 {
   this->txt_epilogue_specified_ = x;
 }
@@ -1486,7 +1486,7 @@ hxx_prologue_file ()
 }
 
 inline void options::
-hxx_prologue_file(const std::string& x)
+hxx_prologue_file (const std::string& x)
 {
   this->hxx_prologue_file_ = x;
 }
@@ -1498,7 +1498,7 @@ hxx_prologue_file_specified () const
 }
 
 inline void options::
-hxx_prologue_file_specified(bool x)
+hxx_prologue_file_specified (bool x)
 {
   this->hxx_prologue_file_specified_ = x;
 }
@@ -1516,7 +1516,7 @@ ixx_prologue_file ()
 }
 
 inline void options::
-ixx_prologue_file(const std::string& x)
+ixx_prologue_file (const std::string& x)
 {
   this->ixx_prologue_file_ = x;
 }
@@ -1528,7 +1528,7 @@ ixx_prologue_file_specified () const
 }
 
 inline void options::
-ixx_prologue_file_specified(bool x)
+ixx_prologue_file_specified (bool x)
 {
   this->ixx_prologue_file_specified_ = x;
 }
@@ -1546,7 +1546,7 @@ cxx_prologue_file ()
 }
 
 inline void options::
-cxx_prologue_file(const std::string& x)
+cxx_prologue_file (const std::string& x)
 {
   this->cxx_prologue_file_ = x;
 }
@@ -1558,7 +1558,7 @@ cxx_prologue_file_specified () const
 }
 
 inline void options::
-cxx_prologue_file_specified(bool x)
+cxx_prologue_file_specified (bool x)
 {
   this->cxx_prologue_file_specified_ = x;
 }
@@ -1576,7 +1576,7 @@ man_prologue_file ()
 }
 
 inline void options::
-man_prologue_file(const std::string& x)
+man_prologue_file (const std::string& x)
 {
   this->man_prologue_file_ = x;
 }
@@ -1588,7 +1588,7 @@ man_prologue_file_specified () const
 }
 
 inline void options::
-man_prologue_file_specified(bool x)
+man_prologue_file_specified (bool x)
 {
   this->man_prologue_file_specified_ = x;
 }
@@ -1606,7 +1606,7 @@ html_prologue_file ()
 }
 
 inline void options::
-html_prologue_file(const std::string& x)
+html_prologue_file (const std::string& x)
 {
   this->html_prologue_file_ = x;
 }
@@ -1618,7 +1618,7 @@ html_prologue_file_specified () const
 }
 
 inline void options::
-html_prologue_file_specified(bool x)
+html_prologue_file_specified (bool x)
 {
   this->html_prologue_file_specified_ = x;
 }
@@ -1636,7 +1636,7 @@ txt_prologue_file ()
 }
 
 inline void options::
-txt_prologue_file(const std::string& x)
+txt_prologue_file (const std::string& x)
 {
   this->txt_prologue_file_ = x;
 }
@@ -1648,7 +1648,7 @@ txt_prologue_file_specified () const
 }
 
 inline void options::
-txt_prologue_file_specified(bool x)
+txt_prologue_file_specified (bool x)
 {
   this->txt_prologue_file_specified_ = x;
 }
@@ -1666,7 +1666,7 @@ hxx_epilogue_file ()
 }
 
 inline void options::
-hxx_epilogue_file(const std::string& x)
+hxx_epilogue_file (const std::string& x)
 {
   this->hxx_epilogue_file_ = x;
 }
@@ -1678,7 +1678,7 @@ hxx_epilogue_file_specified () const
 }
 
 inline void options::
-hxx_epilogue_file_specified(bool x)
+hxx_epilogue_file_specified (bool x)
 {
   this->hxx_epilogue_file_specified_ = x;
 }
@@ -1696,7 +1696,7 @@ ixx_epilogue_file ()
 }
 
 inline void options::
-ixx_epilogue_file(const std::string& x)
+ixx_epilogue_file (const std::string& x)
 {
   this->ixx_epilogue_file_ = x;
 }
@@ -1708,7 +1708,7 @@ ixx_epilogue_file_specified () const
 }
 
 inline void options::
-ixx_epilogue_file_specified(bool x)
+ixx_epilogue_file_specified (bool x)
 {
   this->ixx_epilogue_file_specified_ = x;
 }
@@ -1726,7 +1726,7 @@ cxx_epilogue_file ()
 }
 
 inline void options::
-cxx_epilogue_file(const std::string& x)
+cxx_epilogue_file (const std::string& x)
 {
   this->cxx_epilogue_file_ = x;
 }
@@ -1738,7 +1738,7 @@ cxx_epilogue_file_specified () const
 }
 
 inline void options::
-cxx_epilogue_file_specified(bool x)
+cxx_epilogue_file_specified (bool x)
 {
   this->cxx_epilogue_file_specified_ = x;
 }
@@ -1756,7 +1756,7 @@ man_epilogue_file ()
 }
 
 inline void options::
-man_epilogue_file(const std::string& x)
+man_epilogue_file (const std::string& x)
 {
   this->man_epilogue_file_ = x;
 }
@@ -1768,7 +1768,7 @@ man_epilogue_file_specified () const
 }
 
 inline void options::
-man_epilogue_file_specified(bool x)
+man_epilogue_file_specified (bool x)
 {
   this->man_epilogue_file_specified_ = x;
 }
@@ -1786,7 +1786,7 @@ html_epilogue_file ()
 }
 
 inline void options::
-html_epilogue_file(const std::string& x)
+html_epilogue_file (const std::string& x)
 {
   this->html_epilogue_file_ = x;
 }
@@ -1798,7 +1798,7 @@ html_epilogue_file_specified () const
 }
 
 inline void options::
-html_epilogue_file_specified(bool x)
+html_epilogue_file_specified (bool x)
 {
   this->html_epilogue_file_specified_ = x;
 }
@@ -1816,7 +1816,7 @@ txt_epilogue_file ()
 }
 
 inline void options::
-txt_epilogue_file(const std::string& x)
+txt_epilogue_file (const std::string& x)
 {
   this->txt_epilogue_file_ = x;
 }
@@ -1828,7 +1828,7 @@ txt_epilogue_file_specified () const
 }
 
 inline void options::
-txt_epilogue_file_specified(bool x)
+txt_epilogue_file_specified (bool x)
 {
   this->txt_epilogue_file_specified_ = x;
 }
@@ -1846,7 +1846,7 @@ output_prefix ()
 }
 
 inline void options::
-output_prefix(const std::string& x)
+output_prefix (const std::string& x)
 {
   this->output_prefix_ = x;
 }
@@ -1858,7 +1858,7 @@ output_prefix_specified () const
 }
 
 inline void options::
-output_prefix_specified(bool x)
+output_prefix_specified (bool x)
 {
   this->output_prefix_specified_ = x;
 }
@@ -1876,7 +1876,7 @@ output_suffix ()
 }
 
 inline void options::
-output_suffix(const std::string& x)
+output_suffix (const std::string& x)
 {
   this->output_suffix_ = x;
 }
@@ -1888,7 +1888,7 @@ output_suffix_specified () const
 }
 
 inline void options::
-output_suffix_specified(bool x)
+output_suffix_specified (bool x)
 {
   this->output_suffix_specified_ = x;
 }
@@ -1906,7 +1906,7 @@ hxx_suffix ()
 }
 
 inline void options::
-hxx_suffix(const std::string& x)
+hxx_suffix (const std::string& x)
 {
   this->hxx_suffix_ = x;
 }
@@ -1918,7 +1918,7 @@ hxx_suffix_specified () const
 }
 
 inline void options::
-hxx_suffix_specified(bool x)
+hxx_suffix_specified (bool x)
 {
   this->hxx_suffix_specified_ = x;
 }
@@ -1936,7 +1936,7 @@ ixx_suffix ()
 }
 
 inline void options::
-ixx_suffix(const std::string& x)
+ixx_suffix (const std::string& x)
 {
   this->ixx_suffix_ = x;
 }
@@ -1948,7 +1948,7 @@ ixx_suffix_specified () const
 }
 
 inline void options::
-ixx_suffix_specified(bool x)
+ixx_suffix_specified (bool x)
 {
   this->ixx_suffix_specified_ = x;
 }
@@ -1966,7 +1966,7 @@ cxx_suffix ()
 }
 
 inline void options::
-cxx_suffix(const std::string& x)
+cxx_suffix (const std::string& x)
 {
   this->cxx_suffix_ = x;
 }
@@ -1978,7 +1978,7 @@ cxx_suffix_specified () const
 }
 
 inline void options::
-cxx_suffix_specified(bool x)
+cxx_suffix_specified (bool x)
 {
   this->cxx_suffix_specified_ = x;
 }
@@ -1996,7 +1996,7 @@ man_suffix ()
 }
 
 inline void options::
-man_suffix(const std::string& x)
+man_suffix (const std::string& x)
 {
   this->man_suffix_ = x;
 }
@@ -2008,7 +2008,7 @@ man_suffix_specified () const
 }
 
 inline void options::
-man_suffix_specified(bool x)
+man_suffix_specified (bool x)
 {
   this->man_suffix_specified_ = x;
 }
@@ -2026,7 +2026,7 @@ html_suffix ()
 }
 
 inline void options::
-html_suffix(const std::string& x)
+html_suffix (const std::string& x)
 {
   this->html_suffix_ = x;
 }
@@ -2038,7 +2038,7 @@ html_suffix_specified () const
 }
 
 inline void options::
-html_suffix_specified(bool x)
+html_suffix_specified (bool x)
 {
   this->html_suffix_specified_ = x;
 }
@@ -2056,7 +2056,7 @@ txt_suffix ()
 }
 
 inline void options::
-txt_suffix(const std::string& x)
+txt_suffix (const std::string& x)
 {
   this->txt_suffix_ = x;
 }
@@ -2068,7 +2068,7 @@ txt_suffix_specified () const
 }
 
 inline void options::
-txt_suffix_specified(bool x)
+txt_suffix_specified (bool x)
 {
   this->txt_suffix_specified_ = x;
 }
@@ -2086,7 +2086,7 @@ option_prefix ()
 }
 
 inline void options::
-option_prefix(const std::string& x)
+option_prefix (const std::string& x)
 {
   this->option_prefix_ = x;
 }
@@ -2098,7 +2098,7 @@ option_prefix_specified () const
 }
 
 inline void options::
-option_prefix_specified(bool x)
+option_prefix_specified (bool x)
 {
   this->option_prefix_specified_ = x;
 }
@@ -2116,7 +2116,7 @@ option_separator ()
 }
 
 inline void options::
-option_separator(const std::string& x)
+option_separator (const std::string& x)
 {
   this->option_separator_ = x;
 }
@@ -2128,7 +2128,7 @@ option_separator_specified () const
 }
 
 inline void options::
-option_separator_specified(bool x)
+option_separator_specified (bool x)
 {
   this->option_separator_specified_ = x;
 }
@@ -2146,7 +2146,7 @@ keep_separator ()
 }
 
 inline void options::
-keep_separator(const bool& x)
+keep_separator (const bool& x)
 {
   this->keep_separator_ = x;
 }
@@ -2164,7 +2164,7 @@ no_combined_flags ()
 }
 
 inline void options::
-no_combined_flags(const bool& x)
+no_combined_flags (const bool& x)
 {
   this->no_combined_flags_ = x;
 }
@@ -2182,7 +2182,7 @@ no_combined_values ()
 }
 
 inline void options::
-no_combined_values(const bool& x)
+no_combined_values (const bool& x)
 {
   this->no_combined_values_ = x;
 }
@@ -2200,7 +2200,7 @@ include_with_brackets ()
 }
 
 inline void options::
-include_with_brackets(const bool& x)
+include_with_brackets (const bool& x)
 {
   this->include_with_brackets_ = x;
 }
@@ -2218,7 +2218,7 @@ include_prefix ()
 }
 
 inline void options::
-include_prefix(const std::string& x)
+include_prefix (const std::string& x)
 {
   this->include_prefix_ = x;
 }
@@ -2230,7 +2230,7 @@ include_prefix_specified () const
 }
 
 inline void options::
-include_prefix_specified(bool x)
+include_prefix_specified (bool x)
 {
   this->include_prefix_specified_ = x;
 }
@@ -2248,7 +2248,7 @@ guard_prefix ()
 }
 
 inline void options::
-guard_prefix(const std::string& x)
+guard_prefix (const std::string& x)
 {
   this->guard_prefix_ = x;
 }
@@ -2260,7 +2260,7 @@ guard_prefix_specified () const
 }
 
 inline void options::
-guard_prefix_specified(bool x)
+guard_prefix_specified (bool x)
 {
   this->guard_prefix_specified_ = x;
 }
@@ -2278,7 +2278,7 @@ reserved_name ()
 }
 
 inline void options::
-reserved_name(const std::map<std::string, std::string>& x)
+reserved_name (const std::map<std::string, std::string>& x)
 {
   this->reserved_name_ = x;
 }
@@ -2290,7 +2290,7 @@ reserved_name_specified () const
 }
 
 inline void options::
-reserved_name_specified(bool x)
+reserved_name_specified (bool x)
 {
   this->reserved_name_specified_ = x;
 }
@@ -2308,7 +2308,7 @@ options_file ()
 }
 
 inline void options::
-options_file(const std::string& x)
+options_file (const std::string& x)
 {
   this->options_file_ = x;
 }
@@ -2320,7 +2320,7 @@ options_file_specified () const
 }
 
 inline void options::
-options_file_specified(bool x)
+options_file_specified (bool x)
 {
   this->options_file_specified_ = x;
 }
