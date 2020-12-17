@@ -2,7 +2,7 @@
 // author    : Boris Kolpackov <boris@codesynthesis.com>
 // license   : MIT; see accompanying LICENSE file
 
-#include <cutl/compiler/type-info.hxx>
+#include <libcutl/compiler/type-info.hxx>
 
 #include <cli/semantics/elements.hxx>
 

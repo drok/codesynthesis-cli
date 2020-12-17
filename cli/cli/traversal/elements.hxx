@@ -5,7 +5,7 @@
 #ifndef CLI_TRAVERSAL_ELEMENTS_HXX
 #define CLI_TRAVERSAL_ELEMENTS_HXX
 
-#include <cutl/compiler/traversal.hxx>
+#include <libcutl/compiler/traversal.hxx>
 
 #include <cli/semantics/elements.hxx>
 

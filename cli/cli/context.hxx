@@ -12,9 +12,9 @@
 #include <ostream>
 #include <cstddef> // std::size_t
 
-#include <cutl/re.hxx>
-#include <cutl/shared-ptr.hxx>
-#include <cutl/fs/path.hxx>
+#include <libcutl/re.hxx>
+#include <libcutl/shared-ptr.hxx>
+#include <libcutl/fs/path.hxx>
 
 #include <cli/options.hxx>
 #include <cli/semantics.hxx>

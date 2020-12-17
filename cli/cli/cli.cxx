@@ -8,7 +8,7 @@
 #include <fstream>
 #include <iostream>
 
-#include <cutl/compiler/code-stream.hxx>
+#include <libcutl/compiler/code-stream.hxx>
 
 #include <cli/semantics/doc.hxx>
 

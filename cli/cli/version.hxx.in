@@ -38,7 +38,7 @@
 
 #define CLI_VERSION_FULL  "$cli.version$"
 
-#include <cutl/version.hxx>
+#include <libcutl/version.hxx>
 
 $libcutl.check(LIBCUTL_VERSION, LIBCUTL_SNAPSHOT)$
 

@@ -7,10 +7,10 @@
 #include <fstream>
 #include <iostream>
 
-#include <cutl/fs/auto-remove.hxx>
+#include <libcutl/fs/auto-remove.hxx>
 
-#include <cutl/compiler/code-stream.hxx>
-#include <cutl/compiler/cxx-indenter.hxx>
+#include <libcutl/compiler/code-stream.hxx>
+#include <libcutl/compiler/cxx-indenter.hxx>
 
 #include <cli/header.hxx>
 #include <cli/inline.hxx>
