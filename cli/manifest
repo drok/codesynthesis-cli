@@ -9,7 +9,7 @@ description-file: README
 changes-file: NEWS
 url: https://www.codesynthesis.com/projects/cli/
 doc-url: https://www.codesynthesis.com/projects/cli/doc/guide/
-src-url: https://git.codesynthesis.com/cgit/cli/cli/tree/cli
+src-url: https://git.codesynthesis.com/cgit/cli/cli/tree/cli/
 email: cli-users@codesynthesis.com ; Mailing list
 build-warning-email: builds@codesynthesis.com
 builds: all

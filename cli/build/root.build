@@ -49,12 +49,6 @@ cxx.poptions =+ "-I$out_root" "-I$src_root"
 if ($config.cli != [null] && $config.cli != false)
   using cli
 
-# All exe{} in unit-tests/ are, well, tests. Also don't link whole archives
-# by default there.
-#
-unit-tests/exe{*}: test = true
-unit-tests/{libue libul}{*}: bin.whole = false
-
 # Specify the test target for cross-testing.
 #
 test.target = $cxx.target

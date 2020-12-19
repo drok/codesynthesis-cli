@@ -18,5 +18,9 @@
 *.exe.manifest
 *.pc
 
+# Note that these can be symlinks (so no trailing /).
+test
+test-*
+
 driver
 test.?xx

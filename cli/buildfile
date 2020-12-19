@@ -3,7 +3,6 @@
 
 ./: {*/ -build/} doc{INSTALL NEWS README} legal{LICENSE} manifest
 
-# Don't install unit tests or the INSTALL file.
+# Don't install the INSTALL file.
 #
-unit-tests/:     install = false
 doc{INSTALL}@./: install = false
