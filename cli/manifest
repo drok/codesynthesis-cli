@@ -12,7 +12,7 @@ doc-url: https://www.codesynthesis.com/projects/cli/doc/guide/
 src-url: https://git.codesynthesis.com/cgit/cli/cli/tree/cli/
 email: cli-users@codesynthesis.com ; Mailing list
 build-warning-email: builds@codesynthesis.com
-builds: all
+builds: host
 requires: c++14
 depends: * build2 >= 0.13.0
 depends: * bpkg >= 0.13.0
