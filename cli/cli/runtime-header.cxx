@@ -308,12 +308,20 @@ generate_runtime_header (context& ctx)
 
   // scanner
   //
-  os << "// Command line argument scanner interface."                  << endl
-     << "//"                                                           << endl
-     << "// The values returned by next() are guaranteed to be valid"  << endl
-     << "// for the two previous arguments up until a call to a third" << endl
-     << "// peek() or next()."                                         << endl
-     << "//"                                                           << endl
+  os << "// Command line argument scanner interface."                   << endl
+     << "//"                                                            << endl
+     << "// The values returned by next() are guaranteed to be valid"   << endl
+     << "// for the two previous arguments up until a call to a third"  << endl
+     << "// peek() or next()."                                          << endl
+     << "//"                                                            << endl
+     << "// The position() function returns a monotonically-increasing" << endl
+     << "// number which, if stored, can later be used to determine the"<< endl
+     << "// relative position of the argument returned by the following"<< endl
+     << "// call to next(). Note that if multiple scanners are used to" << endl
+     << "// extract arguments from multiple sources, then the end"      << endl
+     << "// position of the previous scanner should be used as the"     << endl
+     << "// start position of the next."                                << endl
+     << "//"                                                            << endl
      << "class scanner"
      << "{"
      << "public:" << endl
@@ -331,6 +339,9 @@ generate_runtime_header (context& ctx)
      << endl
      << "virtual void" << endl
      << "skip () = 0;"
+     << endl
+     << "virtual std::size_t" << endl
+     << "position () = 0;"
      << "};";
 
   // argv_scanner
@@ -338,8 +349,16 @@ generate_runtime_header (context& ctx)
   os << "class argv_scanner: public scanner"
      << "{"
      << "public:" << endl
-     << "argv_scanner (int& argc, char** argv, bool erase = false);"
-     << "argv_scanner (int start, int& argc, char** argv, bool erase = false);"
+     << "argv_scanner (int& argc," << endl
+     << "char** argv," << endl
+     << "bool erase = false," << endl
+     << "std::size_t start_position = 0);"
+     << endl
+     << "argv_scanner (int start," << endl
+     << "int& argc," << endl
+     << "char** argv," << endl
+     << "bool erase = false," << endl
+     << "std::size_t start_position = 0);"
      << endl
      << "int" << endl
      << "end () const;"
@@ -356,7 +375,11 @@ generate_runtime_header (context& ctx)
      << "virtual void" << endl
      << "skip ();"
      << endl
-     << "private:" << endl
+     << "virtual std::size_t" << endl
+     << "position ();"
+     << endl
+     << "protected:" << endl
+     << "std::size_t start_position_;"
      << "int i_;"
      << "int& argc_;"
      << "char** argv_;"
@@ -370,14 +393,15 @@ generate_runtime_header (context& ctx)
     os << "class vector_scanner: public scanner"
        << "{"
        << "public:" << endl
-       << "vector_scanner (const std::vector<std::string>&, " <<
-      "std::size_t start = 0);"
+       << "vector_scanner (const std::vector<std::string>&," << endl
+       << "std::size_t start = 0," << endl
+       << "std::size_t start_position = 0);"
        << endl
        << "std::size_t" << endl
        << "end () const;"
        << endl
        << "void" << endl
-       << "reset (std::size_t start = 0);"
+       << "reset (std::size_t start = 0, std::size_t start_position = 0);"
        << endl
        << "virtual bool" << endl
        << "more ();"
@@ -391,7 +415,11 @@ generate_runtime_header (context& ctx)
        << "virtual void" << endl
        << "skip ();"
        << endl
+       << "virtual std::size_t" << endl
+       << "position ();"
+       << endl
        << "private:" << endl
+       << "std::size_t start_position_;"
        << "const std::vector<std::string>& v_;"
        << "std::size_t i_;"
        << "};";
@@ -407,16 +435,19 @@ generate_runtime_header (context& ctx)
        << "argv_file_scanner (int& argc," << endl
        << "char** argv," << endl
        << "const std::string& option," << endl
-       << "bool erase = false);"
+       << "bool erase = false," << endl
+       << "std::size_t start_position = 0);"
        << endl
        << "argv_file_scanner (int start," << endl
        << "int& argc," << endl
        << "char** argv," << endl
        << "const std::string& option," << endl
-       << "bool erase = false);"
+       << "bool erase = false," << endl
+       << "std::size_t start_position = 0);"
        << endl
        << "argv_file_scanner (const std::string& file," << endl
-       << "const std::string& option);"
+       << "const std::string& option," << endl
+       << "std::size_t start_position = 0);"
        << endl
        << "struct option_info"
        << "{"
@@ -432,18 +463,21 @@ generate_runtime_header (context& ctx)
        << "char** argv," << endl
        << "const option_info* options," << endl
        << "std::size_t options_count," << endl
-       << "bool erase = false);"
+       << "bool erase = false," << endl
+       << "std::size_t start_position = 0);"
        << endl
        << "argv_file_scanner (int start," << endl
        << "int& argc," << endl
        << "char** argv," << endl
        << "const option_info* options," << endl
        << "std::size_t options_count," << endl
-       << "bool erase = false);"
+       << "bool erase = false," << endl
+       << "std::size_t start_position = 0);"
        << endl
        << "argv_file_scanner (const std::string& file," << endl
        << "const option_info* options = 0," << endl
-       << "std::size_t options_count = 0);"
+       << "std::size_t options_count = 0," << endl
+       << "std::size_t start_position = 0);"
        << endl
        << "virtual bool" << endl
        << "more ();"
@@ -456,6 +490,9 @@ generate_runtime_header (context& ctx)
        << endl
        << "virtual void" << endl
        << "skip ();"
+       << endl
+       << "virtual std::size_t" << endl
+       << "position ();"
        << endl
        << "// Return the file path if the peeked at argument came from a file and" << endl
        << "// the empty string otherwise. The reference is guaranteed to be valid" << endl
@@ -529,11 +566,17 @@ generate_runtime_header (context& ctx)
        << "virtual void" << endl
        << "skip ();"
        << endl
+       << "virtual std::size_t" << endl
+       << "position ();"
+       << endl
        << "// The group is only available after the call to next()"     << endl
        << "// (and skip() -- in case one needs to make sure the group"  << endl
        << "// was empty, or some such) and is only valid (and must be"  << endl
        << "// handled) until the next call to any of the scanner"       << endl
        << "// functions (including more())."                            << endl
+       << "//"                                                          << endl
+       << "// Note also that argument positions within each group start"<< endl
+       << "// from 0."                                                  << endl
        << "//"                                                          << endl
        << "scanner&" << endl
        << "group ();"

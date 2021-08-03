@@ -1,0 +1,36 @@
+# file      : position/testscript
+# license   : MIT; see accompanying LICENSE file
+
+: basics
+:
+$* -b 1 -a 2 -b 3 foo bar baz >>EOO
+3: -a 2
+1: -b 1
+5: -b 3
+7: foo
+8: bar
+9: baz
+max: 10
+EOO
+
+: override
+:
+$* -a 1 -a 2 >>EOO
+3: -a 2
+max: 5
+EOO
+
+: file
+:
+cat <<EOI >=test.ops;
+-a 2
+EOI
+$* -b 1 --file test.ops -b 2 foo bar baz >>EOO
+5: -a 2
+1: -b 1
+7: -b 2
+9: foo
+10: bar
+11: baz
+max: 12
+EOO

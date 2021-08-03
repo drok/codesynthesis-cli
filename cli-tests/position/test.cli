@@ -1,0 +1,13 @@
+// file      : position/test.cli
+// author    : Boris Kolpackov <boris@codesynthesis.com>
+// license   : MIT; see accompanying LICENSE file
+
+include <vector>;
+include <utility>;
+include <cstddef>;
+
+class options
+{
+  std::pair<int, std::size_t> -a;
+  std::vector<std::pair<int, std::size_t> > -b;
+};

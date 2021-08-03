@@ -232,14 +232,29 @@ generate_runtime_inline (context& ctx)
      << "//" << endl;
 
   os << inl << "argv_scanner::" << endl
-     << "argv_scanner (int& argc, char** argv, bool erase)" << endl
-     << ": i_ (1), argc_ (argc), argv_ (argv), erase_ (erase)"
+     << "argv_scanner (int& argc," << endl
+     << "char** argv," << endl
+     << "bool erase," << endl
+     << "std::size_t sp)" << endl
+     << ": start_position_ (sp + 1)," << endl
+     << "  i_ (1)," << endl
+     << "  argc_ (argc)," << endl
+     << "  argv_ (argv)," << endl
+     << "  erase_ (erase)"
      << "{"
      << "}";
 
   os << inl << "argv_scanner::" << endl
-     << "argv_scanner (int start, int& argc, char** argv, bool erase)" << endl
-     << ": i_ (start), argc_ (argc), argv_ (argv), erase_ (erase)"
+     << "argv_scanner (int start," << endl
+     << "int& argc," << endl
+     << "char** argv," << endl
+     << "bool erase," << endl
+     << "std::size_t sp)" << endl
+     << ": start_position_ (sp + static_cast<std::size_t> (start))," << endl
+     << "  i_ (start)," << endl
+     << "  argc_ (argc)," << endl
+     << "  argv_ (argv)," << endl
+     << "  erase_ (erase)"
      << "{"
      << "}";
 
@@ -257,9 +272,10 @@ generate_runtime_inline (context& ctx)
        << "//" << endl;
 
     os << inl << "vector_scanner::" << endl
-       << "vector_scanner (const std::vector<std::string>& v, " <<
-      "std::size_t i)" << endl
-       << ": v_ (v), i_ (i)"
+       << "vector_scanner (const std::vector<std::string>& v," << endl
+       << "std::size_t i," << endl
+       << "std::size_t sp)" << endl
+       << ": start_position_ (sp), v_ (v), i_ (i)"
        << "{"
        << "}";
 
@@ -270,9 +286,10 @@ generate_runtime_inline (context& ctx)
        << "}";
 
     os << inl << "void vector_scanner::" << endl
-       << "reset (std::size_t i)"
+       << "reset (std::size_t i, std::size_t sp)"
        << "{"
        << "i_ = i;"
+       << "start_position_ = sp;"
        << "}";
   }
 
@@ -289,8 +306,9 @@ generate_runtime_inline (context& ctx)
        << "argv_file_scanner (int& argc," << endl
        << "char** argv," << endl
        << "const std::string& option," << endl
-       << "bool erase)" << endl
-       << ": argv_scanner (argc, argv, erase)," << endl
+       << "bool erase," << endl
+       << "std::size_t sp)" << endl
+       << ": argv_scanner (argc, argv, erase, sp)," << endl
        << "  option_ (option)," << endl
        << "  options_ (&option_info_)," << endl
        << "  options_count_ (1)," << endl
@@ -308,8 +326,9 @@ generate_runtime_inline (context& ctx)
        << "int& argc," << endl
        << "char** argv," << endl
        << "const std::string& option," << endl
-       << "bool erase)" << endl
-       << ": argv_scanner (start, argc, argv, erase)," << endl
+       << "bool erase," << endl
+       << "std::size_t sp)" << endl
+       << ": argv_scanner (start, argc, argv, erase, sp)," << endl
        << "  option_ (option)," << endl
        << "  options_ (&option_info_)," << endl
        << "  options_count_ (1)," << endl
@@ -324,8 +343,9 @@ generate_runtime_inline (context& ctx)
 
     os << inl << "argv_file_scanner::" << endl
        << "argv_file_scanner (const std::string& file," << endl
-       << "const std::string& option)" << endl
-       << ": argv_scanner (0, zero_argc_, 0)," << endl
+       << "const std::string& option," << endl
+       << "std::size_t sp)" << endl
+       << ": argv_scanner (0, zero_argc_, 0, sp)," << endl
        << "  option_ (option)," << endl
        << "  options_ (&option_info_)," << endl
        << "  options_count_ (1)," << endl
@@ -345,8 +365,9 @@ generate_runtime_inline (context& ctx)
        << "char** argv," << endl
        << "const option_info* options," << endl
        << "std::size_t options_count," << endl
-       << "bool erase)" << endl
-       << ": argv_scanner (argc, argv, erase)," << endl
+       << "bool erase," << endl
+       << "std::size_t sp)" << endl
+       << ": argv_scanner (argc, argv, erase, sp)," << endl
        << "  options_ (options)," << endl
        << "  options_count_ (options_count)," << endl
        << "  i_ (1)";
@@ -362,8 +383,9 @@ generate_runtime_inline (context& ctx)
        << "char** argv," << endl
        << "const option_info* options," << endl
        << "std::size_t options_count," << endl
-       << "bool erase)" << endl
-       << ": argv_scanner (start, argc, argv, erase)," << endl
+       << "bool erase," << endl
+       << "std::size_t sp)" << endl
+       << ": argv_scanner (start, argc, argv, erase, sp)," << endl
        << "  options_ (options)," << endl
        << "  options_count_ (options_count)," << endl
        << "  i_ (1)";
@@ -376,8 +398,9 @@ generate_runtime_inline (context& ctx)
     os << inl << "argv_file_scanner::" << endl
        << "argv_file_scanner (const std::string& file," << endl
        << "const option_info* options," << endl
-       << "std::size_t options_count)" << endl
-       << ": argv_scanner (0, zero_argc_, 0)," << endl
+       << "std::size_t options_count," << endl
+       << "std::size_t sp)" << endl
+       << ": argv_scanner (0, zero_argc_, 0, sp)," << endl
        << "  options_ (options)," << endl
        << "  options_count_ (options_count)," << endl
        << "  i_ (1)";

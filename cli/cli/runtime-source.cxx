@@ -15,6 +15,7 @@ generate_runtime_source (context& ctx, bool complete)
      << "#include <set>" << endl
      << "#include <string>" << endl
      << "#include <vector>" << endl
+     << "#include <utility>" << endl // pair
      << "#include <ostream>" << endl
      << "#include <sstream>" << endl;
 
@@ -259,6 +260,10 @@ generate_runtime_source (context& ctx, bool complete)
 
     // argv_scanner
     //
+    // Note that due to the erase logic we cannot just add i_ to
+    // start_position and so have to increment it instead. See also
+    // argv_file_scanner that continues with this logic.
+    //
     os << "// argv_scanner" << endl
        << "//" << endl
 
@@ -295,6 +300,7 @@ generate_runtime_source (context& ctx, bool complete)
        << "else" << endl
        << "++i_;"
        << endl
+       << "++start_position_;"
        << "return r;"
        << "}"
        << "else" << endl
@@ -304,10 +310,19 @@ generate_runtime_source (context& ctx, bool complete)
        << "void argv_scanner::" << endl
        << "skip ()"
        << "{"
-       << "if (i_ < argc_)" << endl
+       << "if (i_ < argc_)"
+       << "{"
        << "++i_;"
+       << "++start_position_;"
+       << "}"
        << "else" << endl
        << "throw eos_reached ();"
+       << "}"
+
+       << "std::size_t argv_scanner::" << endl
+       << "position ()"
+       << "{"
+       << "return start_position_;"
        << "}";
 
     // vector_scanner
@@ -348,10 +363,18 @@ generate_runtime_source (context& ctx, bool complete)
          << "++i_;"
          << "else" << endl
          << "throw eos_reached ();"
+         << "}"
+
+         << "std::size_t vector_scanner::" << endl
+         << "position ()"
+         << "{"
+         << "return start_position_ + i_;"
          << "}";
     }
 
     // argv_file_scanner
+    //
+    // Note that we continue incrementing start_position like argv_scanner.
     //
     if (ctx.options.generate_file_scanner ())
     {
@@ -486,6 +509,7 @@ generate_runtime_source (context& ctx, bool complete)
          << "{"
          << "hold_[i_ == 0 ? ++i_ : --i_].swap (args_.front ().value);"
          << "args_.pop_front ();"
+         << "++start_position_;"
          << "return hold_[i_].c_str ();"
          << "}"
          << "}"
@@ -498,8 +522,11 @@ generate_runtime_source (context& ctx, bool complete)
          << endl
          << "if (args_.empty ())" << endl
          << "return base::skip ();"
-         << "else" << endl
+         << "else"
+         << "{"
          << "args_.pop_front ();"
+         << "++start_position_;"
+         << "}"
          << "}"
 
          << "const argv_file_scanner::option_info* argv_file_scanner::" << endl
@@ -510,6 +537,12 @@ generate_runtime_source (context& ctx, bool complete)
          << "return &options_[i];"
          << endl
          << "return 0;"
+         << "}"
+
+         << "std::size_t argv_file_scanner::" << endl
+         << "position ()"
+         << "{"
+         << "return start_position_;"
          << "}"
 
          << "void argv_file_scanner::" << endl
@@ -734,6 +767,12 @@ generate_runtime_source (context& ctx, bool complete)
          << "scan_group (skipped);"
          << "}"
 
+         << "std::size_t group_scanner::" << endl
+         << "position ()"
+         << "{"
+         << "return scan_.position ();"
+         << "}"
+
          << "void group_scanner::" << endl
          << "scan_group (state st)"
          << "{"
@@ -746,6 +785,11 @@ generate_runtime_source (context& ctx, bool complete)
          <<     "throw unexpected_group (arg_[i_], group_scan_.next ());"
          << "}"
 
+        // Note that while it may seem like a good idea to pass
+        // scan_.position() to reset() below, the trailing group positions
+        // will overlap with the argument's. So it seems best to start
+        // positions of each argument in a group from 0.
+        //
          << "if (state_ != peeked)"
          << "{"
          <<   "arg_[i_ == 0 ? ++i_ : --i_].clear ();"
@@ -934,6 +978,28 @@ generate_runtime_source (context& ctx, bool complete)
 
   os << "};";
 
+  // parser<std::pair<X, std::size_t>>
+  //
+  os << "template <typename X>" << endl
+     << "struct parser<std::pair<X, std::size_t> >"
+     << "{";
+
+  os <<   "static void" << endl
+     <<   "parse (std::pair<X, std::size_t>& x, " << (sp ? "bool& xs, " : "") << "scanner& s)"
+     <<   "{"
+     <<     "x.second = s.position ();"
+     <<     "parser<X>::parse (x.first, " << (sp ? "xs, " : "") << "s);"
+     <<   "}";
+
+  if (gen_merge)
+    os << "static void" << endl
+       << "merge (std::pair<X, std::size_t>& b, const std::pair<X, std::size_t>& a)"
+       << "{"
+       <<   "b = a;"
+       << "}";
+
+  os << "};";
+
   // parser<std::vector<X>>
   //
   os << "template <typename X>" << endl
@@ -1001,6 +1067,7 @@ generate_runtime_source (context& ctx, bool complete)
      <<                                                                    endl
      <<     "if (s.more ())"
      <<     "{"
+     <<       "std::size_t pos (s.position ());"
      <<       "std::string ov (s.next ());"
      <<       "std::string::size_type p = ov.find ('=');"
      <<                                                                    endl
@@ -1020,13 +1087,13 @@ generate_runtime_source (context& ctx, bool complete)
   os <<       "if (!kstr.empty ())"
      <<       "{"
      <<         "av[1] = const_cast<char*> (kstr.c_str ());"
-     <<         "argv_scanner s (0, ac, av);"
+     <<         "argv_scanner s (0, ac, av, false, pos);"
      <<         "parser<K>::parse (k, " << (sp ? "dummy, " : "") << "s);"
      <<       "}"
      <<       "if (!vstr.empty ())"
      <<       "{"
      <<         "av[1] = const_cast<char*> (vstr.c_str ());"
-     <<         "argv_scanner s (0, ac, av);"
+     <<         "argv_scanner s (0, ac, av, false, pos);"
      <<         "parser<V>::parse (v, " << (sp ? "dummy, " : "") << "s);"
      <<       "}"
      <<       "m[k] = v;"
