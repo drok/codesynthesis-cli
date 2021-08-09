@@ -27,7 +27,13 @@ main (int argc, char* argv[])
     }
 
     while (scan.more ())
-      cout << scan.position () << ": " << scan.next () << endl;
+    {
+      // Note that calling position() inside `cout << ...` depends on order of
+      // argument evaluation.
+      //
+      size_t p (scan.position ());
+      cout << p << ": " << scan.next () << endl;
+    }
 
     cout << "max: " << scan.position () << endl;
   }
