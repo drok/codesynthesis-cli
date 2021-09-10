@@ -108,11 +108,15 @@ class options
      { -f }+ { -b }+ arg +{ f=1 } +{ b=2 } # 'arg' with '-f' 'b' 'f=1' 'b=2'
      \
 
-     Note that the group applies to a single argument only. For example:
+     The group applies to a single argument only unless multiple arguments
+     are themselves grouped with '\cb{{}' and '\cb{\}}'. For example:
 
      \
-     { --foo }+ arg1  arg2 +{ --bar }  # 'arg1' with '--foo' and
-                                       # 'arg2' with '--bar'
+     { --foo }+ arg1  arg2 +{ --bar }      # 'arg1' with '--foo'
+                                           # 'arg2' with '--bar'
+
+     { --foo }+ { arg1  arg2 } +{ --bar }  # 'arg1' with '--foo' '--bar'
+                                           # 'arg2' with '--foo' '--bar'
      \
 
      The group separators ('\cb{{}', '\cb{\}+'}, etc) must be separate command

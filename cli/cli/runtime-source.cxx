@@ -732,49 +732,50 @@ generate_runtime_source (context& ctx, bool complete)
          << "if (state_ == scanned)"
          << "{"
          << "if (group_scan_.end () != group_.size ())" << endl
-         << "throw unexpected_group (arg_[i_], group_scan_.next ());"
+         << "throw unexpected_group (arg_[i_][j_], group_scan_.next ());"
          << "}"
-         << "return scan_.more ();"
+         << "return j_ != 0 || scan_.more ();"
          << "}"
 
          << "const char* group_scanner::" << endl
          << "peek ()"
          << "{"
-         << "if (state_ != peeked)"  << endl
-         << "scan_group (peeked);"
-         << "scan_.peek ();"
+         << "if (state_ != peeked)"
+         << "{"
+         << "scan_group ();"
+         << "state_ = peeked;"
+         << "}"
          << "// Return unescaped." << endl
-         << "return arg_[i_].c_str ();"
+         << "return arg_[i_][j_ - 1].c_str ();"
          << "}"
 
          << "const char* group_scanner::" << endl
          << "next ()"
          << "{"
          << "if (state_ != peeked)" << endl
-         << "scan_group (peeked);"
-         << "scan_.next ();"
-         << "scan_group (scanned);"
+         << "scan_group ();"
+         << "state_ = scanned;"
          << "// Return unescaped." << endl
-         << "return arg_[i_].c_str ();"
+         << "return arg_[i_][--j_].c_str ();"
          << "}"
 
          << "void group_scanner::" << endl
          << "skip ()"
          << "{"
          << "if (state_ != peeked)" << endl
-         << "scan_group (peeked);"
-         << "scan_.skip ();"
-         << "scan_group (skipped);"
+         << "scan_group ();"
+         << "state_ = skipped;"
+         << "--j_;"
          << "}"
 
          << "std::size_t group_scanner::" << endl
          << "position ()"
          << "{"
-         << "return scan_.position ();"
+         << "return j_ == 0 ? scan_.position () : pos_ + (arg_[i_].size () - j_);"
          << "}"
 
          << "void group_scanner::" << endl
-         << "scan_group (state st)"
+         << "scan_group ()"
          << "{"
          << "// If the previous argument has been scanned, then make"   << endl
          << "// sure the group has been scanned (handled) as well."     << endl
@@ -782,54 +783,134 @@ generate_runtime_source (context& ctx, bool complete)
          << "if (state_ == scanned)"
          << "{"
          <<   "if (group_scan_.end () != group_.size ())" << endl
-         <<     "throw unexpected_group (arg_[i_], group_scan_.next ());"
+         <<     "throw unexpected_group (arg_[i_][j_], group_scan_.next ());"
          << "}"
 
+         << "// If we still have arguments in the pack, rewind the group." << endl
+         << "//"                                                           << endl
+         << "if (j_ != 0)"
+         << "{"
+         <<   "group_scan_.reset ();"
+         <<   "return;"
+         << "}"
+
+        // Position must remain the same from before the first call to peek()
+        // (comes directly from the scanner) and until next().
+        //
         // Note that while it may seem like a good idea to pass
         // scan_.position() to reset() below, the trailing group positions
         // will overlap with the argument's. So it seems best to start
         // positions of each argument in a group from 0.
         //
-         << "if (state_ != peeked)"
-         << "{"
-         <<   "arg_[i_ == 0 ? ++i_ : --i_].clear ();"
-         <<   "group_.clear ();"
-         <<   "group_scan_.reset ();"
-         << "}"
+        // Note also that we try hard not to throw away allocated memory in
+        // arg_[][0].
+        //
+         << "i_ += (i_ == 0 ? 1 : -1);"
+         << "group_.clear ();"
+         << "group_scan_.reset ();"
+         << "pos_ = scan_.position ();"
+         <<                                                                endl
 
-         << "// We recognize all group sequences both before and "      << endl
-         << "// after the argument and diagnose any misuse. We may"     << endl
-         << "// also have multiple groups:"                             << endl
+         << "// Note: using group_ won't cover empty groups and using"  << endl
+         << "// j_ won't cover single-argument packs."                  << endl
          << "//"                                                        << endl
-         << "// { -x }+ { -y }+ arg"                                    << endl
-         << "//"                                                        << endl
+         << "bool group (false), pack (false);"
          <<                                                                endl
-         << "// Using group_ won't cover empty groups."                 << endl
-         << "//"                                                        << endl
-         << "bool g (false);"
+         << "do"
+         << "{"
+         <<   "const char* a (scan_.next ());"
+         <<   "size_t i (*a == '\\\\' ? 1 : 0);"
+         <<   "separator s (sense (a + i));"
          <<                                                                endl
+         <<   "if (s == none || i != 0)"
+         <<   "{"
+         <<     "if (arg_[i_].size () != 1)"                            << endl
+         <<       "arg_[i_].resize (1);"
+         <<                                                                endl
+         <<     "arg_[i_][0] = a + (s != none ? i : 0);"
+         <<     "j_ = 1;"
+         <<     "break;"
+         <<   "}"
+
+         <<   "// Start of a leading group for the next argument or"    << endl
+         <<   "// argument pack. We will only know which once we see"   << endl
+         <<   "// the closing separator."                               << endl
+         <<   "//"                                                      << endl
+         <<   "if (s != open)"                                          << endl
+         <<     "throw group_separator (a, \"\");"
+         <<                                                                endl
+         <<   "size_t n (group_.size ());"
+         <<                                                                endl
+         <<   "// Scan the group until the closing separator."          << endl
+         <<   "//"                                                      << endl
+         <<   "s = none;"
+         <<   "while (s == none && scan_.more ())"
+         <<   "{"
+         <<     "a = scan_.next ();"
+         <<     "i = (*a == '\\\\' ? 1 : 0);"
+         <<     "s = sense (a + i);"
+         <<                                                                endl
+         <<     "if (s == none || i != 0)"
+         <<     "{"
+         <<       "group_.push_back (a + (s != none ? i : 0));"
+         <<       "s = none;"
+         <<     "}"
+         <<   "}"
+
+         <<   "if (s == close)"
+         <<   "{"
+         <<     "size_t m (group_.size ());"
+         <<                                                                endl
+         <<     "j_ = m - n;"
+         <<     "if (j_ == 0)"                                          << endl
+         <<       "throw group_separator (\"{\", \"\");"
+         <<                                                                endl
+         <<     "if (arg_[i_].size () != j_)" <<                           endl
+         <<       "arg_[i_].resize (j_);"
+         <<                                                                endl
+         <<     "// Move from group_ to arg_. Add in reverse for ease " << endl
+         <<     "// of iteration."                                      << endl
+         <<     "//"                                                    << endl
+         <<     "for (size_t j (0); j != j_; ++j)"                      << endl
+         <<       "arg_[i_][j] = group_[m - j - 1];"
+         <<     "group_.resize (n);"
+         <<                                                                endl
+         <<     "pack = true;"
+         <<     "break;"
+         <<   "}"
+         <<   "else if (s == close_plus)" << endl
+         <<     "group = true;"
+         <<   "else"                                                    << endl
+         <<     "throw group_separator ((s != none ? a : \"\"), \"}+\");"
+         << "}"
+         << "while (scan_.more ());"
+         <<                                                                endl
+
+         << "// Handle the case where we have seen the leading group"   << endl
+         << "// but there are no more arguments."                       << endl
+         << "//"                                                        << endl
+         << "if (group && j_ == 0)"                                     << endl
+         <<   "throw group_separator (\"{\", \"\");"
+         <<                                                                endl
+         << "// Handle trailing groups, if any."                        << endl
+         << "//"                                                        << endl
+
          << "while (scan_.more ())"
          << "{"
          <<   "const char* a (scan_.peek ());"
          <<   "size_t i (*a == '\\\\' ? 1 : 0);"
          <<   "separator s (sense (a + i));"
          <<                                                                endl
-         <<   "if (s == none || i != 0)"
-         <<   "{"
-         <<     "if (state_ != peeked)" << endl
-         <<       "arg_[i_] = a + (s != none ? i : 0);"
-         <<     "break;"
-         <<   "}"
 
-         <<   "// Start of a leading group for the next argument."      << endl
+         <<   "// Next argument, argument pack, or leading group."      << endl
          <<   "//"                                                      << endl
-         <<   "if (s == open && state_ == peeked)" << endl
+         <<   "if (s == none || s == open || i != 0)"                   << endl
          <<     "break;"
          <<                                                                endl
-         <<   "if (s != (state_ == peeked ? open_plus : open))" << endl
+         <<   "if (s != open_plus)"                                     << endl
          <<     "throw group_separator (a, \"\");"
          <<                                                                endl
-         <<   "g = true;"
+         <<   "group = true;"
          <<                                                                endl
          <<   "// Scan the group until the closing separator."          << endl
          <<   "//"                                                      << endl
@@ -848,20 +929,16 @@ generate_runtime_source (context& ctx, bool complete)
          <<     "}"
          <<   "}"
 
-         <<   "if (s != (state_ == peeked ? close : close_plus))"
-         <<   "{"
-         <<     "throw group_separator ((s != none        ? a   : \"\")," << endl
-         <<                            "(state_ == peeked ? \"}\" : \"}+\"));"
-         <<   "}"
+         <<   "if (s != close)" << endl
+         <<     "throw group_separator ((s != none ? a : \"\"), \"}\");"
          << "}"
 
-         << "// Handle the case where we have seen the leading group"   << endl
-         << "// but there are no more arguments."                       << endl
+         << "// Handle the case where we have seen the argument pack"   << endl
+         << "// without leading or trailing group."                     << endl
          << "//"                                                        << endl
-         << "if (g && state_ != peeked && !scan_.more ())" << endl
+         << "if (pack && !group)"                                       << endl
          <<   "throw group_separator (\"{\", \"\");"
-         <<                                                                endl
-         << "state_ = st;"
+
          << "}";
     }
 

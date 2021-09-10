@@ -421,7 +421,7 @@ generate_runtime_inline (context& ctx)
 
        << inl << "group_scanner::" << endl
        << "group_scanner (scanner& s)" << endl
-       << ": scan_ (s), state_ (skipped), i_ (1), group_scan_ (group_)"
+       << ": scan_ (s), state_ (skipped), i_ (1), j_ (0), group_scan_ (group_)"
        << "{"
        << "}"
 

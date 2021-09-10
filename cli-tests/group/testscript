@@ -19,11 +19,27 @@ $* '' { --foo --bar }+ arg1 arg2 >>EOO
 'arg2'
 EOO
 
+: group-pre-pack
+:
+$* '' { --foo --bar }+ { arg1 arg2 } arg3 >>EOO
+'arg1' '--foo' '--bar'
+'arg2' '--foo' '--bar'
+'arg3'
+EOO
+
 : group-pre-multi
 :
 $* '' { --foo }+ { --bar }+ arg1 arg2 >>EOO
 'arg1' '--foo' '--bar'
 'arg2'
+EOO
+
+: group-pre-multi-pack
+:
+$* '' { --foo }+ { --bar }+ { arg1 arg2 } arg3 >>EOO
+'arg1' '--foo' '--bar'
+'arg2' '--foo' '--bar'
+'arg3'
 EOO
 
 : group-post
@@ -33,11 +49,27 @@ $* '' arg1 arg2 +{ foo bar } >>EOO
 'arg2' 'foo' 'bar'
 EOO
 
+: group-post-pack
+:
+$* '' arg1 { arg2 arg3 } +{ foo bar } >>EOO
+'arg1'
+'arg2' 'foo' 'bar'
+'arg3' 'foo' 'bar'
+EOO
+
 : group-post-multi
 :
 $* '' arg1 arg2 +{ foo } +{ bar } >>EOO
 'arg1'
 'arg2' 'foo' 'bar'
+EOO
+
+: group-post-multi-pack
+:
+$* '' arg1 { arg2 arg3 } +{ foo } +{ bar } >>EOO
+'arg1'
+'arg2' 'foo' 'bar'
+'arg3' 'foo' 'bar'
 EOO
 
 : group-both
@@ -48,12 +80,30 @@ $* '' arg1 { --foo --bar }+ arg2 +{ foo bar } arg3 >>EOO
 'arg3'
 EOO
 
+: group-both-pack
+:
+$* '' arg1 { --foo --bar }+ { arg2 arg3 } +{ foo bar } arg4 >>EOO
+'arg1'
+'arg2' '--foo' '--bar' 'foo' 'bar'
+'arg3' '--foo' '--bar' 'foo' 'bar'
+'arg4'
+EOO
+
 : group-both-multi
 :
 $* '' arg1 { --foo }+ { --bar }+ arg2 +{ foo } +{ bar } arg3 >>EOO
 'arg1'
 'arg2' '--foo' '--bar' 'foo' 'bar'
 'arg3'
+EOO
+
+: group-both-multi-pack
+:
+$* '' arg1 { --foo }+ { --bar }+ { arg2 arg3 } +{ foo } +{ bar } arg4 >>EOO
+'arg1'
+'arg2' '--foo' '--bar' 'foo' 'bar'
+'arg3' '--foo' '--bar' 'foo' 'bar'
+'arg4'
 EOO
 
 : multi-group
@@ -63,9 +113,25 @@ $* '' { --foo }+ arg1 arg2 +{ bar } >>EOO
 'arg2' 'bar'
 EOO
 
+: multi-group-pack
+:
+$* '' { --foo }+ { arg1 arg2 } { arg3 arg4 } +{ bar } >>EOO
+'arg1' '--foo'
+'arg2' '--foo'
+'arg3' 'bar'
+'arg4' 'bar'
+EOO
+
 : empty-group
 :
 $* '' {  }+ arg1 arg2 +{ } >>EOO
+'arg1'
+'arg2'
+EOO
+
+: empty-group-pack
+:
+$* '' {  }+ { arg1 arg2 } +{ } >>EOO
 'arg1'
 'arg2'
 EOO
@@ -87,10 +153,16 @@ $* '' { '\{' '\}' '\+{' '\}+' '{x' '}x' }+ arg >>EOO
 'arg' '{' '}' '+{' '}+' '{x' '}x'
 EOO
 
-: not-group
+: pack-no-group
 :
-$* '' { --foo } 2>>EOE != 0
-expected group separator '}+' instead of '}', use '\}' to escape
+$* '' { --foo } { arg2 }+ 2>>EOE != 0
+unexpected group separator '{', use '\{' to escape
+EOE
+
+: empty-pack
+:
+$* '' { --foo }+ { } 2>>EOE != 0
+unexpected group separator '{', use '\{' to escape
 EOE
 
 : no-arg-pre
@@ -135,6 +207,8 @@ EOE
 
 : unhandled-group-skip
 :
-$* 'sg' { --foo }+ arg +{ bar } >>EOO
+$* 'sg' { --foo }+ arg +{ bar }
 
-EOO
+: unhandled-group-skip-pack
+:
+$* 'sg' { --foo }+ { arg1 arg2 } +{ bar }

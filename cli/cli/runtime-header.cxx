@@ -605,21 +605,20 @@ generate_runtime_header (context& ctx)
        << "static separator" << endl
        << "sense (const char*);"
        << endl
-       << "// If the state is scanned or skipped, then scan the"        << endl
-       << "// leading groups and save the next (unescaped) argument in" << endl
-       << "// arg_. If the state is peeked, then scan the trailing"     << endl
-       << "// groups. In both cases set the new state."                 << endl
+
+       << "// Scan the leading groups, the next argument/argument pack,"<< endl
+       << "// and the trailing groups."                                 << endl
        << "//"                                                          << endl
        << "void" << endl
-       << "scan_group (state);"
+       << "scan_group ();"
        << endl
        << "scanner& scan_;"
        << "state state_;"
        << endl
        << "// Circular buffer of two arguments." << endl
        << "//" << endl
-       << "std::string arg_[2];"
-       << "std::size_t i_;"
+       << "std::vector<std::string> arg_[2];"
+       << "std::size_t i_, j_, pos_;"
        << endl
        << "std::vector<std::string> group_;"
        << "vector_scanner group_scan_;"
