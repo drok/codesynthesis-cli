@@ -1,5 +1,7 @@
-# file      : note/buildfile
+# file      : tests/note/buildfile
 # license   : MIT; see accompanying LICENSE file
+
+import! [metadata] cli = cli%exe{cli}
 
 ./: testscript $cli
 

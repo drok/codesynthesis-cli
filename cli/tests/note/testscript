@@ -1,4 +1,4 @@
-# file      : note/testscript
+# file      : tests/note/testscript
 # license   : MIT; see accompanying LICENSE file
 
 : block-basics

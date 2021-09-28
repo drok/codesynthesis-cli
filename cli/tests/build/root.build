@@ -1,0 +1,8 @@
+# file      : tests/build/root.build
+# license   : MIT; see accompanying LICENSE file
+
+# Configure C++ module and specify the test target for cross-testing.
+#
+using cxx.config
+
+test.target = $cxx.target
