@@ -45,8 +45,6 @@ if $config.cli.develop
 
     # Use the copyright year to approximate the last authoring date.
     #
-    date +"%B %Y" | set date
-
     ($<[0]) --generate-man  $man_options     \
             -v date="January $doc_year"      \
             --man-prologue-file $path($<[2]) \
