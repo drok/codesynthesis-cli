@@ -257,6 +257,13 @@ class options
      files, and would like their usage to have the same indentation level."
   };
 
+  bool --ascii-tree
+  {
+    "Convert UTF-8 \cb{tree(1)} output to ASCII. Specifically, box-drawing
+     characters used in the \cb{--charset=UTF-8} output are replaced with
+     ASCII characters used in the \cb{--charset=ASCII} output."
+  };
+
   bool --ansi-color
   {
     "Use ANSI color escape sequences when printing usage. By \"color\" we

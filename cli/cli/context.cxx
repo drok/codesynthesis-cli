@@ -296,6 +296,59 @@ process_link_target (const string& tg)
   return found ? r : tg;
 }
 
+void context::
+preprocess_ascii_tree (string& s)
+{
+  // tree --charset=UTF-8 uses the following box-drawing characters (see
+  // color.c):
+  //
+  // CHAR       UTF-8    ASCII
+  //----------------------------
+  //
+  // |          E29482   |
+  //
+  // --         E29480   -
+  //
+  // |-         E2949C   |
+  //
+  // |_         E29494   `
+  //
+  // <nbspace>    C2A0   <space>
+  //
+  // Note that here we rely on the fact that neither E2 nor C2 can appear as
+  // continuation bytes.
+  //
+  for (size_t i (0); i != s.size (); ++i)
+  {
+    i = s.find_first_of ("\xE2\xC2", i);
+
+    if (i == string::npos)
+      break;
+
+    if (s[i] == '\xE2')
+    {
+      if (s[i + 1] == '\x94')
+      {
+        const char* r;
+        switch (s[i + 2])
+        {
+        case '\x80': r = "-"; break;
+        case '\x82':
+        case '\x9c': r = "|"; break;
+        case '\x94': r = "`"; break;
+        default:               continue;
+        }
+
+        s.replace (i, 3, r);
+      }
+    }
+    else
+    {
+      if (s[i + 1] == '\xA0')
+        s.replace (i, 2, " ");
+    }
+  }
+}
 
 string context::
 translate_arg (string const& s, std::set<string>& set)

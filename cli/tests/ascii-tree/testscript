@@ -1,0 +1,43 @@
+# file      : tests/ascii-tree/testscript
+# license   : MIT; see accompanying LICENSE file
+
+: basics
+:
+cat <<EOI >=test.cli;
+"
+\
+hello/
+├── build/
+│   ├── bootstrap.build
+│   └── root.build
+├── hello/
+│   ├── sub/
+│   │   ├── bar
+│   │   └── foo
+│   ├── buildfile
+│   ├── hello.cxx
+│   └── testscript
+├── buildfile
+├── manifest
+├── README.md
+└── repositories.manifest
+\
+"
+EOI
+$* --generate-txt --ascii-tree --stdout test.cli >>EOO
+hello/
+|-- build/
+|   |-- bootstrap.build
+|   `-- root.build
+|-- hello/
+|   |-- sub/
+|   |   |-- bar
+|   |   `-- foo
+|   |-- buildfile
+|   |-- hello.cxx
+|   `-- testscript
+|-- buildfile
+|-- manifest
+|-- README.md
+`-- repositories.manifest
+EOO

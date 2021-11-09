@@ -895,6 +895,24 @@ option_length_specified (bool x)
 }
 
 inline const bool& options::
+ascii_tree () const
+{
+  return this->ascii_tree_;
+}
+
+inline bool& options::
+ascii_tree ()
+{
+  return this->ascii_tree_;
+}
+
+inline void options::
+ascii_tree (const bool& x)
+{
+  this->ascii_tree_ = x;
+}
+
+inline const bool& options::
 ansi_color () const
 {
   return this->ansi_color_;

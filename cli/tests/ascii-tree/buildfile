@@ -1,0 +1,8 @@
+# file      : tests/ascii-tree/buildfile
+# license   : MIT; see accompanying LICENSE file
+
+import! [metadata] cli = cli%exe{cli}
+
+./: testscript $cli
+
+testscript{*}: test = $cli

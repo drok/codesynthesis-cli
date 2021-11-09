@@ -153,10 +153,13 @@ public:
   string
   process_link_target (const string&);
 
-  // Translate and format the documentation string. Translate converts
-  // the <arg>-style constructs to \i{arg}. Format converts the string
-  // to the output format.
+  // Preprocess, translate, and format the documentation string. Translate
+  // converts the <arg>-style constructs to \i{arg}. Format converts the
+  // string to the output format.
   //
+  static void
+  preprocess_ascii_tree (string&);
+
   static string
   translate_arg (string const&, std::set<string>&);
 

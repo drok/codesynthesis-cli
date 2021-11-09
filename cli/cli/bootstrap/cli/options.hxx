@@ -785,6 +785,15 @@ class options
   option_length_specified (bool);
 
   const bool&
+  ascii_tree () const;
+
+  bool&
+  ascii_tree ();
+
+  void
+  ascii_tree (const bool&);
+
+  const bool&
   ansi_color () const;
 
   bool&
@@ -1566,6 +1575,7 @@ class options
   bool page_usage_specified_;
   std::size_t option_length_;
   bool option_length_specified_;
+  bool ascii_tree_;
   bool ansi_color_;
   bool exclude_base_;
   bool include_base_last_;

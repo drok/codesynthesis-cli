@@ -715,6 +715,7 @@ options ()
   page_usage_specified_ (false),
   option_length_ (0),
   option_length_specified_ (false),
+  ascii_tree_ (),
   ansi_color_ (),
   exclude_base_ (),
   include_base_last_ (),
@@ -856,6 +857,7 @@ options (int& argc,
   page_usage_specified_ (false),
   option_length_ (0),
   option_length_specified_ (false),
+  ascii_tree_ (),
   ansi_color_ (),
   exclude_base_ (),
   include_base_last_ (),
@@ -1000,6 +1002,7 @@ options (int start,
   page_usage_specified_ (false),
   option_length_ (0),
   option_length_specified_ (false),
+  ascii_tree_ (),
   ansi_color_ (),
   exclude_base_ (),
   include_base_last_ (),
@@ -1144,6 +1147,7 @@ options (int& argc,
   page_usage_specified_ (false),
   option_length_ (0),
   option_length_specified_ (false),
+  ascii_tree_ (),
   ansi_color_ (),
   exclude_base_ (),
   include_base_last_ (),
@@ -1290,6 +1294,7 @@ options (int start,
   page_usage_specified_ (false),
   option_length_ (0),
   option_length_specified_ (false),
+  ascii_tree_ (),
   ansi_color_ (),
   exclude_base_ (),
   include_base_last_ (),
@@ -1432,6 +1437,7 @@ options (::cli::scanner& s,
   page_usage_specified_ (false),
   option_length_ (0),
   option_length_specified_ (false),
+  ascii_tree_ (),
   ansi_color_ (),
   exclude_base_ (),
   include_base_last_ (),
@@ -1612,6 +1618,8 @@ print_usage (::std::ostream& os, ::cli::usage_para p)
 
   os << "--option-length <len>        Indent option descriptions <len> characters when" << ::std::endl
      << "                             printing usage." << ::std::endl;
+
+  os << "--ascii-tree                 Convert UTF-8 tree(1) output to ASCII." << ::std::endl;
 
   os << "--ansi-color                 Use ANSI color escape sequences when printing" << ::std::endl
      << "                             usage." << ::std::endl;
@@ -1859,6 +1867,8 @@ struct _cli_options_map_init
     _cli_options_map_["--option-length"] =
     &::cli::thunk< options, std::size_t, &options::option_length_,
       &options::option_length_specified_ >;
+    _cli_options_map_["--ascii-tree"] =
+    &::cli::thunk< options, bool, &options::ascii_tree_ >;
     _cli_options_map_["--ansi-color"] =
     &::cli::thunk< options, bool, &options::ansi_color_ >;
     _cli_options_map_["--exclude-base"] =

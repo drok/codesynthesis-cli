@@ -278,6 +278,9 @@ namespace
           : (n == 1 ? ds[0] : ds[1]); // Else, use common (no first sentence).
       }
 
+      if (options.ascii_tree ())
+        preprocess_ascii_tree (d);
+
       std::set<string> arg_set;
       if (n > 1 && options.ansi_color ())
         translate_arg (ds[0], arg_set);
@@ -345,6 +348,8 @@ namespace
       {
         l++; // ' ' seperator
 
+        // Note: we naturally assume this doesn't need --ascii-tree treatment.
+        //
         string s (doc.size () > 0 ? doc[0] : string ("<arg>"));
 
         if (options.ansi_color ())
@@ -439,6 +444,8 @@ namespace
         os << ' ';
         l++;
 
+        // Note: we naturally assume this doesn't need --ascii-tree treatment.
+        //
         string s (doc.size () > 0 ? doc[0] : string ("<arg>"));
 
         if (color)
@@ -474,6 +481,9 @@ namespace
           }
         }
       }
+
+      if (options.ascii_tree ())
+        preprocess_ascii_tree (d);
 
       // Format the documentation string.
       //

@@ -127,12 +127,15 @@ namespace
       // n > 2 - arg string, short string, long string
       //
       size_t n (ds.size ());
-      const string& d (
+      string d (
         n == 1
         ? (cd_ == cd_short ? first_sentence (ds[0]) : ds[0])
         : (n == 2
            ? (cd_ == cd_short ? first_sentence (ds[1]) : ds[1])
            : ds[cd_ == cd_short ? 1 : 2]));
+
+      if (options.ascii_tree ())
+        preprocess_ascii_tree (d);
 
       std::set<string> arg_set;
       if (n > 1)
@@ -211,6 +214,8 @@ namespace
 
       if (type != "bool" || doc.size () >= 3)
       {
+        // Note: we naturally assume this doesn't need --ascii-tree treatment.
+        //
         string s (
           translate_arg (
             doc.size () > 0 ? doc[0] : string ("<arg>"), arg_set));
@@ -235,6 +240,9 @@ namespace
         else if (doc.size () > 1)
           d = (cd_ == cd_short ? first_sentence (doc[1]) : doc[1]);
       }
+
+      if (options.ascii_tree ())
+        preprocess_ascii_tree (d);
 
       // Format the documentation string.
       //
