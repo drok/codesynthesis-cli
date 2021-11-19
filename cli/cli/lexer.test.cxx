@@ -8,6 +8,9 @@
 #include <cli/token.hxx>
 #include <cli/lexer.hxx>
 
+#undef NDEBUG
+#include <cassert>
+
 using namespace std;
 
 const char* keywords[] =

@@ -9,6 +9,9 @@
 #include <cli/semantics.hxx>
 #include <cli/traversal.hxx>
 
+#undef NDEBUG
+#include <cassert>
+
 using namespace std;
 
 int

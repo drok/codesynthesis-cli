@@ -6,9 +6,11 @@
 //
 
 #include <string>
-#include <cassert>
 
 #include "test.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 
