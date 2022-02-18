@@ -673,6 +673,21 @@ class options
   void
   ostream_type_specified (bool);
 
+  const std::string&
+  export_symbol () const;
+
+  std::string&
+  export_symbol ();
+
+  void
+  export_symbol (const std::string&);
+
+  bool
+  export_symbol_specified () const;
+
+  void
+  export_symbol_specified (bool);
+
   const bool&
   generate_cxx () const;
 
@@ -1562,6 +1577,8 @@ class options
   bool cli_namespace_specified_;
   std::string ostream_type_;
   bool ostream_type_specified_;
+  std::string export_symbol_;
+  bool export_symbol_specified_;
   bool generate_cxx_;
   bool generate_man_;
   bool generate_html_;

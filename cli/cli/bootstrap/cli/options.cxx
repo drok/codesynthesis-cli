@@ -702,6 +702,8 @@ options ()
   cli_namespace_specified_ (false),
   ostream_type_ ("::std::ostream"),
   ostream_type_specified_ (false),
+  export_symbol_ (),
+  export_symbol_specified_ (false),
   generate_cxx_ (),
   generate_man_ (),
   generate_html_ (),
@@ -844,6 +846,8 @@ options (int& argc,
   cli_namespace_specified_ (false),
   ostream_type_ ("::std::ostream"),
   ostream_type_specified_ (false),
+  export_symbol_ (),
+  export_symbol_specified_ (false),
   generate_cxx_ (),
   generate_man_ (),
   generate_html_ (),
@@ -989,6 +993,8 @@ options (int start,
   cli_namespace_specified_ (false),
   ostream_type_ ("::std::ostream"),
   ostream_type_specified_ (false),
+  export_symbol_ (),
+  export_symbol_specified_ (false),
   generate_cxx_ (),
   generate_man_ (),
   generate_html_ (),
@@ -1134,6 +1140,8 @@ options (int& argc,
   cli_namespace_specified_ (false),
   ostream_type_ ("::std::ostream"),
   ostream_type_specified_ (false),
+  export_symbol_ (),
+  export_symbol_specified_ (false),
   generate_cxx_ (),
   generate_man_ (),
   generate_html_ (),
@@ -1281,6 +1289,8 @@ options (int start,
   cli_namespace_specified_ (false),
   ostream_type_ ("::std::ostream"),
   ostream_type_specified_ (false),
+  export_symbol_ (),
+  export_symbol_specified_ (false),
   generate_cxx_ (),
   generate_man_ (),
   generate_html_ (),
@@ -1424,6 +1434,8 @@ options (::cli::scanner& s,
   cli_namespace_specified_ (false),
   ostream_type_ ("::std::ostream"),
   ostream_type_specified_ (false),
+  export_symbol_ (),
+  export_symbol_specified_ (false),
   generate_cxx_ (),
   generate_man_ (),
   generate_html_ (),
@@ -1589,6 +1601,10 @@ print_usage (::std::ostream& os, ::cli::usage_para p)
   os << "--ostream-type <type>        Output stream type instead of the default" << ::std::endl
      << "                             std::ostream that should be used to print usage" << ::std::endl
      << "                             and exception information." << ::std::endl;
+
+  os << "--export-symbol <symbol>     Insert <symbol> in places where DLL export/import" << ::std::endl
+     << "                             control statements" << ::std::endl
+     << "                             (__declspec(dllexport/dllimport)) are necessary." << ::std::endl;
 
   os << "--generate-cxx               Generate C++ code." << ::std::endl;
 
@@ -1843,6 +1859,9 @@ struct _cli_options_map_init
     _cli_options_map_["--ostream-type"] =
     &::cli::thunk< options, std::string, &options::ostream_type_,
       &options::ostream_type_specified_ >;
+    _cli_options_map_["--export-symbol"] =
+    &::cli::thunk< options, std::string, &options::export_symbol_,
+      &options::export_symbol_specified_ >;
     _cli_options_map_["--generate-cxx"] =
     &::cli::thunk< options, bool, &options::generate_cxx_ >;
     _cli_options_map_["--generate-man"] =

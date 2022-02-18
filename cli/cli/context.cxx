@@ -114,6 +114,8 @@ context (ostream& os_,
       opt_prefix (options.option_prefix ()),
       opt_sep (options.option_separator ()),
       cli (data_->cli_),
+      exp (data_->exp_),
+      exp_inl (data_->exp_inl_),
       reserved_name_map (options.reserved_name ()),
       keyword_set (data_->keyword_set_),
       link_regex (data_->link_regex_),
@@ -140,6 +142,16 @@ context (ostream& os_,
 
   if (!cli.empty () && cli[0] != ':')
     data_->cli_ = "::" + data_->cli_;
+
+  data_->exp_ = options.export_symbol ();
+
+  if (!exp.empty ())
+  {
+    data_->exp_ += ' ';
+
+    if (options.suppress_inline ())
+      data_->exp_inl_ = data_->exp_;
+  }
 
   for (size_t i (0); i < sizeof (keywords) / sizeof (char*); ++i)
     data_->keyword_set_.insert (keywords[i]);
@@ -179,6 +191,8 @@ context (context& c)
       opt_prefix (c.opt_prefix),
       opt_sep (c.opt_sep),
       cli (c.cli),
+      exp (c.exp),
+      exp_inl (c.exp_inl),
       reserved_name_map (c.reserved_name_map),
       keyword_set (c.keyword_set),
       link_regex (c.link_regex),

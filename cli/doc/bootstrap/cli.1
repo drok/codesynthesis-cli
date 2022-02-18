@@ -157,6 +157,9 @@ namespace\.
 .IP "\fB--ostream-type\fR \fItype\fR"
 Output stream type instead of the default \fBstd::ostream\fR that should be
 used to print usage and exception information\.
+.IP "\fB--export-symbol\fR \fIsymbol\fR"
+Insert \fIsymbol\fR in places where DLL export/import control statements
+(\fB__declspec(dllexport/dllimport)\fR) are necessary\.
 .IP "\fB--generate-cxx\fR"
 Generate C++ code\. If neither \fB--generate-man\fR, \fB--generate-html\fR,
 nor \fB--generate-txt\fR is specified, this mode is assumed by default\.

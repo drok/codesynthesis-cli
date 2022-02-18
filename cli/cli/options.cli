@@ -171,6 +171,13 @@ class options
      should be used to print usage and exception information."
   };
 
+  std::string --export-symbol
+  {
+    "<symbol>",
+    "Insert <symbol> in places where DLL export/import control statements
+     (\cb{__declspec(dllexport/dllimport)}) are necessary."
+  };
+
   bool --generate-cxx
   {
     "Generate C++ code. If neither \cb{--generate-man}, \cb{--generate-html},

@@ -115,7 +115,7 @@ namespace
       string name (escape (c.name ()));
       string um (cli + "::unknown_mode");
 
-      os << "class " << name;
+      os << "class " << exp << name;
 
       {
         base b (*this);
@@ -367,13 +367,13 @@ generate_header (context& ctx)
     string up (ctx.cli + "::usage_para");
     string const& ost (ctx.options.ostream_type ());
 
-    os << up << endl
+    os << ctx.exp << up << endl
        << n << "usage (" << ost << "&," << endl
        << up << " = " << up << "::none);"
        << endl;
 
     if (ctx.gen_usage == ut_both)
-      os << up << endl
+      os << ctx.exp << up << endl
          << n << "long_usage (" << ost << "&," << endl
          << up << " = " << up << "::none);"
          << endl;

@@ -43,10 +43,13 @@ generate_runtime_header (context& ctx)
 
   ctx.ns_open (ctx.cli);
 
+  string const& exp (ctx.exp);
+  string const& exp_inl (ctx.exp_inl);
+
   // usage_para
   //
   if (!ctx.options.suppress_usage ())
-    os << "class usage_para"
+    os << "class " << exp_inl << "usage_para"
        << "{"
        << "public:" << endl
        << "enum value"
@@ -64,7 +67,7 @@ generate_runtime_header (context& ctx)
 
   // unknown_mode
   //
-  os << "class unknown_mode"
+  os << "class " << exp_inl << "unknown_mode"
      << "{"
      << "public:" << endl
      << "enum value"
@@ -89,18 +92,18 @@ generate_runtime_header (context& ctx)
      << "//" << endl
      << endl;
 
-  os << "class exception: public std::exception"
+  os << "class " << exp << "exception: public std::exception"
      << "{"
      << "public:" << endl
      << "virtual void" << endl
      << "print (" << os_type << "&) const = 0;"
      << "};";
 
-  os << os_type << "&" << endl
+  os << exp_inl << os_type << "&" << endl
      << "operator<< (" << os_type << "&, const exception&);"
      << endl;
 
-  os << "class unknown_option: public exception"
+  os << "class " << exp << "unknown_option: public exception"
      << "{"
      << "public:" << endl
      << "virtual" << endl
@@ -121,7 +124,7 @@ generate_runtime_header (context& ctx)
      << "std::string option_;"
      << "};";
 
-  os << "class unknown_argument: public exception"
+  os << "class " << exp << "unknown_argument: public exception"
      << "{"
      << "public:" << endl
      << "virtual" << endl
@@ -142,7 +145,7 @@ generate_runtime_header (context& ctx)
      << "std::string argument_;"
      << "};";
 
-  os << "class missing_value: public exception"
+  os << "class " << exp << "missing_value: public exception"
      << "{"
      << "public:" << endl
      << "virtual" << endl
@@ -163,7 +166,7 @@ generate_runtime_header (context& ctx)
      << "std::string option_;"
      << "};";
 
-  os << "class invalid_value: public exception"
+  os << "class " << exp << "invalid_value: public exception"
      << "{"
      << "public:" << endl
      << "virtual" << endl
@@ -194,7 +197,7 @@ generate_runtime_header (context& ctx)
      << "std::string message_;"
      << "};";
 
-  os << "class eos_reached: public exception"
+  os << "class " << exp << "eos_reached: public exception"
      << "{"
      << "public:" << endl
      << "virtual void" << endl
@@ -206,7 +209,7 @@ generate_runtime_header (context& ctx)
 
   if (ctx.options.generate_file_scanner ())
   {
-    os << "class file_io_failure: public exception"
+    os << "class " << exp << "file_io_failure: public exception"
        << "{"
        << "public:" << endl
        << "virtual" << endl
@@ -227,7 +230,7 @@ generate_runtime_header (context& ctx)
        << "std::string file_;"
        << "};";
 
-    os << "class unmatched_quote: public exception"
+    os << "class " << exp << "unmatched_quote: public exception"
        << "{"
        << "public:" << endl
        << "virtual" << endl
@@ -251,7 +254,7 @@ generate_runtime_header (context& ctx)
 
   if (ctx.options.generate_group_scanner ())
   {
-    os << "class unexpected_group: public exception"
+    os << "class " << exp << "unexpected_group: public exception"
        << "{"
        << "public:" << endl
        << "virtual" << endl
@@ -277,7 +280,7 @@ generate_runtime_header (context& ctx)
        << "std::string group_;"
        << "};";
 
-    os << "class group_separator: public exception" << endl
+    os << "class " << exp << "group_separator: public exception" << endl
        << "{"
        << "public:" << endl
        << "virtual" << endl
@@ -322,7 +325,7 @@ generate_runtime_header (context& ctx)
      << "// position of the previous scanner should be used as the"     << endl
      << "// start position of the next."                                << endl
      << "//"                                                            << endl
-     << "class scanner"
+     << "class " << exp << "scanner"
      << "{"
      << "public:" << endl
      << "virtual" << endl
@@ -346,7 +349,7 @@ generate_runtime_header (context& ctx)
 
   // argv_scanner
   //
-  os << "class argv_scanner: public scanner"
+  os << "class " << exp << "argv_scanner: public scanner"
      << "{"
      << "public:" << endl
      << "argv_scanner (int& argc," << endl
@@ -390,7 +393,7 @@ generate_runtime_header (context& ctx)
   //
   if (ctx.options.generate_vector_scanner ())
   {
-    os << "class vector_scanner: public scanner"
+    os << "class " << exp << "vector_scanner: public scanner"
        << "{"
        << "public:" << endl
        << "vector_scanner (const std::vector<std::string>&," << endl
@@ -429,7 +432,7 @@ generate_runtime_header (context& ctx)
   //
   if (ctx.options.generate_file_scanner ())
   {
-    os << "class argv_file_scanner: public argv_scanner"
+    os << "class " << exp << "argv_file_scanner: public argv_scanner"
        << "{"
        << "public:" << endl
        << "argv_file_scanner (int& argc," << endl
@@ -549,7 +552,7 @@ generate_runtime_header (context& ctx)
   //
   if (ctx.options.generate_group_scanner ())
   {
-    os << "class group_scanner: public scanner"
+    os << "class " << exp << "group_scanner: public scanner"
        << "{"
        << "public:" << endl
        << "group_scanner (scanner&);"
@@ -632,7 +635,7 @@ generate_runtime_header (context& ctx)
     os << "typedef std::vector<std::string> option_names;"
        << endl;
 
-    os << "class option"
+    os << "class " << exp_inl << "option"
        << "{"
        << "public:" << endl
        << endl
@@ -662,7 +665,7 @@ generate_runtime_header (context& ctx)
        << "std::string default_value_;"
        << "};";
 
-    os << "class options: public std::vector<option>"
+    os << "class " << exp << "options: public std::vector<option>"
        << "{"
        << "public:" << endl
        << "typedef std::vector<option> container_type;"

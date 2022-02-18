@@ -672,6 +672,36 @@ ostream_type_specified (bool x)
   this->ostream_type_specified_ = x;
 }
 
+inline const std::string& options::
+export_symbol () const
+{
+  return this->export_symbol_;
+}
+
+inline std::string& options::
+export_symbol ()
+{
+  return this->export_symbol_;
+}
+
+inline void options::
+export_symbol (const std::string& x)
+{
+  this->export_symbol_ = x;
+}
+
+inline bool options::
+export_symbol_specified () const
+{
+  return this->export_symbol_specified_;
+}
+
+inline void options::
+export_symbol_specified (bool x)
+{
+  this->export_symbol_specified_ = x;
+}
+
 inline const bool& options::
 generate_cxx () const
 {

@@ -92,6 +92,8 @@ public:
   string const& opt_prefix;
   string const& opt_sep;
   string const& cli;
+  string const& exp;
+  string const& exp_inl; // Export symbol if inline is suppressed.
 
   typedef std::map<string, string> reserved_name_map_type;
   reserved_name_map_type const& reserved_name_map;
@@ -135,6 +137,8 @@ private:
   {
     string inl_;
     string cli_;
+    string exp_;
+    string exp_inl_;
     keyword_set_type keyword_set_;
     regex_mapping link_regex_;
     id_set_type id_set_;

@@ -192,6 +192,11 @@ arg+{ --foo }  # 'arg+{' ...</pre>
     <code><b>std::ostream</b></code> that should be used to print usage and
     exception information.</dd>
 
+    <dt><code><b>--export-symbol</b></code> <code><i>symbol</i></code></dt>
+    <dd>Insert <code><i>symbol</i></code> in places where DLL export/import
+    control statements (<code><b>__declspec(dllexport/dllimport)</b></code>)
+    are necessary.</dd>
+
     <dt><code><b>--generate-cxx</b></code></dt>
     <dd>Generate C++ code. If neither <code><b>--generate-man</b></code>,
     <code><b>--generate-html</b></code>, nor
