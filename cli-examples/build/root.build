@@ -16,7 +16,8 @@ if ($cxx.target.system == 'win32-msvc')
 if ($cxx.class == 'msvc')
   cxx.coptions += /wd4251 /wd4275 /wd4800
 
-using cli
+if ($build.mode != 'skeleton')
+  using cli
 
 # Every exe{} in this project is by default a test.
 #
