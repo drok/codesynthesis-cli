@@ -542,10 +542,31 @@ namespace cli
   struct parser<bool>
   {
     static void
-    parse (bool& x, scanner& s)
+    parse (bool& x, bool& xs, scanner& s)
     {
-      s.next ();
-      x = true;
+      const char* o (s.next ());
+
+      if (s.more ())
+      {
+        const char* v (s.next ());
+
+        if (std::strcmp (v, "1")    == 0 ||
+            std::strcmp (v, "true") == 0 ||
+            std::strcmp (v, "TRUE") == 0 ||
+            std::strcmp (v, "True") == 0)
+          x = true;
+        else if (std::strcmp (v, "0")     == 0 ||
+                 std::strcmp (v, "false") == 0 ||
+                 std::strcmp (v, "FALSE") == 0 ||
+                 std::strcmp (v, "False") == 0)
+          x = false;
+        else
+          throw invalid_value (o, v);
+      }
+      else
+        throw missing_value (o);
+
+      xs = true;
     }
   };
 
@@ -662,6 +683,14 @@ namespace cli
     parser<T>::parse (x.*M, s);
   }
 
+  template <typename X, bool X::*M>
+  void
+  thunk (X& x, scanner& s)
+  {
+    s.next ();
+    x.*M = true;
+  }
+
   template <typename X, typename T, T X::*M, bool X::*S>
   void
   thunk (X& x, scanner& s)
@@ -671,7 +700,6 @@ namespace cli
 }
 
 #include <map>
-#include <cstring>
 
 // options
 //
@@ -1815,9 +1843,9 @@ struct _cli_options_map_init
     &::cli::thunk< options, std::uint64_t, &options::build2_metadata_,
       &options::build2_metadata_specified_ >;
     _cli_options_map_["--help"] =
-    &::cli::thunk< options, bool, &options::help_ >;
+    &::cli::thunk< options, &options::help_ >;
     _cli_options_map_["--version"] =
-    &::cli::thunk< options, bool, &options::version_ >;
+    &::cli::thunk< options, &options::version_ >;
     _cli_options_map_["--include-path"] =
     &::cli::thunk< options, std::vector<std::string>, &options::include_path_,
       &options::include_path_specified_ >;
@@ -1834,25 +1862,25 @@ struct _cli_options_map_init
     &::cli::thunk< options, cxx_version, &options::std_,
       &options::std_specified_ >;
     _cli_options_map_["--generate-modifier"] =
-    &::cli::thunk< options, bool, &options::generate_modifier_ >;
+    &::cli::thunk< options, &options::generate_modifier_ >;
     _cli_options_map_["--generate-specifier"] =
-    &::cli::thunk< options, bool, &options::generate_specifier_ >;
+    &::cli::thunk< options, &options::generate_specifier_ >;
     _cli_options_map_["--generate-parse"] =
-    &::cli::thunk< options, bool, &options::generate_parse_ >;
+    &::cli::thunk< options, &options::generate_parse_ >;
     _cli_options_map_["--generate-merge"] =
-    &::cli::thunk< options, bool, &options::generate_merge_ >;
+    &::cli::thunk< options, &options::generate_merge_ >;
     _cli_options_map_["--generate-description"] =
-    &::cli::thunk< options, bool, &options::generate_description_ >;
+    &::cli::thunk< options, &options::generate_description_ >;
     _cli_options_map_["--generate-file-scanner"] =
-    &::cli::thunk< options, bool, &options::generate_file_scanner_ >;
+    &::cli::thunk< options, &options::generate_file_scanner_ >;
     _cli_options_map_["--generate-vector-scanner"] =
-    &::cli::thunk< options, bool, &options::generate_vector_scanner_ >;
+    &::cli::thunk< options, &options::generate_vector_scanner_ >;
     _cli_options_map_["--generate-group-scanner"] =
-    &::cli::thunk< options, bool, &options::generate_group_scanner_ >;
+    &::cli::thunk< options, &options::generate_group_scanner_ >;
     _cli_options_map_["--suppress-inline"] =
-    &::cli::thunk< options, bool, &options::suppress_inline_ >;
+    &::cli::thunk< options, &options::suppress_inline_ >;
     _cli_options_map_["--suppress-cli"] =
-    &::cli::thunk< options, bool, &options::suppress_cli_ >;
+    &::cli::thunk< options, &options::suppress_cli_ >;
     _cli_options_map_["--cli-namespace"] =
     &::cli::thunk< options, std::string, &options::cli_namespace_,
       &options::cli_namespace_specified_ >;
@@ -1863,23 +1891,23 @@ struct _cli_options_map_init
     &::cli::thunk< options, std::string, &options::export_symbol_,
       &options::export_symbol_specified_ >;
     _cli_options_map_["--generate-cxx"] =
-    &::cli::thunk< options, bool, &options::generate_cxx_ >;
+    &::cli::thunk< options, &options::generate_cxx_ >;
     _cli_options_map_["--generate-man"] =
-    &::cli::thunk< options, bool, &options::generate_man_ >;
+    &::cli::thunk< options, &options::generate_man_ >;
     _cli_options_map_["--generate-html"] =
-    &::cli::thunk< options, bool, &options::generate_html_ >;
+    &::cli::thunk< options, &options::generate_html_ >;
     _cli_options_map_["--generate-txt"] =
-    &::cli::thunk< options, bool, &options::generate_txt_ >;
+    &::cli::thunk< options, &options::generate_txt_ >;
     _cli_options_map_["--stdout"] =
-    &::cli::thunk< options, bool, &options::stdout__ >;
+    &::cli::thunk< options, &options::stdout__ >;
     _cli_options_map_["--suppress-undocumented"] =
-    &::cli::thunk< options, bool, &options::suppress_undocumented_ >;
+    &::cli::thunk< options, &options::suppress_undocumented_ >;
     _cli_options_map_["--suppress-usage"] =
-    &::cli::thunk< options, bool, &options::suppress_usage_ >;
+    &::cli::thunk< options, &options::suppress_usage_ >;
     _cli_options_map_["--long-usage"] =
-    &::cli::thunk< options, bool, &options::long_usage_ >;
+    &::cli::thunk< options, &options::long_usage_ >;
     _cli_options_map_["--short-usage"] =
-    &::cli::thunk< options, bool, &options::short_usage_ >;
+    &::cli::thunk< options, &options::short_usage_ >;
     _cli_options_map_["--page-usage"] =
     &::cli::thunk< options, std::string, &options::page_usage_,
       &options::page_usage_specified_ >;
@@ -1887,13 +1915,13 @@ struct _cli_options_map_init
     &::cli::thunk< options, std::size_t, &options::option_length_,
       &options::option_length_specified_ >;
     _cli_options_map_["--ascii-tree"] =
-    &::cli::thunk< options, bool, &options::ascii_tree_ >;
+    &::cli::thunk< options, &options::ascii_tree_ >;
     _cli_options_map_["--ansi-color"] =
-    &::cli::thunk< options, bool, &options::ansi_color_ >;
+    &::cli::thunk< options, &options::ansi_color_ >;
     _cli_options_map_["--exclude-base"] =
-    &::cli::thunk< options, bool, &options::exclude_base_ >;
+    &::cli::thunk< options, &options::exclude_base_ >;
     _cli_options_map_["--include-base-last"] =
-    &::cli::thunk< options, bool, &options::include_base_last_ >;
+    &::cli::thunk< options, &options::include_base_last_ >;
     _cli_options_map_["--class-doc"] =
     &::cli::thunk< options, std::map<std::string, std::string>, &options::class_doc_,
       &options::class_doc_specified_ >;
@@ -1910,12 +1938,12 @@ struct _cli_options_map_init
     &::cli::thunk< options, std::vector<std::string>, &options::link_regex_,
       &options::link_regex_specified_ >;
     _cli_options_map_["--link-regex-trace"] =
-    &::cli::thunk< options, bool, &options::link_regex_trace_ >;
+    &::cli::thunk< options, &options::link_regex_trace_ >;
     _cli_options_map_["--html-heading-map"] =
     &::cli::thunk< options, std::map<char, std::string>, &options::html_heading_map_,
       &options::html_heading_map_specified_ >;
     _cli_options_map_["--omit-link-check"] =
-    &::cli::thunk< options, bool, &options::omit_link_check_ >;
+    &::cli::thunk< options, &options::omit_link_check_ >;
     _cli_options_map_["--hxx-prologue"] =
     &::cli::thunk< options, std::vector<std::string>, &options::hxx_prologue_,
       &options::hxx_prologue_specified_ >;
@@ -2019,13 +2047,13 @@ struct _cli_options_map_init
     &::cli::thunk< options, std::string, &options::option_separator_,
       &options::option_separator_specified_ >;
     _cli_options_map_["--keep-separator"] =
-    &::cli::thunk< options, bool, &options::keep_separator_ >;
+    &::cli::thunk< options, &options::keep_separator_ >;
     _cli_options_map_["--no-combined-flags"] =
-    &::cli::thunk< options, bool, &options::no_combined_flags_ >;
+    &::cli::thunk< options, &options::no_combined_flags_ >;
     _cli_options_map_["--no-combined-values"] =
-    &::cli::thunk< options, bool, &options::no_combined_values_ >;
+    &::cli::thunk< options, &options::no_combined_values_ >;
     _cli_options_map_["--include-with-brackets"] =
-    &::cli::thunk< options, bool, &options::include_with_brackets_ >;
+    &::cli::thunk< options, &options::include_with_brackets_ >;
     _cli_options_map_["--include-prefix"] =
     &::cli::thunk< options, std::string, &options::include_prefix_,
       &options::include_prefix_specified_ >;

@@ -1084,12 +1084,12 @@ include &lt;string>;
 
 class options
 {
-  std::map&lt;std::string, std::string> --map | -m;
+  std::map&lt;std::string, bool> --map | -m;
 };
   </pre>
 
-  <p>The possible option values for this interface are: <code>-m a=A</code>,
-     <code>-m =B</code> (key is an empty string),  <code>-m c=</code> (value
+  <p>The possible option values for this interface are: <code>-m a=1</code>,
+     <code>-m =true</code> (key is an empty string),  <code>-m c=</code> (value
       is an empty string), or <code>-m d</code> (same as <code>-m d=</code>).</p>
 
   <p>The last component in the option definition is optional documentation.

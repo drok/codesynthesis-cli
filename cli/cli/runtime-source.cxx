@@ -17,11 +17,11 @@ generate_runtime_source (context& ctx, bool complete)
      << "#include <vector>" << endl
      << "#include <utility>" << endl // pair
      << "#include <ostream>" << endl
-     << "#include <sstream>" << endl;
+     << "#include <sstream>" << endl
+     << "#include <cstring>" << endl;
 
   if (complete && ctx.options.generate_file_scanner ())
-    os << "#include <cstring>" << endl
-       << "#include <fstream>" << endl;
+    os << "#include <fstream>" << endl;
 
   os << endl;
 
@@ -1011,11 +1011,33 @@ generate_runtime_source (context& ctx, bool complete)
      << "{";
 
   os <<   "static void" << endl
-     <<   "parse (bool& x, scanner& s)"
+     <<   "parse (bool& x, " << (sp ? "bool& xs, " : "") << "scanner& s)"
      <<   "{"
-     <<     "s.next ();"
-     <<     "x = true;"
-     <<   "}";
+     <<     "const char* o (s.next ());"
+     <<                                                                    endl
+     <<     "if (s.more ())"
+     <<     "{"
+     <<       "const char* v (s.next ());"
+     <<                                                                    endl
+     <<       "if (std::strcmp (v, \"1\")    == 0 ||" << endl
+     <<           "std::strcmp (v, \"true\") == 0 ||" << endl
+     <<           "std::strcmp (v, \"TRUE\") == 0 ||" << endl
+     <<           "std::strcmp (v, \"True\") == 0)"   << endl
+     <<             "x = true;"
+     <<       "else if (std::strcmp (v, \"0\")     == 0 ||" << endl
+     <<                "std::strcmp (v, \"false\") == 0 ||" << endl
+     <<                "std::strcmp (v, \"FALSE\") == 0 ||" << endl
+     <<                "std::strcmp (v, \"False\") == 0)"   << endl
+     <<             "x = false;"
+     <<       "else" << endl
+     <<         "throw invalid_value (o, v);"
+     <<     "}"
+     <<     "else" << endl
+     <<       "throw missing_value (o);";
+  if (sp)
+    os << endl
+       <<   "xs = true;";
+  os <<   "}";
 
   if (gen_merge)
     os << "static void" << endl
@@ -1201,6 +1223,14 @@ generate_runtime_source (context& ctx, bool complete)
      << "thunk (X& x, scanner& s)"
      << "{"
      << "parser<T>::parse (x.*M, s);"
+     << "}";
+
+  os << "template <typename X, bool X::*M>" << endl
+     << "void" << endl
+     << "thunk (X& x, scanner& s)"
+     << "{"
+     <<   "s.next ();"
+     <<   "x.*M = true;"
      << "}";
 
   if (ctx.gen_specifier)

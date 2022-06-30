@@ -110,8 +110,12 @@ namespace
       for (names::name_iterator i (n.name_begin ()); i != n.name_end (); ++i)
       {
         os << "_cli_" << scope << "_map_[\"" << *i << "\"] =" << endl
-           << "&" << cli << "::thunk< " << scope << ", " << type << ", " <<
-          "&" << scope << "::" << member;
+           << "&" << cli << "::thunk< " << scope;
+
+        if (type != "bool")
+          os << ", " << type;
+
+        os << ", " << "&" << scope << "::" << member;
 
         if (gen_specifier && type != "bool")
           os << "," << endl
@@ -1272,7 +1276,6 @@ generate_source (context& ctx)
   ostream& os (ctx.os);
 
   os << "#include <map>" << endl
-     << "#include <cstring>" << endl
      << endl;
 
   traversal::cli_unit unit;
