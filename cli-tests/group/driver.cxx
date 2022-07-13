@@ -52,7 +52,7 @@ main (int argc, char* argv[])
       s.peek ();
       assert (pos == s.position ());
 
-      const char* a;
+      const char* a (0);
       if (!sa)
       {
         a = s.next ();
