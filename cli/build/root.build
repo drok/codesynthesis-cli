@@ -4,9 +4,11 @@
 # Note that we cannot install the development build. This is due to both the
 # bootstrap cli (which we need to run) and the final cli (which we need to
 # install) depending on libcutl (so we need it to be both "for-install" and
-# "for-run"). Nor can we run the final cli to generate the man pages.
+# "for-run"). Nor can we run such final cli to generate the man pages.
 #
 config [bool] config.cli.develop ?= false
+
+develop = $config.cli.develop
 
 define cli: file
 cli{*}: extension = cli

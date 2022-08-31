@@ -16,15 +16,37 @@ pdf{*}: extension = pdf
 define html2ps: file
 html2ps{*}: extension = html2ps
 
-./: css{default} xhtml{cli-guide} bootstrap/{man1 xhtml}{cli}
+./: css{default} xhtml{cli-guide}
 
-if $config.cli.develop
+# Man pages.
+#
+
+## Consumption build ($develop == false).
+#
+
+# Use pregenerated versions in the consumption build.
+#
+./: pregenerated/{man1 xhtml}{*}: include = (!$develop)
+
+# Distribute pregenerated versions only in the consumption build.
+#
+pregenerated/{man1 xhtml}{*}: dist = (!$develop)
+
+#
+##
+
+## Development build ($develop == true).
+#
+
+./: {man1 xhtml}{cli}: include = $develop
+
+if $develop
 {
   doc_version = [string] "$version.major\.$version.minor\.$version.patch"
   if $version.pre_release
     doc_version += "-$version.pre_release_string"
 
-  # Let's take the last for-digit number to cover 2000-2021,2022.
+  # Let's take the last four-digit number to cover 2000-2021,2022.
   #
   doc_year = $regex.replace($copyright, '.+[-, ]([0-9][0-9][0-9][0-9]) .+', '\1')
 
@@ -33,87 +55,142 @@ if $config.cli.develop
 
   # We use the cli version we've built to generate the documentation.
   #
-  # Note: avoid cleaning it through this dependency.
-  #
   include ../cli/
+}
 
-  {xhtml man1}{cli}: ../cli/exe{cli}: clean = false
+# Note: avoid cleaning exe{cli} through this dependency.
+#
+{man1 xhtml}{cli}: ../cli/exe{cli}: clean = false
 
-  ./: man1{cli}: ../cli/cli{options} file{cli-prologue.1 cli-epilogue.1}
-  {{
-    diag cli --man ($<[1])
+# In the development build distribute regenerated versions, remapping their
+# locations to the paths of the pregenerated versions (which are only
+# distributed in the consumption build; see above). This way we make sure that
+# the distributed files are always up-to-date.
+#
+{man1 xhtml}{cli}: dist = ($develop ? pregenerated/ : false)
 
-    # Use the copyright year to approximate the last authoring date.
-    #
-    ($<[0]) --generate-man  $man_options     \
-            -v date="January $doc_year"      \
-            --man-prologue-file $path($<[2]) \
-            --man-epilogue-file $path($<[3]) \
-            --stdout $path($<[1]) >$path($>)
+man1{cli}: ../cli/cli{options} file{cli-prologue.1 cli-epilogue.1}
+%
+if $develop
+{{
+  diag cli --man ($<[1])
 
-    # If the result differs from the bootstrap version, copy it over. Unlike
-    # the bootstrap cli case, here we don't need to cause a build restart.
-    #
-    if! diff $src_base/bootstrap/cli.1 $path($>) >-
-      cp $path($>) $src_base/bootstrap/cli.1
-    end
-  }}
+  # Use the copyright year to approximate the last authoring date.
+  #
+  ($<[0]) --generate-man  $man_options     \
+          -v date="January $doc_year"      \
+          --man-prologue-file $path($<[2]) \
+          --man-epilogue-file $path($<[3]) \
+          --stdout $path($<[1]) >$path($>)
 
-  ./: xhtml{cli}: $src_root/cli/cli{options} \
-                  file{cli-prologue.xhtml cli-epilogue.xhtml}
-  {{
-    diag cli --html ($<[1])
+  # If the result differs from the pregenerated version, copy it over. Unlike
+  # the bootstrap compiler case, here we don't need to cause a build restart
+  # (since nothing depends on it).
+  #
+  if! diff $src_base/pregenerated/cli.1 $path($>) >-
+    cp $path($>) $src_base/pregenerated/cli.1
+  end
+}}
 
-    ($<[0]) --generate-html $man_options      \
-            --html-prologue-file $path($<[2]) \
-            --html-epilogue-file $path($<[3]) \
-            --stdout $path($<[1]) >$path($>)
+xhtml{cli}: ../cli/cli{options} file{cli-prologue.xhtml cli-epilogue.xhtml}
+%
+if $develop
+{{
+  diag cli --html ($<[1])
 
-    if! diff $src_base/bootstrap/cli.xhtml $path($>) >-
-      cp $path($>) $src_base/bootstrap/cli.xhtml
-    end
-  }}
+  ($<[0]) --generate-html $man_options      \
+          --html-prologue-file $path($<[2]) \
+          --html-epilogue-file $path($<[3]) \
+          --stdout $path($<[1]) >$path($>)
 
+  if! diff $src_base/pregenerated/cli.xhtml $path($>) >-
+    cp $path($>) $src_base/pregenerated/cli.xhtml
+  end
+}}
+
+#
+##
+
+# Manual.
+#
+# This case is slightly more involved because we make the generation of the
+# manual's ps/pdf optional and also don't keep the result in the repository.
+# Specifically:
+#
+# 1. In the consumption build we will install/redistribute ps/pdf if present.
+#
+# 2. In the development build we will generate ps/pdf if we are able to import
+#    the needed tools, issuing a warning otherwise.
+
+## Consumption build ($develop == false).
+#
+
+# Use pregenerated versions, if exist, in the consumption build.
+#
+./: pregenerated/{ps pdf}{*}: include = (!$develop)
+
+# Distribute pregenerated versions only in the consumption build.
+#
+pregenerated/{ps pdf}{*}: dist = (!$develop)
+
+#
+##
+
+## Development build ($develop == true).
+#
+
+html2pdf = false
+
+if $develop
+{
   # Import the html2ps and ps2pdf programs from the system, if available.
   #
   import? html2ps = html2ps%exe{html2ps}
   import? ps2pdf  = ps2pdf14%exe{ps2pdf14}
 
-  if ($html2ps != [null] && $ps2pdf != [null])
-  {
-    # Note that we include these generated files into the distribution and
-    # don't remove them when cleaning in src (so that clean results in a state
-    # identical to distributed).
-    #
-    ./: ps{cli-guide}: xhtml{cli-guide} html2ps{guide} $html2ps
-    {
-      options =
+  html2pdf = ($html2ps != [null] && $ps2pdf != [null])
 
-      dist  = true
-      clean = ($src_root != $out_root)
-    }
-    {{
-      diag html2ps ($<[0])
-      $html2ps $options -f $path($<[1]) -o $path($>) $path($<[0])
-    }}
-
-    ./: pdf{cli-guide}: ps{cli-guide} $ps2pdf
-    {
-      options = -dOptimize=true -dEmbedAllFonts=true
-
-      dist  = true
-      clean = ($src_root != $out_root)
-    }
-    {{
-      diag ps2pdf ($<[0])
-      $ps2pdf $options $path($<[0]) $path($>)
-    }}
-  }
-  else
-  {
+  if! $html2pdf
     warn "html2ps and/or ps2pdf14 are not available, not generating .ps and .pdf documentation"
-    ./: html2ps{guide} # Note: not keeping ps/pdf (could be outdated).
-  }
 }
-else
-  ./: file{cli-prologue* cli-epilogue*} html2ps{guide} {ps pdf}{+cli-guide}
+
+./: {ps pdf}{cli-guide}: include = $html2pdf
+
+# In the development build distribute regenerated versions, remapping their
+# locations to the paths of the pregenerated versions (which are only
+# distributed in the consumption build; see above). This way we make sure that
+# the distributed files are always up-to-date.
+#
+{ps pdf}{cli-guide}: dist = ($html2pdf ? pregenerated/ : false)
+
+# Note: the pregenerated file may not exist, thus --no-cleanup option is
+# required for the cp builtin call.
+#
+ps{cli-guide}: xhtml{cli-guide} html2ps{guide} $html2ps
+{
+  options =
+}
+%
+if $html2pdf
+{{
+  diag html2ps ($<[0])
+  $html2ps $options -f $path($<[1]) -o $path($>) $path($<[0])
+
+  cp --no-cleanup $path($>) $src_base/pregenerated/cli-guide.ps
+}}
+
+pdf{cli-guide}: ps{cli-guide} $ps2pdf
+{
+  options = -dOptimize=true -dEmbedAllFonts=true
+}
+%
+if $html2pdf
+{{
+  diag ps2pdf ($<[0])
+  $ps2pdf $options $path($<[0]) $path($>)
+
+  cp --no-cleanup $path($>) $src_base/pregenerated/cli-guide.pdf
+}}
+
+#
+##

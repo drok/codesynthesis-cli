@@ -25,91 +25,118 @@ libue{cli}: $hdr $src $all_s $all_t {hxx}{version} $libs
 
 hxx{version}: in{version} $src_root/manifest
 
-# Build options (both bootstrap and final version).
+# Build options (apply to both bootstrap and final version).
 #
 cxx.poptions =+ "-I$out_root" "-I$src_root"
+
+# CLI uses its own generated code to handle the command line. To solve the
+# chicken and egg problem that this poses we keep pregenerated source code in
+# pregenerated/.
+#
+# In the consumption build ($config.cli.develop == false), we just use this
+# pregenerated source code to build the final version of the compiler. In the
+# development build ($config.cli.develop == true) we use this pregenerated
+# source code to build a bootstrap version of the compiler which we then use
+# to regenerate the source code and build that final version from that.
+
+## Consumption build ($develop == false).
+#
+
+# Use pregenerated versions to build the final version of cli.
+#
+libue{cli}: pregenerated/{hxx ixx cxx}{**}: include = (!$develop)
+
+if! $develop
+  cxx.poptions =+ "-I($src_base/pregenerated)" # Note: must come first.
+
+# Distribute pregenerated versions only in the consumption build.
+#
+pregenerated/{hxx ixx cxx}{*}: dist = (!$develop)
+
+#
+##
+
+## Development build ($develop == true).
+#
+libue{cli}: {hxx ixx cxx}{options}: include = $develop
 
 # Bootstrap.
 #
 # The plan is as follows:
 #
 # 1. Build the bootstrap version of cli using a copy of options.?xx saved in
-#    bootstrap/cli/.
+#    pregenerated/cli/.
 #
-# 2. Use that to re-generate options.?xx. If the result differs from the
-#    saved version, copy it over and fail the build, asking for a restart.
+# 2. Use that to regenerate options.?xx. If the result differs from the saved
+#    version, copy it over and fail the build, asking for a restart.
 #
-# 3. Otherwise, proceed to build the final version of cli.
+# 3. Otherwise, proceed to build the final version of cli using regenerated
+#    options.?xx.
 #
-if $config.cli.develop
+pregenerated/
 {
-  libue{cli}: {hxx ixx cxx}{options}
-
-  bootstrap/
-  {
-    # This should only apply to the bootstrap build.
-    #
-    cxx.poptions =+ "-I$src_base" # Note: must come first.
-
-    cli/
-    {
-      # Note: semantics/ and traversal/ do not include options.hxx so we can
-      #       share their object files.
-      #
-      exe{cli}: obj{cli $name($src) options} ../../{$all_s $all_t} $libs
-
-      for s: cli $name($src)
-        obj{$s}: ../../cxx{$s} $libs
-
-      obj{options}: {hxx ixx cxx}{options}
-
-      obj{cli}: cxx.poptions += -DCLI_BOOTSTRAP
-    }
-  }
-
-  <{hxx ixx cxx}{options}>: cli{options} bootstrap/cli/exe{cli}
-  {
-    options = --include-with-brackets --include-prefix cli   \
-              --guard-prefix CLI --generate-file-scanner     \
-              --generate-specifier --generate-modifier       \
-              --suppress-undocumented --reserved-name stdout
-
-    # Symlink the generated code in src for convenience of development.
-    #
-    backlink = true
-  }
-  {{
-    diag cli ($<[0])
-    ($<[1]) $options -o $out_base $path($<[0])
-
-    # If the result differs from the bootstrap version, copy it over and
-    # request the build restart.
-    #
-    if diff $src_base/bootstrap/cli/options.hxx $path($>[0]) >- && \
-       diff $src_base/bootstrap/cli/options.ixx $path($>[1]) >- && \
-       diff $src_base/bootstrap/cli/options.cxx $path($>[2]) >-
-      exit
-    end
-
-    cp $path($>[0]) $src_base/bootstrap/cli/options.hxx
-    cp $path($>[1]) $src_base/bootstrap/cli/options.ixx
-    cp $path($>[2]) $src_base/bootstrap/cli/options.cxx
-
-    exit "bootstrap options.?xx have changed, restart the build"
-  }}
-}
-else
-{
-  # Use bootstrap options.?xx to build the final version of cli.
+  # This should only apply to the bootstrap build.
   #
-  libue{cli}: bootstrap/cli/{hxx ixx cxx}{options}
-  cxx.poptions =+ "-I($src_base/bootstrap)" # Note: must come first.
+  cxx.poptions =+ "-I$src_base" # Note: must come first.
 
-  ./: cli{options} # Keep in distribution.
+  cli/
+  {
+    # Note: semantics/ and traversal/ do not include options.hxx so we can
+    #       share their object files.
+    #
+    exe{cli}: obj{cli $name($src) options} ../../{$all_s $all_t} $libs
+
+    for s: cli $name($src)
+      obj{$s}: ../../cxx{$s} $libs
+
+    obj{options}: {hxx ixx cxx}{options}
+
+    obj{cli}: cxx.poptions += -DCLI_BOOTSTRAP
+  }
 }
 
-# Build options (final version only).
+# In the development build distribute regenerated {hxx ixx cxx}{options},
+# remapping their locations to the paths of the pregenerated versions (which
+# are only distributed in the consumption build; see above). This way we make
+# sure that the distributed files are always up-to-date.
 #
+<{hxx ixx cxx}{options}>: cli{options} pregenerated/cli/exe{cli}
+{
+  options = --include-with-brackets --include-prefix cli   \
+            --guard-prefix CLI --generate-file-scanner     \
+            --generate-specifier --generate-modifier       \
+            --suppress-undocumented --reserved-name stdout
+
+  dist = ($develop ? pregenerated/cli/ : false)
+
+  # Symlink the generated code in src for convenience of development.
+  #
+  backlink = true
+}
+%
+if $develop
+{{
+  diag cli ($<[0])
+  ($<[1]) $options -o $out_base $path($<[0])
+
+  # If the result differs from the bootstrap version, copy it over and
+  # request the build restart.
+  #
+  if diff $src_base/pregenerated/cli/options.hxx $path($>[0]) >- && \
+     diff $src_base/pregenerated/cli/options.ixx $path($>[1]) >- && \
+     diff $src_base/pregenerated/cli/options.cxx $path($>[2]) >-
+    exit
+  end
+
+  cp $path($>[0]) $src_base/pregenerated/cli/options.hxx
+  cp $path($>[1]) $src_base/pregenerated/cli/options.ixx
+  cp $path($>[2]) $src_base/pregenerated/cli/options.cxx
+
+  exit "bootstrap options.?xx have changed, restart the build"
+}}
+
+#
+##
 
 # Pass the copyright notice extracted from the LICENSE file.
 #
