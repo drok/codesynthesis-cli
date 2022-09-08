@@ -163,8 +163,10 @@ if $develop
 #
 {ps pdf}{cli-guide}: dist = ($html2pdf ? pregenerated/ : false)
 
-# Note: the pregenerated file may not exist, thus --no-cleanup option is
-# required for the cp builtin call.
+# Note: the pregenerated files may not exist, thus --no-cleanup option is
+# required for the cp builtin call. Strictly speaking we don't really need
+# to copy them since they are not stored in the repository, but let's do
+# that for consistency with the distributed source tree.
 #
 ps{cli-guide}: xhtml{cli-guide} html2ps{guide} $html2ps
 {
