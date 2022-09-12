@@ -172,12 +172,11 @@ if $develop
 #        years hard-coded.
 #
 ps{cli-guide}: xhtml{cli-guide} html2ps{guide} $html2ps
-{
-  options =
-}
 %
 if $html2pdf
 {{
+  options =
+
   diag html2ps ($<[0])
   $html2ps $options -f $path($<[1]) -o $path($>) $path($<[0])
 
@@ -185,12 +184,11 @@ if $html2pdf
 }}
 
 pdf{cli-guide}: ps{cli-guide} $ps2pdf
-{
-  options = -dOptimize=true -dEmbedAllFonts=true
-}
 %
 if $html2pdf
 {{
+  options = -dOptimize=true -dEmbedAllFonts=true
+
   diag ps2pdf ($<[0])
   $ps2pdf $options $path($<[0]) $path($>)
 

@@ -102,11 +102,6 @@ pregenerated/
 #
 <{hxx ixx cxx}{options}>: cli{options} pregenerated/cli/exe{cli}
 {
-  options = --include-with-brackets --include-prefix cli   \
-            --guard-prefix CLI --generate-file-scanner     \
-            --generate-specifier --generate-modifier       \
-            --suppress-undocumented --reserved-name stdout
-
   dist = ($develop ? pregenerated/cli/ : false)
 
   # Symlink the generated code in src for convenience of development.
@@ -116,6 +111,11 @@ pregenerated/
 %
 if $develop
 {{
+  options = --include-with-brackets --include-prefix cli   \
+            --guard-prefix CLI --generate-file-scanner     \
+            --generate-specifier --generate-modifier       \
+            --suppress-undocumented --reserved-name stdout
+
   diag cli ($<[0])
   ($<[1]) $options -o $out_base $path($<[0])
 
