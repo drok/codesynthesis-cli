@@ -199,6 +199,18 @@ class options
     "Generate documentation in the plain text format, similar to usage."
   };
 
+  bool --generate-dep
+  {
+    "Generate \cb{make} dependency information. This option triggers the
+     creation of the \cb{.d} file containing the dependencies of the generated
+     files on the main \cb{.cli} file as well as all the \cb{.cli} files that
+     it includes or sources, transitively. Paths specified with the
+     \cb{--*-prologue-file} and \cb{--*-epilogue-file} options are also
+     added as dependencies. Note, however, that paths specified with the
+     \cb{--options-file} option are not added (since they may or may not
+     contain options that affect the output)."
+  };
+
   bool --stdout
   {
     "Write output to STDOUT instead of a file. This option is not valid
@@ -584,6 +596,20 @@ class options
     "<suffix>",
     "Use <suffix> instead of the default \cb{.txt} to construct the name of
      the generated text file."
+  };
+
+  std::string --dep-suffix = ".d"
+  {
+    "<suffix>",
+    "Use <suffix> instead of the default \cb{.d} to construct the name of the
+     generated dependency file. See also \cb{--dep-file}."
+  };
+
+  std::string --dep-file
+  {
+    "<path>",
+    "Use <path> as the generated dependency file path instead of deriving it
+     from the input file name."
   };
 
   std::string --option-prefix = "-"

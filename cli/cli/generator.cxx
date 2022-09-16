@@ -2,9 +2,10 @@
 // author    : Boris Kolpackov <boris@codesynthesis.com>
 // license   : MIT; see accompanying LICENSE file
 
-#include <cctype>  // std::toupper, std::is{alpha,upper,lower}
+#include <cctype>   // toupper, is{alpha,upper,lower}
 #include <string>
 #include <fstream>
+#include <utility>  // move()
 #include <iostream>
 
 #include <libcutl/fs/auto-remove.hxx>
@@ -98,7 +99,10 @@ namespace
   }
 
   void
-  append (context& ctx, vector<string> const& text, string const& file)
+  append (context& ctx,
+          vector<string> const& text,
+          string const& file,
+          vector<path>* pdeps)
   {
     for (vector<string>::const_iterator i (text.begin ());
          i != text.end (); ++i)
@@ -111,7 +115,8 @@ namespace
       ifstream ifs;
       open (ifs, file);
 
-      path d (path (file).directory ());
+      path p (file);
+      path d (p.directory ());
 
       // getline() will set the failbit if it failed to extract anything,
       // not even the delimiter and eofbit if it reached eof before seeing
@@ -119,6 +124,9 @@ namespace
       //
       for (string s; getline (ifs, s); )
         append (ctx, s, &d);
+
+      if (pdeps != nullptr)
+        pdeps->push_back (move (p.normalize ()));
     }
   }
 }
@@ -129,7 +137,10 @@ generator ()
 }
 
 void generator::
-generate (options& ops, semantics::cli_unit& unit, path const& p)
+generate (options& ops,
+          semantics::cli_unit&& unit,
+          vector<path>&& deps,
+          path const& p)
 {
   if (ops.generate_group_scanner ())
     ops.generate_vector_scanner (true);
@@ -168,7 +179,47 @@ generate (options& ops, semantics::cli_unit& unit, path const& p)
       }
     }
 
+    bool gen_dep (ops.generate_dep ());
+    vector<path>* pdeps (gen_dep ? &deps : nullptr);
+    vector<path>  depts; // Dependents.
+
     fs::auto_removes auto_rm;
+
+    // gen_dep
+    //
+    // Make sure that we remove the potentially outdated dependency file if we
+    // fail to generate any source/documentation file.
+    //
+    // Note that we will write the dependency file content later, when all the
+    // dependents and dependencies are determined.
+    //
+    ofstream dep;
+
+    if (gen_dep)
+    {
+      path dep_path;
+
+      if (ops.dep_file ().empty ())
+      {
+        dep_path = path (pfx + base + sfx + ops.dep_suffix ());
+
+        if (!ops.output_dir ().empty ())
+          dep_path = path (ops.output_dir ()) / dep_path;
+      }
+      else
+        dep_path = path (ops.dep_file ());
+
+      dep.open (dep_path.string ().c_str (), ios_base::out);
+
+      if (!dep.is_open ())
+      {
+        cerr << "error: unable to open '" << dep_path << "' in write mode"
+             << endl;
+        throw failed ();
+      }
+
+      auto_rm.add (dep_path);
+    }
 
     // C++ output.
     //
@@ -235,6 +286,9 @@ generate (options& ops, semantics::cli_unit& unit, path const& p)
 
       auto_rm.add (hxx_path);
 
+      if (gen_dep)
+        depts.push_back (move (hxx_path.normalize ()));
+
       //
       //
       ofstream ixx;
@@ -251,6 +305,9 @@ generate (options& ops, semantics::cli_unit& unit, path const& p)
         }
 
         auto_rm.add (ixx_path);
+
+        if (gen_dep)
+          depts.push_back (move (ixx_path.normalize ()));
       }
 
       //
@@ -265,6 +322,9 @@ generate (options& ops, semantics::cli_unit& unit, path const& p)
       }
 
       auto_rm.add (cxx_path);
+
+      if (gen_dep)
+        depts.push_back (move (cxx_path.normalize ()));
 
       // Print headers.
       //
@@ -304,7 +364,7 @@ generate (options& ops, semantics::cli_unit& unit, path const& p)
         //
         hxx << "// Begin prologue." << endl
             << "//" << endl;
-        append (ctx, ops.hxx_prologue (), ops.hxx_prologue_file ());
+        append (ctx, ops.hxx_prologue (), ops.hxx_prologue_file (), pdeps);
         hxx << "//" << endl
             << "// End prologue." << endl
             << endl;
@@ -331,7 +391,7 @@ generate (options& ops, semantics::cli_unit& unit, path const& p)
         //
         hxx << "// Begin epilogue." << endl
             << "//" << endl;
-        append (ctx, ops.hxx_epilogue (), ops.hxx_epilogue_file ());
+        append (ctx, ops.hxx_epilogue (), ops.hxx_epilogue_file (), pdeps);
         hxx << "//" << endl
             << "// End epilogue." << endl
             << endl;
@@ -349,7 +409,7 @@ generate (options& ops, semantics::cli_unit& unit, path const& p)
         //
         ixx << "// Begin prologue." << endl
             << "//" << endl;
-        append (ctx, ops.ixx_prologue (), ops.ixx_prologue_file ());
+        append (ctx, ops.ixx_prologue (), ops.ixx_prologue_file (), pdeps);
         ixx << "//" << endl
             << "// End prologue." << endl
             << endl;
@@ -369,7 +429,7 @@ generate (options& ops, semantics::cli_unit& unit, path const& p)
         //
         ixx << "// Begin epilogue." << endl
             << "//" << endl;
-        append (ctx, ops.ixx_epilogue (), ops.ixx_epilogue_file ());
+        append (ctx, ops.ixx_epilogue (), ops.ixx_epilogue_file (), pdeps);
         ixx << "//" << endl
             << "// End epilogue." << endl;
       }
@@ -383,7 +443,7 @@ generate (options& ops, semantics::cli_unit& unit, path const& p)
         //
         cxx << "// Begin prologue." << endl
             << "//" << endl;
-        append (ctx, ops.cxx_prologue (), ops.cxx_prologue_file ());
+        append (ctx, ops.cxx_prologue (), ops.cxx_prologue_file (), pdeps);
         cxx << "//" << endl
             << "// End prologue." << endl
             << endl;
@@ -413,7 +473,7 @@ generate (options& ops, semantics::cli_unit& unit, path const& p)
         //
         cxx << "// Begin epilogue." << endl
             << "//" << endl;
-        append (ctx, ops.cxx_epilogue (), ops.cxx_epilogue_file ());
+        append (ctx, ops.cxx_epilogue (), ops.cxx_epilogue_file (), pdeps);
         cxx << "//" << endl
             << "// End epilogue." << endl
             << endl;
@@ -443,6 +503,9 @@ generate (options& ops, semantics::cli_unit& unit, path const& p)
         }
 
         auto_rm.add (man_path);
+
+        if (gen_dep)
+          depts.push_back (move (man_path.normalize ()));
       }
 
       // The explicit cast helps VC++ 8.0 overcome its issues.
@@ -452,9 +515,9 @@ generate (options& ops, semantics::cli_unit& unit, path const& p)
 
       for (bool first (true); first || ctx.toc; first = false)
       {
-        append (ctx, ops.man_prologue (), ops.man_prologue_file ());
+        append (ctx, ops.man_prologue (), ops.man_prologue_file (), pdeps);
         generate_man (ctx);
-        append (ctx, ops.man_epilogue (), ops.man_epilogue_file ());
+        append (ctx, ops.man_epilogue (), ops.man_epilogue_file (), pdeps);
 
         if (ctx.toc)
         {
@@ -492,6 +555,9 @@ generate (options& ops, semantics::cli_unit& unit, path const& p)
         }
 
         auto_rm.add (html_path);
+
+        if (gen_dep)
+          depts.push_back (move (html_path.normalize ()));
       }
 
       // The explicit cast helps VC++ 8.0 overcome its issues.
@@ -501,9 +567,9 @@ generate (options& ops, semantics::cli_unit& unit, path const& p)
 
       for (bool first (true); first || ctx.toc; first = false)
       {
-        append (ctx, ops.html_prologue (), ops.html_prologue_file ());
+        append (ctx, ops.html_prologue (), ops.html_prologue_file (), pdeps);
         generate_html (ctx);
-        append (ctx, ops.html_epilogue (), ops.html_epilogue_file ());
+        append (ctx, ops.html_epilogue (), ops.html_epilogue_file (), pdeps);
 
         if (ctx.toc)
         {
@@ -538,6 +604,9 @@ generate (options& ops, semantics::cli_unit& unit, path const& p)
         }
 
         auto_rm.add (txt_path);
+
+        if (gen_dep)
+          depts.push_back (move (txt_path.normalize ()));
       }
 
       // The explicit cast helps VC++ 8.0 overcome its issues.
@@ -547,9 +616,9 @@ generate (options& ops, semantics::cli_unit& unit, path const& p)
 
       for (bool first (true); first || ctx.toc; first = false)
       {
-        append (ctx, ops.txt_prologue (), ops.txt_prologue_file ());
+        append (ctx, ops.txt_prologue (), ops.txt_prologue_file (), pdeps);
         generate_txt (ctx);
-        append (ctx, ops.txt_epilogue (), ops.txt_epilogue_file ());
+        append (ctx, ops.txt_epilogue (), ops.txt_epilogue_file (), pdeps);
 
         if (ctx.toc)
         {
@@ -559,6 +628,49 @@ generate (options& ops, semantics::cli_unit& unit, path const& p)
       }
 
       ctx.verify_id_ref ();
+    }
+
+    // gen_dep
+    //
+    if (gen_dep)
+    {
+      // Write the specified path to the dependencies file stream, escaping
+      // colons and backslashes.
+      //
+      auto write = [&dep] (path const& p)
+      {
+        for (char c: p.string ())
+        {
+          if (c == ':' || c == '\\')
+            dep << '\\';
+
+          dep << c;
+        }
+      };
+
+      // Note that we don't add the dependency file as a dependent, but in the
+      // future may invent some option which triggers that.
+      //
+      bool first (true);
+      for (const auto& p: depts)
+      {
+        if (!first)
+          dep << " \\" << endl;
+        else
+          first = false;
+
+        write (p);
+      }
+
+      dep << ':';
+
+      for (const auto& p: deps)
+      {
+        dep << " \\" << endl
+            << "  "; write (p);
+      }
+
+      dep << endl;
     }
 
     auto_rm.cancel ();

@@ -736,6 +736,7 @@ options ()
   generate_man_ (),
   generate_html_ (),
   generate_txt_ (),
+  generate_dep_ (),
   stdout__ (),
   suppress_undocumented_ (),
   suppress_usage_ (),
@@ -825,6 +826,10 @@ options ()
   html_suffix_specified_ (false),
   txt_suffix_ (".txt"),
   txt_suffix_specified_ (false),
+  dep_suffix_ (".d"),
+  dep_suffix_specified_ (false),
+  dep_file_ (),
+  dep_file_specified_ (false),
   option_prefix_ ("-"),
   option_prefix_specified_ (false),
   option_separator_ ("--"),
@@ -880,6 +885,7 @@ options (int& argc,
   generate_man_ (),
   generate_html_ (),
   generate_txt_ (),
+  generate_dep_ (),
   stdout__ (),
   suppress_undocumented_ (),
   suppress_usage_ (),
@@ -969,6 +975,10 @@ options (int& argc,
   html_suffix_specified_ (false),
   txt_suffix_ (".txt"),
   txt_suffix_specified_ (false),
+  dep_suffix_ (".d"),
+  dep_suffix_specified_ (false),
+  dep_file_ (),
+  dep_file_specified_ (false),
   option_prefix_ ("-"),
   option_prefix_specified_ (false),
   option_separator_ ("--"),
@@ -1027,6 +1037,7 @@ options (int start,
   generate_man_ (),
   generate_html_ (),
   generate_txt_ (),
+  generate_dep_ (),
   stdout__ (),
   suppress_undocumented_ (),
   suppress_usage_ (),
@@ -1116,6 +1127,10 @@ options (int start,
   html_suffix_specified_ (false),
   txt_suffix_ (".txt"),
   txt_suffix_specified_ (false),
+  dep_suffix_ (".d"),
+  dep_suffix_specified_ (false),
+  dep_file_ (),
+  dep_file_specified_ (false),
   option_prefix_ ("-"),
   option_prefix_specified_ (false),
   option_separator_ ("--"),
@@ -1174,6 +1189,7 @@ options (int& argc,
   generate_man_ (),
   generate_html_ (),
   generate_txt_ (),
+  generate_dep_ (),
   stdout__ (),
   suppress_undocumented_ (),
   suppress_usage_ (),
@@ -1263,6 +1279,10 @@ options (int& argc,
   html_suffix_specified_ (false),
   txt_suffix_ (".txt"),
   txt_suffix_specified_ (false),
+  dep_suffix_ (".d"),
+  dep_suffix_specified_ (false),
+  dep_file_ (),
+  dep_file_specified_ (false),
   option_prefix_ ("-"),
   option_prefix_specified_ (false),
   option_separator_ ("--"),
@@ -1323,6 +1343,7 @@ options (int start,
   generate_man_ (),
   generate_html_ (),
   generate_txt_ (),
+  generate_dep_ (),
   stdout__ (),
   suppress_undocumented_ (),
   suppress_usage_ (),
@@ -1412,6 +1433,10 @@ options (int start,
   html_suffix_specified_ (false),
   txt_suffix_ (".txt"),
   txt_suffix_specified_ (false),
+  dep_suffix_ (".d"),
+  dep_suffix_specified_ (false),
+  dep_file_ (),
+  dep_file_specified_ (false),
   option_prefix_ ("-"),
   option_prefix_specified_ (false),
   option_separator_ ("--"),
@@ -1468,6 +1493,7 @@ options (::cli::scanner& s,
   generate_man_ (),
   generate_html_ (),
   generate_txt_ (),
+  generate_dep_ (),
   stdout__ (),
   suppress_undocumented_ (),
   suppress_usage_ (),
@@ -1557,6 +1583,10 @@ options (::cli::scanner& s,
   html_suffix_specified_ (false),
   txt_suffix_ (".txt"),
   txt_suffix_specified_ (false),
+  dep_suffix_ (".d"),
+  dep_suffix_specified_ (false),
+  dep_file_ (),
+  dep_file_specified_ (false),
   option_prefix_ ("-"),
   option_prefix_specified_ (false),
   option_separator_ ("--"),
@@ -1642,6 +1672,8 @@ print_usage (::std::ostream& os, ::cli::usage_para p)
 
   os << "--generate-txt               Generate documentation in the plain text format," << ::std::endl
      << "                             similar to usage." << ::std::endl;
+
+  os << "--generate-dep               Generate make dependency information." << ::std::endl;
 
   os << "--stdout                     Write output to STDOUT instead of a file." << ::std::endl;
 
@@ -1793,6 +1825,13 @@ print_usage (::std::ostream& os, ::cli::usage_para p)
   os << "--txt-suffix <suffix>        Use <suffix> instead of the default .txt to" << ::std::endl
      << "                             construct the name of the generated text file." << ::std::endl;
 
+  os << "--dep-suffix <suffix>        Use <suffix> instead of the default .d to" << ::std::endl
+     << "                             construct the name of the generated dependency" << ::std::endl
+     << "                             file." << ::std::endl;
+
+  os << "--dep-file <path>            Use <path> as the generated dependency file path" << ::std::endl
+     << "                             instead of deriving it from the input file name." << ::std::endl;
+
   os << "--option-prefix <prefix>     Use <prefix> instead of the default '-' as an" << ::std::endl
      << "                             option prefix." << ::std::endl;
 
@@ -1898,6 +1937,8 @@ struct _cli_options_map_init
     &::cli::thunk< options, &options::generate_html_ >;
     _cli_options_map_["--generate-txt"] =
     &::cli::thunk< options, &options::generate_txt_ >;
+    _cli_options_map_["--generate-dep"] =
+    &::cli::thunk< options, &options::generate_dep_ >;
     _cli_options_map_["--stdout"] =
     &::cli::thunk< options, &options::stdout__ >;
     _cli_options_map_["--suppress-undocumented"] =
@@ -2040,6 +2081,12 @@ struct _cli_options_map_init
     _cli_options_map_["--txt-suffix"] =
     &::cli::thunk< options, std::string, &options::txt_suffix_,
       &options::txt_suffix_specified_ >;
+    _cli_options_map_["--dep-suffix"] =
+    &::cli::thunk< options, std::string, &options::dep_suffix_,
+      &options::dep_suffix_specified_ >;
+    _cli_options_map_["--dep-file"] =
+    &::cli::thunk< options, std::string, &options::dep_file_,
+      &options::dep_file_specified_ >;
     _cli_options_map_["--option-prefix"] =
     &::cli::thunk< options, std::string, &options::option_prefix_,
       &options::option_prefix_specified_ >;

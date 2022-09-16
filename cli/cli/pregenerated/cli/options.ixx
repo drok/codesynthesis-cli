@@ -775,6 +775,24 @@ generate_txt (const bool& x)
 }
 
 inline const bool& options::
+generate_dep () const
+{
+  return this->generate_dep_;
+}
+
+inline bool& options::
+generate_dep ()
+{
+  return this->generate_dep_;
+}
+
+inline void options::
+generate_dep (const bool& x)
+{
+  this->generate_dep_ = x;
+}
+
+inline const bool& options::
 stdout_ () const
 {
   return this->stdout__;
@@ -2140,6 +2158,66 @@ inline void options::
 txt_suffix_specified (bool x)
 {
   this->txt_suffix_specified_ = x;
+}
+
+inline const std::string& options::
+dep_suffix () const
+{
+  return this->dep_suffix_;
+}
+
+inline std::string& options::
+dep_suffix ()
+{
+  return this->dep_suffix_;
+}
+
+inline void options::
+dep_suffix (const std::string& x)
+{
+  this->dep_suffix_ = x;
+}
+
+inline bool options::
+dep_suffix_specified () const
+{
+  return this->dep_suffix_specified_;
+}
+
+inline void options::
+dep_suffix_specified (bool x)
+{
+  this->dep_suffix_specified_ = x;
+}
+
+inline const std::string& options::
+dep_file () const
+{
+  return this->dep_file_;
+}
+
+inline std::string& options::
+dep_file ()
+{
+  return this->dep_file_;
+}
+
+inline void options::
+dep_file (const std::string& x)
+{
+  this->dep_file_ = x;
+}
+
+inline bool options::
+dep_file_specified () const
+{
+  return this->dep_file_specified_;
+}
+
+inline void options::
+dep_file_specified (bool x)
+{
+  this->dep_file_specified_ = x;
 }
 
 inline const std::string& options::

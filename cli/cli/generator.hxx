@@ -5,6 +5,8 @@
 #ifndef CLI_GENERATOR_HXX
 #define CLI_GENERATOR_HXX
 
+#include <vector>
+
 #include <cli/options.hxx>
 #include <cli/semantics/unit.hxx>
 
@@ -16,7 +18,10 @@ public:
   class failed {};
 
   void
-  generate (options&, semantics::cli_unit&, semantics::path const&);
+  generate (options&,
+            semantics::cli_unit&&,
+            std::vector<semantics::path>&& dependencies,
+            semantics::path const&);
 
 private:
   generator (generator const&);

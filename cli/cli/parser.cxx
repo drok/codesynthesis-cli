@@ -17,6 +17,7 @@
 
 #include <fstream>
 #include <sstream>
+#include <utility>  // move()
 #include <iostream>
 
 #include <cli/token.hxx>
@@ -66,7 +67,7 @@ const char* punctuation[] = {
 
 // Output the token type and value in a format suitable for diagnostics.
 //
-std::ostream&
+static std::ostream&
 operator<< (std::ostream& os, token const& t)
 {
   switch (t.type ())
@@ -184,7 +185,7 @@ recover (token& t)
   }
 }
 
-unique_ptr<cli_unit> parser::
+parser::parse_result parser::
 parse (std::istream& is, path const& p)
 {
   unique_ptr<cli_unit> unit (new cli_unit (p, 1, 1));
@@ -193,7 +194,10 @@ parse (std::istream& is, path const& p)
     path ap (p);
     ap.complete ();
     ap.normalize ();
-    include_map_[ap] = unit.get ();
+    include_map_[move (ap)] = unit.get ();
+
+    if (collect_dependencies_)
+      dependencies_.push_back (path (p).normalize ());
   }
 
   root_ = cur_ = unit.get ();
@@ -211,7 +215,7 @@ parse (std::istream& is, path const& p)
   if (!valid_ || !l.valid ())
     throw invalid_input ();
 
-  return unit;
+  return parse_result {move (unit), move (dependencies_)};
 }
 
 void parser::
@@ -350,6 +354,16 @@ source_decl ()
 
     if (valid_)
     {
+      if (collect_dependencies_)
+      {
+        path ap (p);
+        ap.complete ();
+        ap.normalize ();
+
+        if (include_map_.emplace (move (ap), nullptr).second)
+          dependencies_.push_back (p);
+      }
+
       auto_restore<path const> new_path (path_, &p);
 
       ifstream ifs (p.string ().c_str ());
@@ -472,11 +486,14 @@ include_decl ()
         ap.normalize ();
 
         include_map::iterator it (include_map_.find (ap));
-        if (it == include_map_.end ())
+        if (it == include_map_.end () || it->second == nullptr)
         {
+          if (collect_dependencies_ && it == include_map_.end ())
+            dependencies_.push_back (p);
+
           cli_unit& n (root_->new_node<cli_unit> (p, 1, 1));
           root_->new_edge<cli_includes> (*cur_, n, ik, f);
-          include_map_[ap] = &n;
+          include_map_[move (ap)] = &n;
 
           auto_restore<cli_unit> new_cur (cur_, &n);
           auto_restore<path const> new_path (path_, &p);

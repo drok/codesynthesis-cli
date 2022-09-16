@@ -169,6 +169,15 @@ Generate documentation in the man page format\.
 Generate documentation in the HTML format\.
 .IP "\fB--generate-txt\fR"
 Generate documentation in the plain text format, similar to usage\.
+.IP "\fB--generate-dep\fR"
+Generate \fBmake\fR dependency information\. This option triggers the creation
+of the \fB\.d\fR file containing the dependencies of the generated files on
+the main \fB\.cli\fR file as well as all the \fB\.cli\fR files that it
+includes or sources, transitively\. Paths specified with the
+\fB--*-prologue-file\fR and \fB--*-epilogue-file\fR options are also added as
+dependencies\. Note, however, that paths specified with the
+\fB--options-file\fR option are not added (since they may or may not contain
+options that affect the output)\.
 .IP "\fB--stdout\fR"
 Write output to STDOUT instead of a file\. This option is not valid when
 generating C++ code and is normally used to combine generated documentation
@@ -348,6 +357,12 @@ the generated HTML file\.
 .IP "\fB--txt-suffix\fR \fIsuffix\fR"
 Use \fIsuffix\fR instead of the default \fB\.txt\fR to construct the name of
 the generated text file\.
+.IP "\fB--dep-suffix\fR \fIsuffix\fR"
+Use \fIsuffix\fR instead of the default \fB\.d\fR to construct the name of the
+generated dependency file\. See also \fB--dep-file\fR\.
+.IP "\fB--dep-file\fR \fIpath\fR"
+Use \fIpath\fR as the generated dependency file path instead of deriving it
+from the input file name\.
 .IP "\fB--option-prefix\fR \fIprefix\fR"
 Use \fIprefix\fR instead of the default '\fB-\fR' as an option prefix\.
 Unknown command line arguments that start with this prefix are treated as

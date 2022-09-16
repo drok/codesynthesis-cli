@@ -7,6 +7,7 @@
 #include <cstring>  // strncmp()
 #include <fstream>
 #include <sstream>
+#include <utility>  // move()
 #include <iostream>
 
 #include <cli/context.hxx>

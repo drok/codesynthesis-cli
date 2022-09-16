@@ -213,6 +213,18 @@ arg+{ --foo }  # 'arg+{' ...</pre>
     <dd>Generate documentation in the plain text format, similar to
     usage.</dd>
 
+    <dt><code><b>--generate-dep</b></code></dt>
+    <dd>Generate <code><b>make</b></code> dependency information. This option
+    triggers the creation of the <code><b>.d</b></code> file containing the
+    dependencies of the generated files on the main <code><b>.cli</b></code>
+    file as well as all the <code><b>.cli</b></code> files that it includes or
+    sources, transitively. Paths specified with the
+    <code><b>--*-prologue-file</b></code> and
+    <code><b>--*-epilogue-file</b></code> options are also added as
+    dependencies. Note, however, that paths specified with the
+    <code><b>--options-file</b></code> option are not added (since they may or
+    may not contain options that affect the output).</dd>
+
     <dt><code><b>--stdout</b></code></dt>
     <dd>Write output to STDOUT instead of a file. This option is not valid
     when generating C++ code and is normally used to combine generated
@@ -484,6 +496,15 @@ arg+{ --foo }  # 'arg+{' ...</pre>
     <dd>Use <code><i>suffix</i></code> instead of the default
     <code><b>.txt</b></code> to construct the name of the generated text
     file.</dd>
+
+    <dt><code><b>--dep-suffix</b></code> <code><i>suffix</i></code></dt>
+    <dd>Use <code><i>suffix</i></code> instead of the default
+    <code><b>.d</b></code> to construct the name of the generated dependency
+    file. See also <code><b>--dep-file</b></code>.</dd>
+
+    <dt><code><b>--dep-file</b></code> <code><i>path</i></code></dt>
+    <dd>Use <code><i>path</i></code> as the generated dependency file path
+    instead of deriving it from the input file name.</dd>
 
     <dt><code><b>--option-prefix</b></code> <code><i>prefix</i></code></dt>
     <dd>Use <code><i>prefix</i></code> instead of the default

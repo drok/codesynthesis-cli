@@ -6,6 +6,7 @@
 #include <string>
 #include <memory>   // unique_ptr
 #include <fstream>
+#include <utility>  // move()
 #include <iostream>
 
 #include <libcutl/compiler/code-stream.hxx>
@@ -121,8 +122,9 @@ main (int argc, char* argv[])
 
     // Parse and generate.
     //
-    parser p (include_paths);
-    unique_ptr<semantics::cli_unit> unit (p.parse (ifs, path));
+    parser p (include_paths, ops.generate_dep ());
+    parser::parse_result r (p.parse (ifs, path));
+    unique_ptr<semantics::cli_unit>& unit (r.unit);
 
     // Merge documentation variables from the command line.
     //
@@ -143,7 +145,7 @@ main (int argc, char* argv[])
     }
 
     generator g;
-    g.generate (ops, *unit, path);
+    g.generate (ops, move (*unit), move (r.dependencies), path);
   }
   catch (cli::exception const& ex)
   {

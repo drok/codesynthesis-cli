@@ -725,6 +725,15 @@ class options
   generate_txt (const bool&);
 
   const bool&
+  generate_dep () const;
+
+  bool&
+  generate_dep ();
+
+  void
+  generate_dep (const bool&);
+
+  const bool&
   stdout_ () const;
 
   bool&
@@ -1409,6 +1418,36 @@ class options
   txt_suffix_specified (bool);
 
   const std::string&
+  dep_suffix () const;
+
+  std::string&
+  dep_suffix ();
+
+  void
+  dep_suffix (const std::string&);
+
+  bool
+  dep_suffix_specified () const;
+
+  void
+  dep_suffix_specified (bool);
+
+  const std::string&
+  dep_file () const;
+
+  std::string&
+  dep_file ();
+
+  void
+  dep_file (const std::string&);
+
+  bool
+  dep_file_specified () const;
+
+  void
+  dep_file_specified (bool);
+
+  const std::string&
   option_prefix () const;
 
   std::string&
@@ -1583,6 +1622,7 @@ class options
   bool generate_man_;
   bool generate_html_;
   bool generate_txt_;
+  bool generate_dep_;
   bool stdout__;
   bool suppress_undocumented_;
   bool suppress_usage_;
@@ -1672,6 +1712,10 @@ class options
   bool html_suffix_specified_;
   std::string txt_suffix_;
   bool txt_suffix_specified_;
+  std::string dep_suffix_;
+  bool dep_suffix_specified_;
+  std::string dep_file_;
+  bool dep_file_specified_;
   std::string option_prefix_;
   bool option_prefix_specified_;
   std::string option_separator_;

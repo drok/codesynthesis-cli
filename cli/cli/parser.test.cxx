@@ -32,7 +32,7 @@ main (int argc, char* argv[])
     ifs.open (path.string ().c_str ());
 
     parser::paths include_paths;
-    parser p (include_paths);
+    parser p (include_paths, true /* collect_dependencies */);
     p.parse (ifs, path);
   }
   catch (semantics::invalid_path const& e)

@@ -23,11 +23,23 @@ class parser
 public:
   typedef std::vector<semantics::path> paths;
 
-  parser (paths const& include_paths): include_paths_ (include_paths) {}
+  parser (paths const& include_paths, bool collect_dependencies)
+      : include_paths_ (include_paths),
+        collect_dependencies_ (collect_dependencies) {}
 
   struct invalid_input {};
 
-  std::unique_ptr<semantics::cli_unit>
+  struct parse_result
+  {
+    std::unique_ptr<semantics::cli_unit> unit;
+
+    // Normalized paths of the main CLI file and files it includes and sources
+    // recursively, with the duplicates suppressed.
+    //
+    paths dependencies;
+  };
+
+  parse_result
   parse (std::istream& is, semantics::path const& path);
 
 private:
@@ -72,6 +84,7 @@ private:
 
 private:
   paths const include_paths_;
+  bool collect_dependencies_;
 
   bool valid_;
   semantics::path const* path_;
@@ -84,8 +97,12 @@ private:
 
   std::size_t doc_count_; // Scope doc counter, see scope_doc() for details.
 
+  // If the entry's value is NULL, then the key refers to a sourced file.
+  //
   typedef std::map<semantics::path, semantics::cli_unit*> include_map;
   include_map include_map_;
+
+  paths dependencies_;
 };
 
 #endif // CLI_PARSER_HXX
