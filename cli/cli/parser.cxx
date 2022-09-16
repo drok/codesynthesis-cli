@@ -191,7 +191,7 @@ parse (std::istream& is, path const& p)
 
   {
     path ap (p);
-    ap.absolute ();
+    ap.complete ();
     ap.normalize ();
     include_map_[ap] = unit.get ();
   }
@@ -468,7 +468,7 @@ include_decl ()
         // Detect and ignore multiple inclusions.
         //
         path ap (p);
-        ap.absolute ();
+        ap.complete ();
         ap.normalize ();
 
         include_map::iterator it (include_map_.find (ap));
