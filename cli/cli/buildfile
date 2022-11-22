@@ -116,7 +116,7 @@ if $develop
             --generate-specifier --generate-modifier       \
             --suppress-undocumented --reserved-name stdout
 
-  diag cli ($<[0])
+  diag cli ($<[0]) -> $>
   ($<[1]) $options -o $out_base $path($<[0])
 
   # If the result differs from the bootstrap version, copy it over and

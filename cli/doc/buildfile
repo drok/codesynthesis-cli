@@ -73,7 +73,7 @@ man1{cli}: ../cli/cli{options} file{cli-prologue.1 cli-epilogue.1}
 %
 if $develop
 {{
-  diag cli --man ($<[1])
+  diag 'cli --man' ($<[1]) -> $>
 
   # Use the copyright year to approximate the last authoring date.
   #
@@ -96,7 +96,7 @@ xhtml{cli}: ../cli/cli{options} file{cli-prologue.xhtml cli-epilogue.xhtml}
 %
 if $develop
 {{
-  diag cli --html ($<[1])
+  diag 'cli --html' ($<[1]) -> $>
 
   ($<[0]) --generate-html $man_options      \
           --html-prologue-file $path($<[2]) \
@@ -177,7 +177,7 @@ if $html2pdf
 {{
   options =
 
-  diag html2ps ($<[0])
+  diag html2ps ($<[0]) -> $>
   $html2ps $options -f $path($<[1]) -o $path($>) $path($<[0])
 
   cp --no-cleanup $path($>) $src_base/pregenerated/cli-guide.ps
@@ -189,7 +189,7 @@ if $html2pdf
 {{
   options = -dOptimize=true -dEmbedAllFonts=true
 
-  diag ps2pdf ($<[0])
+  diag ps2pdf ($<[0]) -> $>
   $ps2pdf $options $path($<[0]) $path($>)
 
   cp --no-cleanup $path($>) $src_base/pregenerated/cli-guide.pdf
