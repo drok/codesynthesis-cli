@@ -5,12 +5,12 @@
 #ifndef CLI_SEMANTICS_HXX
 #define CLI_SEMANTICS_HXX
 
-#include <cli/semantics/class.hxx>
-#include <cli/semantics/doc.hxx>
-#include <cli/semantics/elements.hxx>
-#include <cli/semantics/expression.hxx>
-#include <cli/semantics/namespace.hxx>
-#include <cli/semantics/option.hxx>
-#include <cli/semantics/unit.hxx>
+#include "semantics/class.hxx"
+#include "semantics/doc.hxx"
+#include "semantics/elements.hxx"
+#include "semantics/expression.hxx"
+#include "semantics/namespace.hxx"
+#include "semantics/option.hxx"
+#include "semantics/unit.hxx"
 
 #endif // CLI_SEMANTICS_HXX

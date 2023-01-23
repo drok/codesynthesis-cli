@@ -5,7 +5,7 @@
 #ifndef CLI_SOURCE_HXX
 #define CLI_SOURCE_HXX
 
-#include <cli/context.hxx>
+#include "context.hxx"
 
 void
 generate_source (context&);

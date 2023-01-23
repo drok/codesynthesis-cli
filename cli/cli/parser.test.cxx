@@ -5,9 +5,9 @@
 #include <fstream>
 #include <iostream>
 
-#include <cli/parser.hxx>
-#include <cli/semantics.hxx>
-#include <cli/traversal.hxx>
+#include "parser.hxx"
+#include "semantics.hxx"
+#include "traversal.hxx"
 
 #undef NDEBUG
 #include <cassert>

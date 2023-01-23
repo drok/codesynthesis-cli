@@ -12,8 +12,8 @@
 #include <cstddef> // size_t
 #include <istream>
 
-#include <cli/semantics/elements.hxx>
-#include <cli/semantics/unit.hxx>
+#include "semantics/elements.hxx"
+#include "semantics/unit.hxx"
 
 class token;
 class lexer;

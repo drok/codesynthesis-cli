@@ -4,8 +4,8 @@
 
 #include <iostream>
 
-#include <cli/source.hxx>
-#include <cli/txt.hxx>    // txt_size(), txt_wrap_lines()
+#include "source.hxx"
+#include "txt.hxx"    // txt_size(), txt_wrap_lines()
 
 using namespace std;
 

@@ -10,7 +10,7 @@
 #include <utility>  // move()
 #include <iostream>
 
-#include <cli/context.hxx>
+#include "context.hxx"
 
 using namespace std;
 

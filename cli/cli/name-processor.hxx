@@ -5,7 +5,7 @@
 #ifndef CLI_NAME_PROCESSOR_HXX
 #define CLI_NAME_PROCESSOR_HXX
 
-#include <cli/context.hxx>
+#include "context.hxx"
 
 void
 process_names (context&);

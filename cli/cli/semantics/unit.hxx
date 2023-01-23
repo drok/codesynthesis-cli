@@ -9,8 +9,8 @@
 #include <vector>
 #include <string>
 
-#include <cli/semantics/elements.hxx>
-#include <cli/semantics/namespace.hxx>
+#include "elements.hxx"
+#include "namespace.hxx"
 
 namespace semantics
 {
@@ -305,6 +305,6 @@ namespace semantics
   };
 }
 
-#include <cli/semantics/unit.txx>
+#include "unit.txx"
 
 #endif // CLI_SEMANTICS_UNIT_HXX

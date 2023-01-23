@@ -11,18 +11,22 @@
 
 #include <libcutl/compiler/code-stream.hxx>
 
-#include <cli/semantics/doc.hxx>
+#include "semantics/doc.hxx"
 
-#include <cli/options.hxx>
-#include <cli/parser.hxx>
-#include <cli/generator.hxx>
+#include "pregenerated/cli/options.hxx"
+#include "parser.hxx"
+#include "generator.hxx"
 
-#ifndef CLI_BOOTSTRAP
-#  include <cli/version.hxx>
+#ifdef HAVE_CONFIG_H
+#include "config.h"
 #else
-#  define CLI_VERSION_ID 0
-#  define CLI_VERSION_FULL 0
-#  define CLI_COPYRIGHT ""
+  #ifndef CLI_BOOTSTRAP
+  #  include "version.hxx"
+  #else
+  #  define CLI_VERSION_ID 0
+  #  define CLI_VERSION_FULL 0
+  #  define CLI_COPYRIGHT ""
+  #endif
 #endif
 
 using namespace std;

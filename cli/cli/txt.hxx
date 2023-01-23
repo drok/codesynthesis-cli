@@ -9,7 +9,7 @@
 #include <string>
 #include <cstddef> // size_t
 
-#include <cli/context.hxx>
+#include "context.hxx"
 
 void
 generate_txt (context&);

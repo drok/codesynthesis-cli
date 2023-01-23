@@ -7,7 +7,7 @@
 
 #include <libcutl/compiler/traversal.hxx>
 
-#include <cli/semantics/elements.hxx>
+#include "../semantics/elements.hxx"
 
 namespace traversal
 {

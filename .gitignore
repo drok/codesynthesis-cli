@@ -1,1 +1,5 @@
 .bdep/
+Makefile
+/config.h
+/config
+

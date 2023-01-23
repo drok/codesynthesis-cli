@@ -5,8 +5,8 @@
 #ifndef CLI_TRAVERSAL_EXPRESSION_HXX
 #define CLI_TRAVERSAL_EXPRESSION_HXX
 
-#include <cli/traversal/elements.hxx>
-#include <cli/semantics/expression.hxx>
+#include "elements.hxx"
+#include "../semantics/expression.hxx"
 
 namespace traversal
 {

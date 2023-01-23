@@ -20,11 +20,11 @@
 #include <utility>  // move()
 #include <iostream>
 
-#include <cli/token.hxx>
-#include <cli/lexer.hxx>
-#include <cli/parser.hxx>
+#include "token.hxx"
+#include "lexer.hxx"
+#include "parser.hxx"
 
-#include <cli/semantics.hxx>
+#include "semantics.hxx"
 
 using namespace std;
 using namespace semantics;

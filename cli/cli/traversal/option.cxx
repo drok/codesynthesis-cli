@@ -2,8 +2,8 @@
 // author    : Boris Kolpackov <boris@codesynthesis.com>
 // license   : MIT; see accompanying LICENSE file
 
-#include <cli/traversal/option.hxx>
-#include <cli/traversal/expression.hxx>
+#include "option.hxx"
+#include "expression.hxx"
 
 namespace traversal
 {

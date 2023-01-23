@@ -13,21 +13,21 @@
 #include <libcutl/compiler/code-stream.hxx>
 #include <libcutl/compiler/cxx-indenter.hxx>
 
-#include <cli/header.hxx>
-#include <cli/inline.hxx>
-#include <cli/source.hxx>
+#include "header.hxx"
+#include "inline.hxx"
+#include "source.hxx"
 
-#include <cli/runtime-header.hxx>
-#include <cli/runtime-inline.hxx>
-#include <cli/runtime-source.hxx>
+#include "runtime-header.hxx"
+#include "runtime-inline.hxx"
+#include "runtime-source.hxx"
 
-#include <cli/man.hxx>
-#include <cli/html.hxx>
-#include <cli/txt.hxx>
+#include "man.hxx"
+#include "html.hxx"
+#include "txt.hxx"
 
-#include <cli/context.hxx>
-#include <cli/generator.hxx>
-#include <cli/name-processor.hxx>
+#include "context.hxx"
+#include "generator.hxx"
+#include "name-processor.hxx"
 
 using namespace std;
 using namespace cutl;

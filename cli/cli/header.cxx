@@ -2,7 +2,7 @@
 // author    : Boris Kolpackov <boris@codesynthesis.com>
 // license   : MIT; see accompanying LICENSE file
 
-#include <cli/header.hxx>
+#include "header.hxx"
 
 using namespace std;
 

@@ -2,7 +2,7 @@
 // author    : Boris Kolpackov <boris@codesynthesis.com>
 // license   : MIT; see accompanying LICENSE file
 
-#include <cli/runtime-header.hxx>
+#include "runtime-header.hxx"
 
 using namespace std;
 

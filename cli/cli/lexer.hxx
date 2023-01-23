@@ -11,7 +11,7 @@
 #include <cstddef> // std::size_t
 #include <istream>
 
-#include <cli/token.hxx>
+#include "token.hxx"
 
 class lexer
 {
@@ -137,6 +137,6 @@ private:
   bool unget_;
 };
 
-#include <cli/lexer.ixx>
+#include "lexer.ixx"
 
 #endif // CLI_LEXER_HXX

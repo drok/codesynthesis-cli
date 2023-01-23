@@ -5,7 +5,7 @@
 #ifndef CLI_RUNTIME_HEADER_HXX
 #define CLI_RUNTIME_HEADER_HXX
 
-#include <cli/context.hxx>
+#include "context.hxx"
 
 void
 generate_runtime_header (context&);

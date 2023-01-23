@@ -6,7 +6,7 @@
 #include <cstring>  // strlen()
 #include <iostream>
 
-#include <cli/txt.hxx>
+#include "txt.hxx"
 
 using namespace std;
 

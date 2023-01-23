@@ -7,7 +7,7 @@
 
 #include <vector>
 
-#include <cli/semantics/elements.hxx>
+#include "elements.hxx"
 
 namespace semantics
 {

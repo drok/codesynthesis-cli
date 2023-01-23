@@ -4,7 +4,7 @@
 
 #include <libcutl/compiler/type-info.hxx>
 
-#include <cli/semantics/option.hxx>
+#include "option.hxx"
 
 namespace semantics
 {

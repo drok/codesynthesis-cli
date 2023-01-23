@@ -130,6 +130,6 @@ private:
   std::string str_;
 };
 
-#include <cli/token.ixx>
+#include "token.ixx"
 
 #endif // CLI_TOKEN_HXX

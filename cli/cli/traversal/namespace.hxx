@@ -5,8 +5,8 @@
 #ifndef CLI_TRAVERSAL_NAMESPACE_HXX
 #define CLI_TRAVERSAL_NAMESPACE_HXX
 
-#include <cli/traversal/elements.hxx>
-#include <cli/semantics/namespace.hxx>
+#include "elements.hxx"
+#include "../semantics/namespace.hxx"
 
 namespace traversal
 {

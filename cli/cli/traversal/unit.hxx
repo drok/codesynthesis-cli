@@ -5,8 +5,8 @@
 #ifndef CLI_TRAVERSAL_UNIT_HXX
 #define CLI_TRAVERSAL_UNIT_HXX
 
-#include <cli/traversal/elements.hxx>
-#include <cli/semantics/unit.hxx>
+#include "elements.hxx"
+#include "../semantics/unit.hxx"
 
 namespace traversal
 {

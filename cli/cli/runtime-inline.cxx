@@ -2,7 +2,7 @@
 // author    : Boris Kolpackov <boris@codesynthesis.com>
 // license   : MIT; see accompanying LICENSE file
 
-#include <cli/runtime-inline.hxx>
+#include "runtime-inline.hxx"
 
 using namespace std;
 

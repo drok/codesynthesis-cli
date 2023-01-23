@@ -2,7 +2,7 @@
 // author    : Boris Kolpackov <boris@codesynthesis.com>
 // license   : MIT; see accompanying LICENSE file
 
-#include <cli/traversal/namespace.hxx>
+#include "namespace.hxx"
 
 namespace traversal
 {

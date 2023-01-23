@@ -434,7 +434,7 @@ namespace cli
 
 #include <cstdint>
 
-#include <cli/option-types.hxx>
+#include "../../option-types.hxx"
 
 class options
 {
@@ -1734,7 +1734,7 @@ class options
   bool options_file_specified_;
 };
 
-#include <cli/options.ixx>
+#include "options.ixx"
 
 // Begin epilogue.
 //

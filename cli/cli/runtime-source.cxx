@@ -2,7 +2,7 @@
 // author    : Boris Kolpackov <boris@codesynthesis.com>
 // license   : MIT; see accompanying LICENSE file
 
-#include <cli/runtime-source.hxx>
+#include "runtime-source.hxx"
 
 using namespace std;
 

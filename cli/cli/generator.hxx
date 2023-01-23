@@ -7,8 +7,8 @@
 
 #include <vector>
 
-#include <cli/options.hxx>
-#include <cli/semantics/unit.hxx>
+#include "pregenerated/cli/options.hxx"
+#include "semantics/unit.hxx"
 
 class generator
 {

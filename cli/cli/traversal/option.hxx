@@ -5,8 +5,8 @@
 #ifndef CLI_TRAVERSAL_OPTION_HXX
 #define CLI_TRAVERSAL_OPTION_HXX
 
-#include <cli/traversal/elements.hxx>
-#include <cli/semantics/option.hxx>
+#include "elements.hxx"
+#include "../semantics/option.hxx"
 
 namespace traversal
 {

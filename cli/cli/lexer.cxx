@@ -4,7 +4,7 @@
 
 #include <iostream>
 
-#include <cli/lexer.hxx>
+#include "lexer.hxx"
 
 using namespace std;
 

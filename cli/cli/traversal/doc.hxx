@@ -5,8 +5,8 @@
 #ifndef CLI_TRAVERSAL_DOC_HXX
 #define CLI_TRAVERSAL_DOC_HXX
 
-#include <cli/traversal/elements.hxx>
-#include <cli/semantics/doc.hxx>
+#include "elements.hxx"
+#include "../semantics/doc.hxx"
 
 namespace traversal
 {
